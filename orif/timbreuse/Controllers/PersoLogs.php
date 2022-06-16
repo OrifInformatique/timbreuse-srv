@@ -9,6 +9,7 @@ use Psr\Log\LoggerInterface;
 use Timbreuse\Models\BadgesModel;
 use Timbreuse\Models\LogsModel;
 use Timbreuse\Models\UsersModel;
+use CodeIgniter\I18n\Time;
 
 class PersoLogs extends BaseController
 {
@@ -19,30 +20,36 @@ class PersoLogs extends BaseController
         $this->session=\Config\Services::session();
     }
 
-    public function index($arg)
-    {
-        return $this->perso_logs_list($arg);
-    }
 
-	public function perso_logs_list($userId=92)
+	public function perso_logs_list($userId, $day=null)
 	{
+        $day = Time::parse('2022-05-20', 'Europe/Zurich');
         $badgesModel = model(BadgesModel::class);
         $logsModel = model(LogsModel::class);
         $usersModel = model(UsersModel::class);
 		$data['title'] = "Welcome";
         $badgeId = $badgesModel->get_badges($userId);
         $logs = $logsModel->get_logs($badgeId);
+        $user = $usersModel->get_users($userId);
 
 		/**
          * Display a test of the generic "items_list" view (defined in common module)
          */
-		$data['list_title'] = "Test tout les logs d'un utilisateur de la timbeurse";
+		$data['list_title'] = "Tout les logs de".' '.$user['surname'].' '.$user['name'];
 
         $data['columns'] = ['date' => 'Date',
                             'id_badge' => 'Numéro du badge',
                             'inside' => 'Entrée'];
 
-        $data['items'] = $logs;
+        if ($day === null) {
+            $data['items'] = $logs;
+        } else {
+            $filter = function($log) use($day) {
+                return $this->filter_log_day($log, $day);
+            };
+            $data['items'] = array_filter($logs, $filter);
+        }
+
 
 
         // $data['primary_key_field']  = 'date';
@@ -54,4 +61,19 @@ class PersoLogs extends BaseController
         $this->display_view('Common\Views\items_list', $data);
 
 	}
+
+    public function filter_log_day($log, Time $day)
+    {
+        $logDay = Time::parse($log['date'], 'Europe/Zurich');
+        return $this->is_same_day($day, $logDay);
+    }
+
+    public function is_same_day(Time $day1, Time $day2) 
+    {
+        $bDay = $day1->getDay() == $day2->getDay();
+        $bMonths = $day1->getMonth() == $day2->getMonth();
+        $bYears = $day1->getYear() == $day2->getYear();
+        return $bDay and $bMonths and $bYears;
+    }
+
 }

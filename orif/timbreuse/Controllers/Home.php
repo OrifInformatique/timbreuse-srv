@@ -22,6 +22,22 @@ class Home extends BaseController
 		/**
          * Display a test of the generic "items_list" view (defined in common module)
          */
+
+        $data['buttons'] = [
+            ['link' => 'logs', 'label' => 'Logs'],
+            ['link' => 'users', 'label' => 'Users'],
+        ];
+
+		$this->display_view(['Timbreuse\Views\menu'], $data);
+	}
+
+	public function indexo()
+	{
+		$data['title'] = "Welcome";
+
+		/**
+         * Display a test of the generic "items_list" view (defined in common module)
+         */
 		$data['list_title'] = "Test de la vue items_list";
 
         $data['columns'] = ['name' => 'Nom',

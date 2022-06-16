@@ -35,12 +35,12 @@ class Users extends BaseController
         $data['columns'] = ['id_user' => 'id',
                             'name' => 'Prénom',
                             'surname' => 'Nom'];
-        $data['items'] = $model->getUsers();
+        $data['items'] = $model->get_users();
 
 
-        // $data['primary_key_field']  = 'date';
+        $data['primary_key_field']  = 'id_user';
         // $data['btn_create_label']   = 'Add an item';
-        // $data['url_detail'] = "items_list/detail/";
+        $data['url_detail'] = "PersoLogs/perso_logs_list/";
         // $data['url_update'] = "items_list/update/";
         // $data['url_delete'] = "items_list/delete/";
         // $data['url_create'] = "items_list/create/";
