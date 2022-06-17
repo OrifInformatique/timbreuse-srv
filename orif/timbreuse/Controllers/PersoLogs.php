@@ -21,8 +21,14 @@ class PersoLogs extends BaseController
     }
 
 
-	public function perso_logs_list($userId, $day=null)
+	public function perso_logs_list($userId, $day=null, $period=null)
 	{
+        if ($day === null) {
+            return redirect()->to($userId.'/all/all');
+        }
+        if ($period === null) {
+            return redirect()->to($day.'/day');
+        }
         $badgesModel = model(BadgesModel::class);
         $logsModel = model(LogsModel::class);
         $usersModel = model(UsersModel::class);
@@ -39,11 +45,11 @@ class PersoLogs extends BaseController
                             'id_badge' => 'Numéro du badge',
                             'inside' => 'Entrée'];
 
-        if ($day === null) {
+        if ($day == 'all') {
             $data['items'] = $logs;
             $data['list_title'] = "Tout les logs de".' '.$user['surname'].' '.$user['name'];
             $data['buttons'] = [
-                ['link' => $userId.'/'.Time::today()->toDateString(), 'label' => 'Aujourd’hui'],
+                ['link' => '../'.Time::today()->toDateString(), 'label' => 'Aujourd’hui'],
             ];
         } else {
             $day = Time::parse($day);
@@ -54,8 +60,8 @@ class PersoLogs extends BaseController
             };
             $data['items'] = array_filter($logs, $filter);
             $data['buttons'] = [
-                ['link' => $day->subDays(1)->toDateString(), 'label' => '<'],
-                ['link' => $day->addDays(1)->toDateString(), 'label' => '>'],
+                ['link' => '../'.$day->subDays(1)->toDateString(), 'label' => '<'],
+                ['link' => '../'.$day->addDays(1)->toDateString(), 'label' => '>'],
             ];
         }
 

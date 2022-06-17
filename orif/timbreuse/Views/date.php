@@ -6,7 +6,7 @@
         let date = document.getElementsByTagName('input');
         date = date[0];
         date.onchange = function () {
-            window.location = date.value;
+            window.location = '../' + date.value;
         }
     </script>
 <?php endif ?>

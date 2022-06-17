@@ -1,8 +1,3 @@
-<?php
-    if (!isset($buttons)) {
-        $buttons = array();
-    }
-?>
 <div class="container">
     <?php foreach ($buttons as $button): ?>
         <a href="<?= $button['link'] ?>">
