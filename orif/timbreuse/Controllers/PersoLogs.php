@@ -23,7 +23,6 @@ class PersoLogs extends BaseController
 
 	public function perso_logs_list($userId, $day=null)
 	{
-        $day = Time::parse('2022-05-20', 'Europe/Zurich');
         $badgesModel = model(BadgesModel::class);
         $logsModel = model(LogsModel::class);
         $usersModel = model(UsersModel::class);
@@ -35,7 +34,6 @@ class PersoLogs extends BaseController
 		/**
          * Display a test of the generic "items_list" view (defined in common module)
          */
-		$data['list_title'] = "Tout les logs de".' '.$user['surname'].' '.$user['name'];
 
         $data['columns'] = ['date' => 'Date',
                             'id_badge' => 'Numéro du badge',
@@ -43,11 +41,22 @@ class PersoLogs extends BaseController
 
         if ($day === null) {
             $data['items'] = $logs;
+            $data['list_title'] = "Tout les logs de".' '.$user['surname'].' '.$user['name'];
+            $data['buttons'] = [
+                ['link' => $userId.'/'.Time::today()->toDateString(), 'label' => 'Aujourd’hui'],
+            ];
         } else {
+            $day = Time::parse($day);
+            $data['date'] = $day->toDateString();
+            $data['list_title'] = $user['surname'].' '.$user['name'].' '.$data['date'];
             $filter = function($log) use($day) {
                 return $this->filter_log_day($log, $day);
             };
             $data['items'] = array_filter($logs, $filter);
+            $data['buttons'] = [
+                ['link' => $day->subDays(1)->toDateString(), 'label' => '<'],
+                ['link' => $day->addDays(1)->toDateString(), 'label' => '>'],
+            ];
         }
 
 
@@ -58,13 +67,13 @@ class PersoLogs extends BaseController
         // $data['url_update'] = "items_list/update/";
         // $data['url_delete'] = "items_list/delete/";
         // $data['url_create'] = "items_list/create/";
-        $this->display_view('Common\Views\items_list', $data);
+        $this->display_view(['Timbreuse\Views\menu', 'Timbreuse\Views\date','Common\Views\items_list'], $data);
 
 	}
 
     public function filter_log_day($log, Time $day)
     {
-        $logDay = Time::parse($log['date'], 'Europe/Zurich');
+        $logDay = Time::parse($log['date']);
         return $this->is_same_day($day, $logDay);
     }
 
