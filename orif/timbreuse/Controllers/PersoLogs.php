@@ -29,15 +29,12 @@ class PersoLogs extends BaseController
         if ($period === null) {
             return redirect()->to($day.'/day');
         }
-        $badgesModel = model(BadgesModel::class);
-        $logsModel = model(LogsModel::class);
-        $usersModel = model(UsersModel::class);
-        $badgeId = $badgesModel->get_badges($userId);
-        $logs = $logsModel->get_logs($badgeId);
-        $user = $usersModel->get_users($userId);
+
+        $user_data = $this->get_user_data($userId);
+        $logs = $user_data['logs'];
+        $user = $user_data['user'];
 
 		$data['title'] = "Welcome";
-        $data['period'] = $period;
 
 		/**
          * Display a test of the generic "items_list" view (defined in common module)
@@ -46,6 +43,8 @@ class PersoLogs extends BaseController
         $data['columns'] = ['date' => 'Date',
                             'id_badge' => 'Numéro du badge',
                             'inside' => 'Entrée'];
+        $day = Time::parse($day);
+        $data['period'] = $period;
 
         if ($period == 'all') {
             $data += $this->all_view($logs, $user);
@@ -56,23 +55,40 @@ class PersoLogs extends BaseController
         } elseif ($period == 'month') {
             $data += $this->month_view($logs, $user, $day);
         }
+        $data['buttons'] += $this->create_buttons($period);
 
-        array_push($data['buttons'], ['link' => '../', 'label' => 'Tout']);
-        if ($period != 'all') {
-            array_push($data['buttons'], ['link' => '../'.Time::today()->toDateString().'/'.$period, 'label' => 'Aujourd’hui']);
-        } else {
-            array_push($data['buttons'], ['link' => '../'.Time::today()->toDateString(), 'label' => 'Aujourd’hui']);
-        }
-        array_push($data['buttons'], ['link' => 'day', 'label' => 'Jour']);
-        array_push($data['buttons'], ['link' => 'week', 'label' => 'Semaine']);
-        array_push($data['buttons'], ['link' => 'month', 'label' => 'Mois']);
 
         $this->display_view(['Timbreuse\Views\menu', 'Timbreuse\Views\date','Common\Views\items_list'], $data);
 
 	}
 
+    protected function create_buttons($period) {
+        $data = array();
+        array_push($data, ['link' => '../', 'label' => 'Tout']);
+        if ($period != 'all') {
+            array_push($data, ['link' => '../'.Time::today()->toDateString().'/'.$period, 'label' => 'Aujourd’hui']);
+        } else {
+            array_push($data, ['link' => '../'.Time::today()->toDateString(), 'label' => 'Aujourd’hui']);
+        }
+        array_push($data, ['link' => 'day', 'label' => 'Jour']);
+        array_push($data, ['link' => 'week', 'label' => 'Semaine']);
+        array_push($data, ['link' => 'month', 'label' => 'Mois']);
+        return $data;
+    }
+    
+    protected function get_user_data($userId) {
+        $badgesModel = model(BadgesModel::class);
+        $logsModel = model(LogsModel::class);
+        $usersModel = model(UsersModel::class);
+        $badgeId = $badgesModel->get_badges($userId);
+        $data['logs'] = $logsModel->get_logs($badgeId);
+        $data['user'] = $usersModel->get_users($userId);
+        return $data;
+    }
+
+    
+
     protected function month_view($logs, $user, $day) {
-        $day = Time::parse($day);
         $data['date'] = $day->toDateString();
         $data['list_title'] = $user['surname'].' '.$user['name'].' mois '.$data['date'];
         $filter = function($log) use($day) {
@@ -87,7 +103,6 @@ class PersoLogs extends BaseController
     }
 
     protected function week_view($logs, $user, $day) {
-        $day = Time::parse($day);
         $data['date'] = $day->toDateString();
         $data['list_title'] = $user['surname'].' '.$user['name'].' semaine '.$data['date'];
         $filter = function($log) use($day) {
@@ -102,7 +117,6 @@ class PersoLogs extends BaseController
     }
 
     protected function day_view($logs, $user, $day) {
-        $day = Time::parse($day);
         $data['date'] = $day->toDateString();
         $data['list_title'] = $user['surname'].' '.$user['name'].' '.$data['date'];
         $filter = function($log) use($day) {
