@@ -176,4 +176,10 @@ class PersoLogs extends BaseController
         return $bDay and $bMonths and $bYears;
     }
 
+    public function test1() {
+        $model = model(LogsModel::class);
+        $date = Time::parse('2022-05-17');
+        var_dump($model->get_filtered_logs('92', $date));
+    }
+
 }

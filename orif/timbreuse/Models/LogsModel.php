@@ -14,4 +14,15 @@ class LogsModel extends Model {
                         ->findAll();
         }
     }
+
+    public function get_filtered_logs($idBadge, $date, $period=null) {
+        $dbBadge = $this->builder('badge');
+        $subQuery = $dbBadge->getWhere(['id_badge' => $idBadge]);
+        $this->where('id_badge', $subQuery);
+        $this->where('DAY(date)', $date->getDay());
+        $this->where('MONTH(date)', $date->getMonth());
+        $this->where('YEAR(date)', $date->getYear());
+        return $this->findall();
+    }
+
 }
