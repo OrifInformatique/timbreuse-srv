@@ -30,7 +30,9 @@ class LogsModel extends Model {
         if ($period == 'week') {
             $this->where('WEEKOFYEAR(date)', $date->getWeekOfYear());
         }
-        $this->where('YEAR(date)', $date->getYear());
+        if ($period != 'all') {
+            $this->where('YEAR(date)', $date->getYear());
+        }
         return $this->get()->getResultArray();
     }
 

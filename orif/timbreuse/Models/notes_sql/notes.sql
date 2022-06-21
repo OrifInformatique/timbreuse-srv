@@ -60,3 +60,5 @@ WHERE id_badge IN
 AND
 (MONTH(date) = '05') AND
 (YEAR(date) = '2022');
+
+------------------------------
