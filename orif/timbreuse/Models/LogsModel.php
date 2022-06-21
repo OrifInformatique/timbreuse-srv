@@ -15,14 +15,23 @@ class LogsModel extends Model {
         }
     }
 
-    public function get_filtered_logs($idBadge, $date, $period=null) {
+    public function get_filtered_logs($userId, $date, $period) {
         $dbBadge = $this->builder('badge');
-        $subQuery = $dbBadge->getWhere(['id_badge' => $idBadge]);
-        $this->where('id_badge', $subQuery);
-        $this->where('DAY(date)', $date->getDay());
-        $this->where('MONTH(date)', $date->getMonth());
+        $this->whereIn('id_badge', function () use ($dbBadge, $userId) {
+            return $dbBadge->select('id_badge')->where('id_user', $userId);
+
+        });
+        if ($period == 'day') {
+            $this->where('DAY(date)', $date->getDay());
+        }
+        if (($period == 'day') or ($period =='month')) {
+            $this->where('MONTH(date)', $date->getMonth());
+        }
+        if ($period == 'week') {
+            $this->where('WEEKOFYEAR(date)', $date->getWeekOfYear());
+        }
         $this->where('YEAR(date)', $date->getYear());
-        return $this->findall();
+        return $this->get()->getResultArray();
     }
 
 }

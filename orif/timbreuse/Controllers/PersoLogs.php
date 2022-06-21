@@ -178,8 +178,8 @@ class PersoLogs extends BaseController
 
     public function test1() {
         $model = model(LogsModel::class);
-        $date = Time::parse('2022-05-17');
-        var_dump($model->get_filtered_logs('92', $date));
+        $date = Time::parse('2022-05-20');
+        var_dump($model->get_filtered_logs(92, $date, 'week'));
     }
 
 }
