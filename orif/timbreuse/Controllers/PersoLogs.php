@@ -55,6 +55,13 @@ class PersoLogs extends BaseController
         $data['period'] = $period;
         $logsModel = model(LogsModel::class);
         $data['items'] = $logsModel->get_filtered_logs($userId, $day, $period);
+        $sumTime = [
+            'date' => 'Total temps',
+            'id_badge' => $this->get_hours_by_seconds($this->get_time_array($data['items'])),
+            'inside' => ''
+        ];
+        array_push($data['items'], $sumTime);
+
         
         $data['list_title'] = $this->create_title($user, $day, $period);
         $data['buttons'] = $this->create_buttons($period);
@@ -65,6 +72,17 @@ class PersoLogs extends BaseController
         $this->display_view(['Timbreuse\Views\menu', 'Timbreuse\Views\date','Common\Views\items_list'], $data);
 
 	}
+    protected function get_hours_by_seconds($seconds) {
+        $hours = floor($seconds / 3600);
+        $seconds -= $hours * 3600;
+
+        $minutes = floor($seconds / 60);
+        $seconds -= $minutes * 60;
+
+        return sprintf('%d:%02d:%02d', $hours, $minutes, $seconds);
+
+    }
+
     protected function create_time_links($day, $period)
     {
         switch ($period) {
@@ -97,6 +115,9 @@ class PersoLogs extends BaseController
                 break;
             case 'week':
                 return $user['surname'].' '.$user['name'].' semaine '.$date;
+                break;
+            case 'all':
+                return 'tous les logs '.$user['surname'].' '.$user['name'];
                 break;
         }
     }
@@ -262,18 +283,76 @@ class PersoLogs extends BaseController
         var_dump($model->get_filtered_logs(92, $date, 'week'));
     }
 
-    public function test2() {
+    private function test2() {
         $time = Time::parse('1970-01-01');
         $time1 = Time::parse('1970-01-13');
         $diff = $time1->difference($time);
         var_dump($diff->seconds);
     }
+    public function test3() {
+        $logs = array();
+        $logs[0]['date'] = '2022-01-01 12:35';
+        $logs[1]['date'] = '2022-01-01 12:50';
+        $logs[2]['date'] = '2022-01-01 12:57';
+        $logs[3]['date'] = '2022-01-01 13:00';
+        $logs[4]['date'] = '2022-01-01 13:03';
+        $logs[5]['date'] = '2022-01-02 08:03';
+        $logs[6]['date'] = '2022-01-02 09:03';
+        $logs[0]['inside'] = 1;
+        $logs[1]['inside'] = 0;
+        $logs[2]['inside'] = 1;
+        $logs[3]['inside'] = 0;
+        $logs[4]['inside'] = 1;
+        $logs[5]['inside'] = 1;
+        $logs[6]['inside'] = 0;
+        $time = $this->get_time_array($logs);
+        var_dump($time);
+        // Expecting: 4680
+    }
+    public function test4() {
+        $logs = array();
+        $logs[0]['date'] = '2022-01-01 12:35';
+        $logs[1]['date'] = '2022-01-01 12:50';
+        $logs[2]['date'] = '2022-01-01 12:57';
+        $logs[3]['date'] = '2022-01-01 13:00';
+        $logs[4]['date'] = '2022-01-01 13:03';
+        $logs[5]['date'] = '2022-01-02 08:03';
+        $logs[6]['date'] = '2022-01-02 09:03';
+        $logs[7]['date'] = '2022-01-03 08:03';
+        $logs[8]['date'] = '2022-01-03 09:03';
+        $logs[0]['inside'] = 1;
+        $logs[1]['inside'] = 0;
+        $logs[2]['inside'] = 1;
+        $logs[3]['inside'] = 0;
+        $logs[4]['inside'] = 1;
+        $logs[5]['inside'] = 1;
+        $logs[6]['inside'] = 0;
+        $logs[7]['inside'] = 1;
+        $logs[8]['inside'] = 0;
+        $time = $this->get_time_array($logs);
+        var_dump($time);
+        // Expecting: 8280
+    }
 
     protected function get_time_array($logs)
     {
-        
+        $date_in = null;
+        $seconds = array_reduce($logs, function ($carry, $log) use (&$date_in) {
+            if (boolval($log['inside'])) {
+                if (($date_in === null) or !($this->is_same_day(Time::parse($date_in), Time::parse($log['date'])))) {
+                    $date_in = $log['date'];
+                }
+            } elseif ($date_in !== null) {
+                if ($this->is_same_day(Time::parse($date_in), Time::parse($log['date']))) {
+                    $carry += Time::parse($log['date'])->difference($date_in)->seconds;
+                    $date_in = null;
+                } 
+            }
+            return $carry;
+        });
+        return $seconds;
     }
-
+    
     
 
     
