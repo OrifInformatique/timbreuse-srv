@@ -57,7 +57,7 @@ class PersoLogs extends BaseController
         $data['items'] = $logsModel->get_filtered_logs($userId, $day, $period);
         $sumTime = [
             'date' => 'Total temps',
-            'id_badge' => $this->get_hours_by_seconds($this->get_time_array($data['items'])),
+            'id_badge' => $logsModel->get_hours_by_seconds($logsModel->get_time_array($data['items'])),
             'inside' => ''
         ];
         array_push($data['items'], $sumTime);
@@ -72,16 +72,46 @@ class PersoLogs extends BaseController
         $this->display_view(['Timbreuse\Views\menu', 'Timbreuse\Views\date','Common\Views\items_list'], $data);
 
 	}
-    protected function get_hours_by_seconds($seconds) {
-        $hours = floor($seconds / 3600);
-        $seconds -= $hours * 3600;
 
-        $minutes = floor($seconds / 60);
-        $seconds -= $minutes * 60;
+    public function time_list($userId, $day=null, $period=null) {
+        if (($day === null) or ($day == 'all')) {
+            return redirect()->to($userId.'/'.Time::today()->toDateString().'/all');
+        }
+        if ($period === null) {
+            return redirect()->to($day.'/day');
+        }
 
-        return sprintf('%d:%02d:%02d', $hours, $minutes, $seconds);
+        $usersModel = model(UsersModel::class);
+        $user = $usersModel->get_users($userId);
+
+        $data['title'] = "Welcome";
+
+        /**
+         * Display a test of the generic "items_list" view (defined in common module)
+         */
+
+
+        $data['row'] = [
+            'morning' => lang('lang.rowMorning'),
+            'afternoon' => lang('lang.rowAfternoon')
+        ];
+
+        $day = Time::parse($day);
+        #$this->get_hours_by_seconds($this->get_time_array($data['items']));
+        $data['period'] = $period;
+        $logsModel = model(LogsModel::class);
+        #$data['items'] = $logsModel->get_logs_by_period($userId, $day, $halfDay);
+        
+        $data['list_title'] = $this->create_title($user, $day, $period);
+        $data['buttons'] = $this->create_buttons($period);
+        if ($period != 'all') {
+            $data['buttons'] = array_merge($this->create_time_links($day, $period), $data['buttons']);
+            $data['date'] = $day->toDateString();
+        }
+        $this->display_view(['Timbreuse\Views\menu', 'Timbreuse\Views\date','Common\Views\items_list'], $data);
 
     }
+
 
     protected function create_time_links($day, $period)
     {
@@ -269,6 +299,7 @@ class PersoLogs extends BaseController
         $bYears = $day1->getYear() === $day2->getYear();
         return $bWeek and $bYears;
     }
+
     protected function is_same_day(Time $day1, Time $day2) 
     {
         $bDay = $day1->getDay() === $day2->getDay();
@@ -289,7 +320,7 @@ class PersoLogs extends BaseController
         $diff = $time1->difference($time);
         var_dump($diff->seconds);
     }
-    public function test3() {
+    protected function test3() {
         $logs = array();
         $logs[0]['date'] = '2022-01-01 12:35';
         $logs[1]['date'] = '2022-01-01 12:50';
@@ -309,7 +340,7 @@ class PersoLogs extends BaseController
         var_dump($time);
         // Expecting: 4680
     }
-    public function test4() {
+    protected function test4() {
         $logs = array();
         $logs[0]['date'] = '2022-01-01 12:35';
         $logs[1]['date'] = '2022-01-01 12:50';
@@ -334,27 +365,86 @@ class PersoLogs extends BaseController
         // Expecting: 8280
     }
 
-    protected function get_time_array($logs)
-    {
-        $date_in = null;
-        $seconds = array_reduce($logs, function ($carry, $log) use (&$date_in) {
-            if (boolval($log['inside'])) {
-                if (($date_in === null) or !($this->is_same_day(Time::parse($date_in), Time::parse($log['date'])))) {
-                    $date_in = $log['date'];
-                }
-            } elseif ($date_in !== null) {
-                if ($this->is_same_day(Time::parse($date_in), Time::parse($log['date']))) {
-                    $carry += Time::parse($log['date'])->difference($date_in)->seconds;
-                    $date_in = null;
-                } 
-            }
-            return $carry;
-        });
-        return $seconds;
+    public function test5() {
+        $day = '2022-05-18';
+        $day = Time::parse($day);
+        $halfDay = 'morning';
+        $halfDay = 'afternoon';
+        $userId = '92';
+        $model = model(LogsModel::class);
+        var_dump($model->get_logs_by_period($userId, $day, $halfDay));
+        
     }
-    
-    
 
-    
+    public function test6() {
+        $day = '2022-05-18';
+        $day = Time::parse($day);
+        var_dump($this->get_last_monday($day));
+    }
 
+    public function test7() {
+        $days[0] = '2022-05-18';
+        $days[1] = '2022-05-18';
+        $days[2] = '2022-05-18';
+        $days[3] = '2022-05-18';
+        $days[4] = '2022-05-18';
+        foreach ($days as $i => $day) {
+            $day = Time::parse($day);
+            var_dump($this->get_last_monday($day)->addDays($i));
+        }
+    }
+
+    public function test8() {
+        $day = '2022-05-18';
+        $day = Time::parse($day);
+        $model = model(LogsModel::class);
+        var_dump($model->get_border_log_by_period('92', $day, 'morning', true));
+        /* Expecting:
+            array (size=3)
+                'date' => string '2022-05-18 12:00:28' (length=19)
+                'id_badge' => string '589402514225' (length=12)
+                'inside' => string '0' (length=1)
+        */
+    }
+
+    public function test9() {
+        $day = '2022-05-18';
+        $day = Time::parse($day);
+        $model = model(LogsModel::class);
+        var_dump($model->get_day_time_table('92', $day, 'morning'));
+        /* Expecting:
+            array (size=3)
+                'time' => string '4:02:01' (length=7)
+                'first' => string '07:58:27' (length=8)
+                'last' => string '12:00:28' (length=8)
+        */
+    }
+
+    public function test10() {
+        $day = '2022-05-18';
+        $day = Time::parse($day);
+        $model = model(LogsModel::class);
+        var_dump($model->get_upper_day_time_table('92', $day));
+        /* Expecting:
+            array (size=3)
+                'dayNb' => string '18' (length=2)
+                'morning' => 
+                    array (size=3)
+                        'time' => string '4:02:01' (length=7)
+                        'first' => string '07:58:27' (length=8)
+                        'last' => string '12:00:28' (length=8)
+                'afternoon' => 
+                    array (size=3)
+                        'time' => string '4:16:02' (length=7)
+                        'first' => string '12:31:27' (length=8)
+                        'last' => string '16:47:29' (length=8)
+            */
+    }
+
+    public function test11() {
+        $day = '2022-05-18';
+        $day = Time::parse($day);
+        $model = model(LogsModel::class);
+        var_dump($model->get_week_time_table('92', $day));
+    }
 }
