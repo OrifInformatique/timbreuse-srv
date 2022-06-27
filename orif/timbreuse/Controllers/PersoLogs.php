@@ -99,15 +99,16 @@ class PersoLogs extends BaseController
         $data['items'] = $logsModel->get_week_time_table($userId, $day);
         
         $data['list_title'] = $this->create_title($user, $day, $period);
-        $data['buttons'] = $this->create_buttons($period);
+        $data['buttons'] = $this->create_buttons($period, true);
         if ($period != 'all') {
             $data['buttons'] = array_merge($this->create_time_links($day, $period), $data['buttons']);
             $data['date'] = $day->toDateString();
         }
-        #$this->display_view(['Timbreuse\Views\menu', 'Timbreuse\Views\date','Common\Views\items_list'], $data);
-        $this->display_view(['Timbreuse\Views\logs\week_time.php'], $data);
+        $this->display_view(['Timbreuse\Views\menu', 'Timbreuse\Views\date', 'Timbreuse\Views\logs\week_time.php'], $data);
 
     }
+
+    
 
 
     protected function create_time_links($day, $period)
@@ -190,9 +191,11 @@ class PersoLogs extends BaseController
 
 	}
 
-    protected function create_buttons($period) {
+    protected function create_buttons($period, bool $timeList=false) {
         $data = array();
-        array_push($data, ['link' => '../', 'label' => 'Tout']);
+        if (!$timeList) {
+            array_push($data, ['link' => '../', 'label' => 'Tout']);
+        }
         if ($period != 'all') {
             array_push($data, ['link' => '../'.Time::today()->toDateString().'/'.$period, 'label' => 'Aujourd’hui']);
         } else {
