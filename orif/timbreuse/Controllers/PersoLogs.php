@@ -86,21 +86,17 @@ class PersoLogs extends BaseController
 
         $data['title'] = "Welcome";
 
-        /**
-         * Display a test of the generic "items_list" view (defined in common module)
-         */
 
-
-        $data['row'] = [
+        $data['rows'] = [
             'morning' => lang('lang.rowMorning'),
             'afternoon' => lang('lang.rowAfternoon')
         ];
 
+
         $day = Time::parse($day);
-        #$this->get_hours_by_seconds($this->get_time_array($data['items']));
         $data['period'] = $period;
         $logsModel = model(LogsModel::class);
-        #$data['items'] = $logsModel->get_logs_by_period($userId, $day, $halfDay);
+        $data['items'] = $logsModel->get_week_time_table($userId, $day);
         
         $data['list_title'] = $this->create_title($user, $day, $period);
         $data['buttons'] = $this->create_buttons($period);
@@ -108,7 +104,8 @@ class PersoLogs extends BaseController
             $data['buttons'] = array_merge($this->create_time_links($day, $period), $data['buttons']);
             $data['date'] = $day->toDateString();
         }
-        $this->display_view(['Timbreuse\Views\menu', 'Timbreuse\Views\date','Common\Views\items_list'], $data);
+        #$this->display_view(['Timbreuse\Views\menu', 'Timbreuse\Views\date','Common\Views\items_list'], $data);
+        $this->display_view(['Timbreuse\Views\logs\week_time.php'], $data);
 
     }
 
