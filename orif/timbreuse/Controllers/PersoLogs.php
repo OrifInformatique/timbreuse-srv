@@ -13,72 +13,36 @@ use CodeIgniter\I18n\Time;
 
 class PersoLogs extends BaseController
 {
-    public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
-    {
-        $this->access_level=config('\User\Config\UserConfig')->access_lvl_admin;
+    public function initController(
+        RequestInterface $request,
+        ResponseInterface $response,
+        LoggerInterface $logger
+    ) {
+        $this->access_level = config(
+            '\User\Config\UserConfig'
+        )->access_lvl_admin;
         parent::initController($request, $response, $logger);
-        $this->session=\Config\Services::session();
+        $this->session = \Config\Services::session();
     }
 
-	public function perso_logs_list($userId, $day=null, $period=null)
+    public function perso_logs_list($userId, $day = null, $period = null)
     {
         if (false) {
             return $this->perso_logs_list_old($userId, $day, $period);
-        } else
-        {
+        } else {
             return $this->perso_logs_list_new($userId, $day, $period);
         }
     }
 
-	public function perso_logs_list_new($userId, $day=null, $period=null)
-	{
+    public function perso_logs_list_new($userId, $day = null, $period = null)
+    {
         if (($day === null) or ($day == 'all')) {
-            return redirect()->to($userId.'/'.Time::today()->toDateString().'/all');
+            return redirect()->to(
+                $userId . '/' . Time::today()->toDateString() . '/all'
+            );
         }
         if ($period === null) {
-            return redirect()->to($day.'/day');
-        }
-
-        $usersModel = model(UsersModel::class);
-        $user = $usersModel->get_users($userId);
-
-		$data['title'] = "Welcome";
-
-		/**
-         * Display a test of the generic "items_list" view (defined in common module)
-         */
-
-        $data['columns'] = ['date' => 'Date',
-                            'id_badge' => 'Numéro du badge',
-                            'inside' => 'Entrée'];
-        $day = Time::parse($day);
-        $data['period'] = $period;
-        $logsModel = model(LogsModel::class);
-        $data['items'] = $logsModel->get_filtered_logs($userId, $day, $period);
-        $sumTime = [
-            'date' => 'Total temps',
-            'id_badge' => $logsModel->get_hours_by_seconds($logsModel->get_time_array($data['items'])),
-            'inside' => ''
-        ];
-        array_push($data['items'], $sumTime);
-
-        
-        $data['list_title'] = $this->create_title($user, $day, $period);
-        $data['buttons'] = $this->create_buttons($period);
-        if ($period != 'all') {
-            $data['buttons'] = array_merge($this->create_time_links($day, $period), $data['buttons']);
-            $data['date'] = $day->toDateString();
-        }
-        $this->display_view(['Timbreuse\Views\menu', 'Timbreuse\Views\date','Common\Views\items_list'], $data);
-
-	}
-
-    public function time_list($userId, $day=null, $period=null) {
-        if (($day === null) or ($day == 'all')) {
-            return redirect()->to($userId.'/'.Time::today()->toDateString().'/all');
-        }
-        if ($period === null) {
-            return redirect()->to($day.'/day');
+            return redirect()->to($day . '/day');
         }
 
         $usersModel = model(UsersModel::class);
@@ -86,10 +50,90 @@ class PersoLogs extends BaseController
 
         $data['title'] = "Welcome";
 
+        /**
+         * Display a test of the generic "items_list" view (defined in common module)
+         */
+
+        $data['columns'] = [
+            'date' => 'Date',
+            'id_badge' => 'Numéro du badge',
+            'inside' => 'Entrée'
+        ];
+        $day = Time::parse($day);
+        $data['period'] = $period;
+        $logsModel = model(LogsModel::class);
+        $data['items'] = $logsModel->get_filtered_logs($userId, $day, $period);
+        $sumTime = [
+            'date' => 'Total temps',
+            'id_badge' => $logsModel->get_hours_by_seconds(
+                $logsModel->get_time_array($data['items'])
+            ),
+            'inside' => ''
+        ];
+        array_push($data['items'], $sumTime);
+
+
+        $data['list_title'] = $this->create_title($user, $day, $period);
+        $data['buttons'] = $this->create_buttons($period);
+        if ($period != 'all') {
+            $data['buttons'] = array_merge(
+                $this->create_time_links($day, $period),
+                $data['buttons']
+            );
+            $data['date'] = $day->toDateString();
+        }
+        $this->display_view(
+            [
+                'Timbreuse\Views\menu',
+                'Timbreuse\Views\date', 'Common\Views\items_list'
+            ],
+            $data
+        );
+    }
+    private function time_list_month($userId, $day = null, $period =null){
+
+        $usersModel = model(UsersModel::class);
+        $user = $usersModel->get_users($userId);
+
+        $data['title'] = "Welcome";
+        $data['columns'] = array();
+        $data['columns'][0] = lang('tim_lang.period');
+        $data['columns'][1] = lang('tim_lang.time');
+
+        $day = Time::parse($day);
+        $data['period'] = $period;
+        $model = model(LogsModel::class);
+        $data['items'] = $model->get_month_week_array($userId, $day);
+
+        $data['list_title'] = $this->create_title($user, $day, $period);
+        $data['buttons'] = $this->create_buttons($period, true);
+        if ($period != 'all') {
+            $data['buttons'] = array_merge(
+                $this->create_time_links($day, $period),
+                $data['buttons']
+            );
+            $data['date'] = $day->toDateString();
+        }
+        $this->display_view(
+            [
+                'Timbreuse\Views\menu',
+                'Timbreuse\Views\date', 'Timbreuse\Views\logs\month_time.php'
+            ],
+            $data
+        );
+    }
+
+    private function time_list_week($userId, $day = null, $period = null)
+    {
+        $usersModel = model(UsersModel::class);
+        $user = $usersModel->get_users($userId);
+
+        $data['title'] = "Welcome";
+
 
         $data['rows'] = [
-            'morning' => lang('lang.rowMorning'),
-            'afternoon' => lang('lang.rowAfternoon')
+            'morning' => lang('tim_lang.rowMorning'),
+            'afternoon' => lang('tim_lang.rowAfternoon')
         ];
 
 
@@ -97,18 +141,52 @@ class PersoLogs extends BaseController
         $data['period'] = $period;
         $logsModel = model(LogsModel::class);
         $data['items'] = $logsModel->get_week_time_table($userId, $day);
-        
+
         $data['list_title'] = $this->create_title($user, $day, $period);
         $data['buttons'] = $this->create_buttons($period, true);
         if ($period != 'all') {
-            $data['buttons'] = array_merge($this->create_time_links($day, $period), $data['buttons']);
+            $data['buttons'] = array_merge(
+                $this->create_time_links($day, $period),
+                $data['buttons']
+            );
             $data['date'] = $day->toDateString();
         }
-        $this->display_view(['Timbreuse\Views\menu', 'Timbreuse\Views\date', 'Timbreuse\Views\logs\week_time.php'], $data);
+        $this->display_view(
+            [
+                'Timbreuse\Views\menu',
+                'Timbreuse\Views\date', 'Timbreuse\Views\logs\week_time.php'
+            ],
+            $data
+        );
+
+    }
+    public function time_list($userId, $day = null, $period = null)
+    {
+        if (($day === null) or ($day == 'all')) {
+            return redirect()->to(
+                $userId . '/' . Time::today()->toDateString() . '/all'
+            );
+        }
+        if ($period === null) {
+            return redirect()->to($day . '/day');
+        }
+
+        switch ($period) {
+            case 'week':
+                return $this->time_list_week($userId, $day, $period);
+                break;
+            case 'month':
+                return $this->time_list_month($userId, $day, $period);
+                break;
+            default:
+                return $this->time_list_week($userId, $day, $period);
+                break;
+
+        }
 
     }
 
-    
+
 
 
     protected function create_time_links($day, $period)
@@ -125,8 +203,16 @@ class PersoLogs extends BaseController
                 break;
         }
         $buttons = [
-            ['link' => '../'.$day->subDays($interval)->toDateString().'/'.$period, 'label' => '<'],
-            ['link' => '../'.$day->addDays($interval)->toDateString().'/'.$period, 'label' => '>'],
+            [
+                'link' => '../' . $day->subDays($interval)->toDateString() .
+                    '/' . $period,
+                'label' => '<'
+            ],
+            [
+                'link' => '../' . $day->addDays($interval)->toDateString()
+                    . '/' . $period,
+                'label' => '>'
+            ],
         ];
         return $buttons;
     }
@@ -136,42 +222,50 @@ class PersoLogs extends BaseController
         $date = $day->toDateString();
         switch ($period) {
             case 'day':
-                return $user['surname'].' '.$user['name'].' '.$date;
+                return $user['surname'] . ' ' . $user['name'] . ' ' . $date;
                 break;
             case 'month':
-                return $user['surname'].' '.$user['name'].' mois '.$date;
+                return $user['surname'] . ' ' . $user['name'] . ' mois ' .
+                    $date;
                 break;
             case 'week':
-                return $user['surname'].' '.$user['name'].' semaine '.$date;
+                return $user['surname'] . ' ' . $user['name'] . ' semaine ' .
+                    $date;
                 break;
             case 'all':
-                return 'tous les logs '.$user['surname'].' '.$user['name'];
+                return 'tous les logs ' . $user['surname'] . ' ' .
+                    $user['name'];
                 break;
         }
     }
 
-	public function perso_logs_list_old($userId, $day=null, $period=null)
-	{
+    public function perso_logs_list_old($userId, $day = null, $period = null)
+    {
         if (($day === null) or ($day == 'all')) {
-            return redirect()->to($userId.'/'.Time::today()->toDateString().'/all');
+            return redirect()->to(
+                $userId . '/' . Time::today()->toDateString() . '/all'
+            );
         }
         if ($period === null) {
-            return redirect()->to($day.'/day');
+            return redirect()->to($day . '/day');
         }
 
         $user_data = $this->get_user_data($userId);
         $logs = $user_data['logs'];
         $user = $user_data['user'];
 
-		$data['title'] = "Welcome";
+        $data['title'] = "Welcome";
 
-		/**
-         * Display a test of the generic "items_list" view (defined in common module)
+        /**
+         * Display a test of the generic "items_list" view (defined in common
+         * module)
          */
 
-        $data['columns'] = ['date' => 'Date',
-                            'id_badge' => 'Numéro du badge',
-                            'inside' => 'Entrée'];
+        $data['columns'] = [
+            'date' => 'Date',
+            'id_badge' => 'Numéro du badge',
+            'inside' => 'Entrée'
+        ];
         $day = Time::parse($day);
         $data['period'] = $period;
 
@@ -187,27 +281,47 @@ class PersoLogs extends BaseController
         $data['buttons'] += $this->create_buttons($period);
 
 
-        $this->display_view(['Timbreuse\Views\menu', 'Timbreuse\Views\date','Common\Views\items_list'], $data);
+        $this->display_view(
+            [
+                'Timbreuse\Views\menu',
+                'Timbreuse\Views\date', 'Common\Views\items_list'
+            ],
+            $data
+        );
+    }
 
-	}
-
-    protected function create_buttons($period, bool $timeList=false) {
+    protected function create_buttons($period, bool $timeList = false)
+    {
         $data = array();
         if (!$timeList) {
             array_push($data, ['link' => '../', 'label' => 'Tout']);
         }
         if ($period != 'all') {
-            array_push($data, ['link' => '../'.Time::today()->toDateString().'/'.$period, 'label' => 'Aujourd’hui']);
+            array_push(
+                $data,
+                [
+                    'link' => '../' . Time::today()->toDateString() . '/' .
+                        $period,
+                    'label' => 'Aujourd’hui'
+                ]
+            );
         } else {
-            array_push($data, ['link' => '../'.Time::today()->toDateString(), 'label' => 'Aujourd’hui']);
+            array_push(
+                $data,
+                [
+                    'link' => '../' . Time::today()->toDateString(),
+                    'label' => 'Aujourd’hui'
+                ]
+            );
         }
         array_push($data, ['link' => 'day', 'label' => 'Jour']);
         array_push($data, ['link' => 'week', 'label' => 'Semaine']);
         array_push($data, ['link' => 'month', 'label' => 'Mois']);
         return $data;
     }
-    
-    protected function get_user_data($userId) {
+
+    protected function get_user_data($userId)
+    {
         $badgesModel = model(BadgesModel::class);
         $logsModel = model(LogsModel::class);
         $usersModel = model(UsersModel::class);
@@ -217,53 +331,80 @@ class PersoLogs extends BaseController
         return $data;
     }
 
-    
 
-    protected function month_view($logs, $user, $day) {
+
+    protected function month_view($logs, $user, $day)
+    {
         $data['date'] = $day->toDateString();
-        $data['list_title'] = $user['surname'].' '.$user['name'].' mois '.$data['date'];
-        $filter = function($log) use($day) {
+        $data['list_title'] = $user['surname'] . ' ' . $user['name'] . ' mois '
+            . $data['date'];
+        $filter = function ($log) use ($day) {
             return $this->filter_log_month($log, $day);
         };
         $data['items'] = array_filter($logs, $filter);
         $data['buttons'] = [
-            ['link' => '../'.$day->subDays(30)->toDateString().'/month', 'label' => '<'],
-            ['link' => '../'.$day->addDays(30)->toDateString().'/month', 'label' => '>'],
+            [
+                'link' => '../' . $day->subDays(30)->toDateString() . '/month',
+                'label' => '<'
+            ],
+            [
+                'link' => '../' . $day->addDays(30)->toDateString() . '/month',
+                'label' => '>'
+            ],
         ];
         return $data;
     }
 
-    protected function week_view($logs, $user, $day) {
+    protected function week_view($logs, $user, $day)
+    {
         $data['date'] = $day->toDateString();
-        $data['list_title'] = $user['surname'].' '.$user['name'].' semaine '.$data['date'];
-        $filter = function($log) use($day) {
+        $data['list_title'] = $user['surname'] . ' ' . $user['name'] .
+            ' semaine ' . $data['date'];
+        $filter = function ($log) use ($day) {
             return $this->filter_log_week($log, $day);
         };
         $data['items'] = array_filter($logs, $filter);
         $data['buttons'] = [
-            ['link' => '../'.$day->subDays(7)->toDateString().'/week', 'label' => '<'],
-            ['link' => '../'.$day->addDays(7)->toDateString().'/week', 'label' => '>'],
+            [
+                'link' => '../' . $day->subDays(7)->toDateString() . '/week',
+                'label' => '<'
+            ],
+            [
+                'link' => '../' . $day->addDays(7)->toDateString() . '/week',
+                'label' => '>'
+            ],
         ];
         return $data;
     }
 
-    protected function day_view($logs, $user, $day) {
+    protected function day_view($logs, $user, $day)
+    {
         $data['date'] = $day->toDateString();
-        $data['list_title'] = $user['surname'].' '.$user['name'].' '.$data['date'];
-        $filter = function($log) use($day) {
+        $data['list_title'] = $user['surname'] . ' ' . $user['name'] . ' ' .
+            $data['date'];
+        $filter = function ($log) use ($day) {
             return $this->filter_log_day($log, $day);
         };
         $data['items'] = array_filter($logs, $filter);
         $data['buttons'] = [
-            ['link' => '../'.$day->subDays(1)->toDateString(), 'label' => '<'],
-            ['link' => '../'.$day->addDays(1)->toDateString(), 'label' => '>'],
+            [
+                'link' => '../' . $day->subDays(1)->toDateString(),
+                'label' => '<'
+            ],
+            [
+                'link' => '../' . $day->addDays(1)->toDateString(),
+                'label' => '>'
+            ],
         ];
         return $data;
     }
 
-    protected function all_view($logs, $user) {
+    protected function all_view($logs, $user)
+    {
         $data['items'] = $logs;
-        $data['list_title'] = "Tout les logs de".' '.$user['surname'].' '.$user['name'];
+        $data['list_title'] = "Tout les logs de" . ' ' . $user['surname'] .
+            ' ' .
+            $user['name'];
         $data['buttons'] = array();
         return $data;
     }
@@ -279,28 +420,28 @@ class PersoLogs extends BaseController
         $logDay = Time::parse($log['date']);
         return $this->is_same_week($day, $logDay);
     }
-    
+
     protected function filter_log_day($log, Time $day)
     {
         $logDay = Time::parse($log['date']);
         return $this->is_same_day($day, $logDay);
     }
 
-    protected function is_same_month(Time $day1, Time $day2) 
+    protected function is_same_month(Time $day1, Time $day2)
     {
         $bMonths = $day1->getMonth() === $day2->getMonth();
         $bYears = $day1->getYear() === $day2->getYear();
         return $bMonths and $bYears;
     }
 
-    protected function is_same_week(Time $day1, Time $day2) 
+    protected function is_same_week(Time $day1, Time $day2)
     {
         $bWeek = $day1->getWeekOfYear() === $day2->getWeekOfYear();
         $bYears = $day1->getYear() === $day2->getYear();
         return $bWeek and $bYears;
     }
 
-    protected function is_same_day(Time $day1, Time $day2) 
+    protected function is_same_day(Time $day1, Time $day2)
     {
         $bDay = $day1->getDay() === $day2->getDay();
         $bMonths = $day1->getMonth() === $day2->getMonth();
@@ -308,19 +449,22 @@ class PersoLogs extends BaseController
         return $bDay and $bMonths and $bYears;
     }
 
-    private function test1() {
+    private function test1()
+    {
         $model = model(LogsModel::class);
         $date = Time::parse('2022-05-20');
         var_dump($model->get_filtered_logs(92, $date, 'week'));
     }
 
-    private function test2() {
+    private function test2()
+    {
         $time = Time::parse('1970-01-01');
         $time1 = Time::parse('1970-01-13');
         $diff = $time1->difference($time);
         var_dump($diff->seconds);
     }
-    protected function test3() {
+    protected function test3()
+    {
         $logs = array();
         $logs[0]['date'] = '2022-01-01 12:35';
         $logs[1]['date'] = '2022-01-01 12:50';
@@ -340,7 +484,8 @@ class PersoLogs extends BaseController
         var_dump($time);
         // Expecting: 4680
     }
-    protected function test4() {
+    protected function test4()
+    {
         $logs = array();
         $logs[0]['date'] = '2022-01-01 12:35';
         $logs[1]['date'] = '2022-01-01 12:50';
@@ -365,7 +510,8 @@ class PersoLogs extends BaseController
         // Expecting: 8280
     }
 
-    public function test5() {
+    public function test5()
+    {
         $day = '2022-05-18';
         $day = Time::parse($day);
         $halfDay = 'morning';
@@ -373,16 +519,17 @@ class PersoLogs extends BaseController
         $userId = '92';
         $model = model(LogsModel::class);
         var_dump($model->get_logs_by_period($userId, $day, $halfDay));
-        
     }
 
-    public function test6() {
+    public function test6()
+    {
         $day = '2022-05-18';
         $day = Time::parse($day);
         var_dump($this->get_last_monday($day));
     }
 
-    public function test7() {
+    public function test7()
+    {
         $days[0] = '2022-05-18';
         $days[1] = '2022-05-18';
         $days[2] = '2022-05-18';
@@ -394,7 +541,8 @@ class PersoLogs extends BaseController
         }
     }
 
-    public function test8() {
+    public function test8()
+    {
         $day = '2022-05-18';
         $day = Time::parse($day);
         $model = model(LogsModel::class);
@@ -407,7 +555,8 @@ class PersoLogs extends BaseController
         */
     }
 
-    public function test9() {
+    public function test9()
+    {
         $day = '2022-05-18';
         $day = Time::parse($day);
         $model = model(LogsModel::class);
@@ -420,7 +569,8 @@ class PersoLogs extends BaseController
         */
     }
 
-    public function test10() {
+    public function test10()
+    {
         $day = '2022-05-18';
         $day = Time::parse($day);
         $model = model(LogsModel::class);
@@ -441,10 +591,27 @@ class PersoLogs extends BaseController
             */
     }
 
-    public function test11() {
+    public function test11()
+    {
         $day = '2022-05-18';
         $day = Time::parse($day);
         $model = model(LogsModel::class);
         var_dump($model->get_week_time_table('92', $day));
+    }
+
+    public function test12()
+    {
+        $day = '2022-05-18';
+        $day = Time::parse($day);
+        $model = model(LogsModel::class);
+        var_dump($model->get_day_week_array('92', $day));
+    }
+
+    public function test13()
+    {
+        $day = '2022-05-18';
+        $day = Time::parse($day);
+        $model = model(LogsModel::class);
+        var_dump($model->get_month_week_array('92', $day));
     }
 }

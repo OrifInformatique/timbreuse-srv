@@ -40,15 +40,20 @@ class LogsModel extends Model {
         }
         return $this->get()->getResultArray();
     }
-    public function get_border_interval($date, $halfDay): array {
+    public function get_border_interval($date, $halfDay): array
+    {
         switch ($halfDay) {
             case 'morning':
-                $border['startTime'] = $date->setHour(7)->setMinute(0)->setSecond(0);
-                $border['endTime'] = $date->setHour(12)->setMinute(30)->setSecond(0);
+                $border['startTime'] = $date->setHour(7)->setMinute(0)
+                    ->setSecond(0);
+                $border['endTime'] = $date->setHour(12)->setMinute(30)
+                    ->setSecond(0);
                 break;
             case 'afternoon':
-                $border['startTime'] = $date->setHour(12)->setMinute(30)->setSecond(0);
-                $border['endTime'] = $date->setHour(17)->setMinute(45)->setSecond(0);
+                $border['startTime'] = $date->setHour(12)->setMinute(30)
+                    ->setSecond(0);
+                $border['endTime'] = $date->setHour(17)->setMinute(45)
+                    ->setSecond(0);
                 break;
         }
         return $border;
@@ -57,7 +62,7 @@ class LogsModel extends Model {
     public function get_logs_by_period($userId, $date, $halfDay): array {
         $this->get_id_badge($userId);
         $border = $this->get_border_interval($date, $halfDay);
-        $this->where('date >', $border['startTime']);
+        $this->where('date >=', $border['startTime']);
         $this->where('date <', $border['endTime']);
         return $this->get()->getResultArray();
     }
@@ -68,26 +73,41 @@ class LogsModel extends Model {
     public function get_time_array($logs): int
     {
         $date_in = null;
-        $seconds = array_reduce($logs, function ($carry, $log) use (&$date_in) {
-            if (boolval($log['inside'])) {
-                if (($date_in === null) or !($this->is_same_day(Time::parse($date_in), Time::parse($log['date'])))) {
-                    $date_in = $log['date'];
+        $seconds = array_reduce(
+            $logs,
+            function ($carry, $log) use (&$date_in) {
+                if (boolval($log['inside'])) {
+                    if (($date_in === null) or !($this->is_same_day(
+                        Time::parse($date_in),
+                        Time::parse($log['date'])
+                    ))) {
+                        $date_in = $log['date'];
+                    }
+                } elseif ($date_in !== null) {
+                    if ($this->is_same_day(
+                        Time::parse($date_in),
+                        Time::parse($log['date'])
+                    )) {
+                        $carry += Time::parse($log['date'])
+                        ->difference($date_in)->seconds;
+                        $date_in = null;
+                    }
                 }
-            } elseif ($date_in !== null) {
-                if ($this->is_same_day(Time::parse($date_in), Time::parse($log['date']))) {
-                    $carry += Time::parse($log['date'])->difference($date_in)->seconds;
-                    $date_in = null;
-                } 
+                return $carry;
             }
-            return $carry;
-        });
+        );
         if ($seconds === null) {
             $seconds = 0;
         }
         return $seconds;
     }
 
-    public function get_border_log_by_period($userId, $date, $halfDay, $last = false): array
+    public function get_border_log_by_period(
+        $userId,
+        $date,
+        $halfDay,
+        $last = false
+    ): array
     {
         $this->get_id_badge($userId);
         $border = $this->get_border_interval($date, $halfDay);
@@ -113,13 +133,22 @@ class LogsModel extends Model {
         $data['time'] = $this->get_time_array($logs);
         $data['time'] = $this->get_hours_by_seconds($data['time']);
         try {
-            $data['first'] = $this->get_border_log_by_period($userId, $date, $halfDay)['date'];
+            $data['first'] = $this->get_border_log_by_period(
+                $userId,
+                $date,
+                $halfDay
+            )['date'];
             $data['first'] = Time::parse($data['first'])->toTimeString();
         } catch (\Exception $e) {
             $data['first'] = '';
         }
         try {
-            $data['last'] = $this->get_border_log_by_period($userId, $date, $halfDay, true)['date'];
+            $data['last'] = $this->get_border_log_by_period(
+                $userId,
+                $date,
+                $halfDay,
+                true
+            )['date'];
             $data['last'] = Time::parse($data['last'])->toTimeString();
         } catch (\Exception $e) {
             $data['last'] = '';
@@ -129,8 +158,16 @@ class LogsModel extends Model {
 
     public function get_upper_day_time_table($userId, $date): array {
         $data['dayNb'] = $date->day;
-        $data['morning'] = $this->get_day_time_table($userId, $date, 'morning');
-        $data['afternoon'] = $this->get_day_time_table($userId, $date, 'afternoon');
+        $data['morning'] = $this->get_day_time_table(
+            $userId,
+            $date,
+            'morning'
+        );
+        $data['afternoon'] = $this->get_day_time_table(
+            $userId,
+            $date,
+            'afternoon'
+        );
         return $data;
     }
 
@@ -145,24 +182,20 @@ class LogsModel extends Model {
         ];
         $data = array();
         foreach ($weekdays as $i => $weekday) {
-            $data[$weekday] = $this->get_upper_day_time_table($userId, $monday->addDays($i));
+            $data[$weekday] = $this->get_upper_day_time_table(
+                $userId,
+                $monday->addDays($i)
+            );
         }
         return $data;
-        
-        /*
-        $i = 0;
-        array_map(function($day) use ($userId, $monday, &$i) {
-            return $this->get_upper_day_time_table($userId, $monday->addDays($i));
-        },
-        $weekdays);
-        */
     }
+
 
     protected function get_last_monday(Time $day) {
         return $day->subDays($day->dayOfWeek - 1);
     }
 
-    public function get_hours_by_seconds($seconds) {
+    public function get_hours_by_seconds($seconds): string {
         $hours = floor($seconds / 3600);
         $seconds -= $hours * 3600;
 
@@ -182,6 +215,42 @@ class LogsModel extends Model {
         $bYears = $day1->getYear() === $day2->getYear();
         return $bDay and $bMonths and $bYears;
     }
+    
+    public function get_day_week_array($userId, Time $date): array
+    {
+        $logs = $this->get_filtered_logs($userId, $date, 'week');
+        $data['date'] = $this->get_workdays_text($date);
+        $data['time'] = $this->get_hours_by_seconds(
+            $this->get_time_array($logs)
+        );
+        return $data;
+    }
 
+    public function get_workdays_text($date): string
+    {
+        $monday = $this->get_last_monday($date);
+        $friday = $monday->addDays(6);
+        return sprintf(
+            '%02d.%02d – %02d.%02d',
+            $monday->getDay(),
+            $monday->getMonth(),
+            $friday->getDay(),
+            $friday->getMonth()
+        );
+    }
+
+    public function get_month_week_array($userId, Time $date): array
+    {
+        $weeks = array();
+        $firstDay = Time::create($date->year, $date->month, 1);
+        $monday = $this->get_last_monday($firstDay);
+
+        do {
+            array_push($weeks, $this->get_day_week_array($userId, $monday));
+            $monday = $monday->addDays(7);
+        } while ($monday->month == $date->month);
+
+        return $weeks;
+    }
 
 }
