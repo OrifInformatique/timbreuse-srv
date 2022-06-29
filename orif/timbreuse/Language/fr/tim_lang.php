@@ -14,4 +14,7 @@ return [
     'week' => 'semaine',
     'enter' => 'entrée',
     'exit' => 'sortie',
+    'hour' => 'heure',
+    'enter/exit' => 'entrée/sortie',
+    'timeTotal' => 'Temps total',
 ];

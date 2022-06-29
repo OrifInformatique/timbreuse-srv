@@ -1,35 +1,40 @@
 <?php
+
 namespace Timbreuse\Models;
 
 use CodeIgniter\BaseModel;
 use CodeIgniter\Model;
 use CodeIgniter\I18n\Time;
 
-class LogsModel extends Model {
+class LogsModel extends Model
+{
     protected $table = 'log';
 
-    public function get_logs($idBadge=null) {
+    public function get_logs($idBadge = null)
+    {
         if ($idBadge === null) {
             return $this->findAll();
         } else {
             return $this->where('id_badge', $idBadge)
-                        ->findAll();
+                ->findAll();
         }
     }
 
-    public function get_id_badge($userId) {
+    public function get_id_badge($userId)
+    {
         $modelBadge = model(BadgesModel::class);
         $this->whereIn('id_badge', function () use ($modelBadge, $userId) {
             return $modelBadge->select('id_badge')->where('id_user', $userId);
         });
     }
 
-    public function get_filtered_logs($userId, $date, $period): array {
+    public function get_filtered_logs($userId, $date, $period): array
+    {
         $this->get_id_badge($userId);
         if ($period == 'day') {
             $this->where('DAY(date)', $date->getDay());
         }
-        if (($period == 'day') or ($period =='month')) {
+        if (($period == 'day') or ($period == 'month')) {
             $this->where('MONTH(date)', $date->getMonth());
         }
         if ($period == 'week') {
@@ -63,7 +68,8 @@ class LogsModel extends Model {
     /**
      * period is morning and afternoon of a day
      */
-    public function get_logs_by_period($userId, $date, $halfDay): array {
+    public function get_logs_by_period($userId, $date, $halfDay): array
+    {
         $this->get_id_badge($userId);
         $border = $this->get_border_interval($date, $halfDay);
         $this->where('date >=', $border['startTime']);
@@ -76,8 +82,7 @@ class LogsModel extends Model {
         $date,
         $halfDay,
         $last = false
-    ): array
-    {
+    ): array {
         $this->get_id_badge($userId);
         $border = $this->get_border_interval($date, $halfDay);
         $this->where('date >', $border['startTime']);
@@ -94,7 +99,5 @@ class LogsModel extends Model {
         } catch (\Exception $e) {
             return array();
         }
-
     }
-
 }
