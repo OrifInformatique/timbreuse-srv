@@ -27,15 +27,6 @@ class PersoLogs extends BaseController
 
     public function perso_logs_list($userId, $day = null, $period = null)
     {
-        if (false) {
-            return $this->perso_logs_list_old($userId, $day, $period);
-        } else {
-            return $this->perso_logs_list_new($userId, $day, $period);
-        }
-    }
-
-    public function perso_logs_list_new($userId, $day = null, $period = null)
-    {
         if (($day === null) or ($day == 'all')) {
             return redirect()->to(
                 $userId . '/' . Time::today()->toDateString() . '/all'
@@ -50,9 +41,7 @@ class PersoLogs extends BaseController
 
         $data['title'] = "Welcome";
 
-        /**
-         * Display a test of the generic "items_list" view (defined in common module)
-         */
+        # Display a test of the generic "items_list" view (defined in common module)
 
         $data['columns'] = [
             'date' => 'Date',
@@ -65,8 +54,8 @@ class PersoLogs extends BaseController
         $data['items'] = $logsModel->get_filtered_logs($userId, $day, $period);
         $sumTime = [
             'date' => 'Total temps',
-            'id_badge' => $logsModel->get_hours_by_seconds(
-                $logsModel->get_time_array($data['items'])
+            'id_badge' => $this->get_hours_by_seconds(
+                $this->get_time_array($data['items'])
             ),
             'inside' => ''
         ];
@@ -90,20 +79,107 @@ class PersoLogs extends BaseController
             $data
         );
     }
-    private function time_list_month($userId, $day = null, $period =null){
+
+    protected function get_last_monday(Time $day) {
+        return $day->subDays($day->dayOfWeek - 1);
+    }
+
+    protected function get_month_week_array($userId, Time $date): array
+    {
+        $weeks = array();
+        $firstDay = Time::create($date->year, $date->month, 1);
+        $monday = $this->get_last_monday($firstDay);
+
+        do {
+            array_push($weeks, $this->get_day_week_array($userId, $monday));
+            $monday = $monday->addDays(7);
+        } while ($monday->month == $date->month);
+
+        return $weeks;
+    }
+
+    protected function get_workdays_text($date): string
+    {
+        $monday = $this->get_last_monday($date);
+        $friday = $monday->addDays(6);
+        return sprintf(
+            '%02d.%02d – %02d.%02d',
+            $monday->day,
+            $monday->month,
+            $friday->day,
+            $friday->month
+        );
+    }
+
+    protected function get_hours_by_seconds($seconds): string {
+        $hours = floor($seconds / 3600);
+        $seconds -= $hours * 3600;
+
+        $minutes = floor($seconds / 60);
+        $seconds -= $minutes * 60;
+        return sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
+    }
+
+    /**
+     * calculate the time
+     */
+    protected function get_time_array($logs): int
+    {
+        $date_in = null;
+        $seconds = array_reduce(
+            $logs,
+            function ($carry, $log) use (&$date_in) {
+                if (boolval($log['inside'])) {
+                    if (($date_in === null) or !($this->is_same_day(
+                        Time::parse($date_in),
+                        Time::parse($log['date'])
+                    ))) {
+                        $date_in = $log['date'];
+                    }
+                } elseif ($date_in !== null) {
+                    if ($this->is_same_day(
+                        Time::parse($date_in),
+                        Time::parse($log['date'])
+                    )) {
+                        $carry += Time::parse($log['date'])
+                        ->difference($date_in)->seconds;
+                        $date_in = null;
+                    }
+                }
+                return $carry;
+            }
+        );
+        if ($seconds === null) {
+            $seconds = 0;
+        }
+        return $seconds;
+    }
+
+    protected function get_day_week_array($userId, Time $date): array
+    {
+        $model = model(LogsModel::class);
+        $logs = $model->get_filtered_logs($userId, $date, 'week');
+        $data['date'] = $this->get_workdays_text($date);
+        $data['time'] = $this->get_hours_by_seconds(
+            $this->get_time_array($logs)
+        );
+        return $data;
+    }
+
+    protected function time_list_month($userId, $day = null, $period =null){
 
         $usersModel = model(UsersModel::class);
         $user = $usersModel->get_users($userId);
 
         $data['title'] = "Welcome";
         $data['columns'] = array();
-        $data['columns'][0] = lang('tim_lang.period');
+        $data['columns'][0] = lang('tim_lang.week');
         $data['columns'][1] = lang('tim_lang.time');
 
         $day = Time::parse($day);
         $data['period'] = $period;
         $model = model(LogsModel::class);
-        $data['items'] = $model->get_month_week_array($userId, $day);
+        $data['items'] = $this->get_month_week_array($userId, $day);
 
         $data['list_title'] = $this->create_title($user, $day, $period);
         $data['buttons'] = $this->create_buttons($period, true);
@@ -117,13 +193,85 @@ class PersoLogs extends BaseController
         $this->display_view(
             [
                 'Timbreuse\Views\menu',
-                'Timbreuse\Views\date', 'Timbreuse\Views\logs\month_time.php'
+                'Timbreuse\Views\date', 'Timbreuse\Views\logs\time.php'
             ],
             $data
         );
     }
 
-    private function time_list_week($userId, $day = null, $period = null)
+    /**
+     * use for week view with time
+     */
+    protected function get_day_time_table($userId, $date, $halfDay): array {
+        $model = model(LogsModel::class);
+        $logs = $model->get_logs_by_period($userId, $date, $halfDay);
+        $data['time'] = $this->get_time_array($logs);
+        $data['time'] = $this->get_hours_by_seconds($data['time']);
+        try {
+            $data['first'] = $model->get_border_log_by_period(
+                $userId,
+                $date,
+                $halfDay
+            )['date'];
+            $data['first'] = Time::parse($data['first'])->toTimeString();
+        } catch (\Exception $e) {
+            $data['first'] = '';
+        }
+        try {
+            $data['last'] = $model->get_border_log_by_period(
+                $userId,
+                $date,
+                $halfDay,
+                true
+            )['date'];
+            $data['last'] = Time::parse($data['last'])->toTimeString();
+        } catch (\Exception $e) {
+            $data['last'] = '';
+        }
+        return $data;
+    }
+
+    /**
+     * use for week view with time
+     */
+    protected function get_upper_day_time_table($userId, $date): array {
+        $data['dayNb'] = $date->day;
+        $data['morning'] = $this->get_day_time_table(
+            $userId,
+            $date,
+            'morning'
+        );
+        $data['afternoon'] = $this->get_day_time_table(
+            $userId,
+            $date,
+            'afternoon'
+        );
+        return $data;
+    }
+
+    /**
+     * use for week view with time
+     */
+    protected function get_week_time_table($userId, $date): array {
+        $monday = $this->get_last_monday($date);
+        $weekdays = [
+            'monday',
+            'tuesday',
+            'wednesday',
+            'thurday',
+            'friday',
+        ];
+        $data = array();
+        foreach ($weekdays as $i => $weekday) {
+            $data[$weekday] = $this->get_upper_day_time_table(
+                $userId,
+                $monday->addDays($i)
+            );
+        }
+        return $data;
+    }
+
+    protected function time_list_week($userId, $day = null, $period = null)
     {
         $usersModel = model(UsersModel::class);
         $user = $usersModel->get_users($userId);
@@ -140,7 +288,7 @@ class PersoLogs extends BaseController
         $day = Time::parse($day);
         $data['period'] = $period;
         $logsModel = model(LogsModel::class);
-        $data['items'] = $logsModel->get_week_time_table($userId, $day);
+        $data['items'] = $this->get_week_time_table($userId, $day);
 
         $data['list_title'] = $this->create_title($user, $day, $period);
         $data['buttons'] = $this->create_buttons($period, true);
@@ -239,8 +387,12 @@ class PersoLogs extends BaseController
         }
     }
 
-    public function perso_logs_list_old($userId, $day = null, $period = null)
+    /**
+     * @deprecated
+     */
+    private function perso_logs_list_old($userId, $day = null, $period = null)
     {
+        trigger_error('Deprecated function called.', E_USER_DEPRECATED);
         if (($day === null) or ($day == 'all')) {
             return redirect()->to(
                 $userId . '/' . Time::today()->toDateString() . '/all'
@@ -333,8 +485,12 @@ class PersoLogs extends BaseController
 
 
 
+    /**
+     * @deprecated
+     */
     protected function month_view($logs, $user, $day)
     {
+        trigger_error('Deprecated function called.', E_USER_DEPRECATED);
         $data['date'] = $day->toDateString();
         $data['list_title'] = $user['surname'] . ' ' . $user['name'] . ' mois '
             . $data['date'];
@@ -355,8 +511,12 @@ class PersoLogs extends BaseController
         return $data;
     }
 
+    /**
+     * @deprecated
+     */
     protected function week_view($logs, $user, $day)
     {
+        trigger_error('Deprecated function called.', E_USER_DEPRECATED);
         $data['date'] = $day->toDateString();
         $data['list_title'] = $user['surname'] . ' ' . $user['name'] .
             ' semaine ' . $data['date'];
@@ -377,8 +537,12 @@ class PersoLogs extends BaseController
         return $data;
     }
 
+    /**
+     * @deprecated
+     */
     protected function day_view($logs, $user, $day)
     {
+        trigger_error('Deprecated function called.', E_USER_DEPRECATED);
         $data['date'] = $day->toDateString();
         $data['list_title'] = $user['surname'] . ' ' . $user['name'] . ' ' .
             $data['date'];
@@ -399,8 +563,12 @@ class PersoLogs extends BaseController
         return $data;
     }
 
+    /**
+     * @deprecated
+     */
     protected function all_view($logs, $user)
     {
+        trigger_error('Deprecated function called.', E_USER_DEPRECATED);
         $data['items'] = $logs;
         $data['list_title'] = "Tout les logs de" . ' ' . $user['surname'] .
             ' ' .
@@ -429,23 +597,23 @@ class PersoLogs extends BaseController
 
     protected function is_same_month(Time $day1, Time $day2)
     {
-        $bMonths = $day1->getMonth() === $day2->getMonth();
-        $bYears = $day1->getYear() === $day2->getYear();
+        $bMonths = $day1->month === $day2->month;
+        $bYears = $day1->year === $day2->year;
         return $bMonths and $bYears;
     }
 
     protected function is_same_week(Time $day1, Time $day2)
     {
         $bWeek = $day1->getWeekOfYear() === $day2->getWeekOfYear();
-        $bYears = $day1->getYear() === $day2->getYear();
+        $bYears = $day1->year === $day2->year;
         return $bWeek and $bYears;
     }
 
-    protected function is_same_day(Time $day1, Time $day2)
+    protected function is_same_day(Time $day1, Time $day2): bool
     {
-        $bDay = $day1->getDay() === $day2->getDay();
-        $bMonths = $day1->getMonth() === $day2->getMonth();
-        $bYears = $day1->getYear() === $day2->getYear();
+        $bDay = $day1->day === $day2->day;
+        $bMonths = $day1->month === $day2->month;
+        $bYears = $day1->year === $day2->year;
         return $bDay and $bMonths and $bYears;
     }
 
@@ -484,7 +652,7 @@ class PersoLogs extends BaseController
         var_dump($time);
         // Expecting: 4680
     }
-    protected function test4()
+    private function test4()
     {
         $logs = array();
         $logs[0]['date'] = '2022-01-01 12:35';
@@ -510,7 +678,7 @@ class PersoLogs extends BaseController
         // Expecting: 8280
     }
 
-    public function test5()
+    private function test5()
     {
         $day = '2022-05-18';
         $day = Time::parse($day);
@@ -521,14 +689,14 @@ class PersoLogs extends BaseController
         var_dump($model->get_logs_by_period($userId, $day, $halfDay));
     }
 
-    public function test6()
+    private function test6()
     {
         $day = '2022-05-18';
         $day = Time::parse($day);
         var_dump($this->get_last_monday($day));
     }
 
-    public function test7()
+    private function test7()
     {
         $days[0] = '2022-05-18';
         $days[1] = '2022-05-18';
@@ -541,7 +709,7 @@ class PersoLogs extends BaseController
         }
     }
 
-    public function test8()
+    private function test8()
     {
         $day = '2022-05-18';
         $day = Time::parse($day);
@@ -555,7 +723,7 @@ class PersoLogs extends BaseController
         */
     }
 
-    public function test9()
+    private function test9()
     {
         $day = '2022-05-18';
         $day = Time::parse($day);
@@ -569,7 +737,7 @@ class PersoLogs extends BaseController
         */
     }
 
-    public function test10()
+    private function test10()
     {
         $day = '2022-05-18';
         $day = Time::parse($day);
@@ -591,7 +759,7 @@ class PersoLogs extends BaseController
             */
     }
 
-    public function test11()
+    private function test11()
     {
         $day = '2022-05-18';
         $day = Time::parse($day);
@@ -599,7 +767,7 @@ class PersoLogs extends BaseController
         var_dump($model->get_week_time_table('92', $day));
     }
 
-    public function test12()
+    private function test12()
     {
         $day = '2022-05-18';
         $day = Time::parse($day);
@@ -607,7 +775,7 @@ class PersoLogs extends BaseController
         var_dump($model->get_day_week_array('92', $day));
     }
 
-    public function test13()
+    private function test13()
     {
         $day = '2022-05-18';
         $day = Time::parse($day);

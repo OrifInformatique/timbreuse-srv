@@ -11,5 +11,7 @@ return [
     'firstEntry' => 'première entrée',
     'lastOuting' => 'dernière sortie',
     'time' => 'temps',
-    'period' => 'période',
+    'week' => 'semaine',
+    'enter' => 'entrée',
+    'exit' => 'sortie',
 ];
