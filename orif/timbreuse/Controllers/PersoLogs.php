@@ -160,12 +160,14 @@ class PersoLogs extends BaseController
     {
         $model = model(LogsModel::class);
         $logs = $model->get_filtered_logs($userId, $date, 'week');
-        $data['date'] = $this->get_workdays_text($date);
+        $data['label_week'] = $this->get_workdays_text($date);
         $data['time'] = $this->get_hours_by_seconds(
             $this->get_time_array($logs)
         );
+        $data['url'] = '../' . $date->toDateString() . '/week';
         return $data;
     }
+    
 
     protected function time_list_day($userId, $day = null, $period = null)
     {
@@ -197,7 +199,7 @@ class PersoLogs extends BaseController
         $this->display_view(
             [
                 'Timbreuse\Views\menu',
-                'Timbreuse\Views\date', 'Timbreuse\Views\logs\time.php'
+                'Timbreuse\Views\date', 'Timbreuse\Views\logs\day_time.php'
             ],
             $data
         );
@@ -230,7 +232,7 @@ class PersoLogs extends BaseController
         $this->display_view(
             [
                 'Timbreuse\Views\menu',
-                'Timbreuse\Views\date', 'Timbreuse\Views\logs\time.php'
+                'Timbreuse\Views\date', 'Timbreuse\Views\logs\month_time.php'
             ],
             $data
         );
@@ -275,6 +277,7 @@ class PersoLogs extends BaseController
     protected function get_upper_day_time_table($userId, $date): array
     {
         $data['dayNb'] = $date->day;
+        $data['url'] = '../' . $date->toDateString() . '/day';
         $data['morning'] = $this->get_day_time_table(
             $userId,
             $date,

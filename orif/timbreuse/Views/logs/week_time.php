@@ -13,7 +13,7 @@
                         <?= ucfirst(lang('tim_lang.hourly')) ?>
                     </th>
                     <?php foreach ($items as $key => $item) : ?>
-                        <th><?= ucfirst(lang('tim_lang.' . $key)) . ' ' . $item['dayNb']  ?></th>
+                        <th><a href="<?= $item['url'] ?>"><?= ucfirst(lang('tim_lang.' . $key)) . ' ' . $item['dayNb']  ?></a></th>
                     <?php endforeach ?>
                 </tr>
             </thead>
