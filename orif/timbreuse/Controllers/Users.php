@@ -40,7 +40,8 @@ class Users extends BaseController
 
         $data['primary_key_field']  = 'id_user';
         // $data['btn_create_label']   = 'Add an item';
-        $data['url_detail'] = "PersoLogs/perso_logs_list/";
+        #$data['url_detail'] = "PersoLogs/perso_logs_list/";
+        $data['url_detail'] = "PersoLogs/time_list/";
         // $data['url_update'] = "items_list/update/";
         // $data['url_delete'] = "items_list/delete/";
         // $data['url_create'] = "items_list/create/";

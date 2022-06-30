@@ -22,10 +22,13 @@
                     <th><?= $row ?></th>
                     <?php foreach ($items as $item) : ?>
                         <td>
-                            <p><?= lang('tim_lang.time') . ' : ' . $item[$halfKey]['time'] ?></p>
-                            <p><?= lang('tim_lang.firstEntry') . ' : ' . $item[$halfKey]['first'] ?></p>
-                            <p><?= lang('tim_lang.lastOuting') . ' : ' . $item[$halfKey]['last'] ?></p>
-
+                            <?php if (isset($item[$halfKey])) : ?>
+                                <p><?= lang('tim_lang.time') . ' : ' . $item[$halfKey]['time'] ?></p>
+                                <p><?= lang('tim_lang.firstEntry') . ' : ' . $item[$halfKey]['first'] ?></p>
+                                <p><?= lang('tim_lang.lastOuting') . ' : ' . $item[$halfKey]['last'] ?></p>
+                            <?php elseif (isset($item['time'])) : ?>
+                                <?= $item['time'] ?>
+                            <?php endif ?>
                         </td>
                     <?php endforeach ?>
                 </tr>

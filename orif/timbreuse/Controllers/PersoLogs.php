@@ -72,7 +72,7 @@ class PersoLogs extends BaseController
         }
         $this->display_view(
             [
-                'Timbreuse\Views\menu',
+                'Timbreuse\Views\period_menu',
                 'Timbreuse\Views\date', 'Common\Views\items_list'
             ],
             $data
@@ -198,7 +198,7 @@ class PersoLogs extends BaseController
         }
         $this->display_view(
             [
-                'Timbreuse\Views\menu',
+                'Timbreuse\Views\period_menu',
                 'Timbreuse\Views\date', 'Timbreuse\Views\logs\day_time.php'
             ],
             $data
@@ -231,7 +231,7 @@ class PersoLogs extends BaseController
         }
         $this->display_view(
             [
-                'Timbreuse\Views\menu',
+                'Timbreuse\Views\period_menu',
                 'Timbreuse\Views\date', 'Timbreuse\Views\logs\month_time.php'
             ],
             $data
@@ -288,6 +288,7 @@ class PersoLogs extends BaseController
             $date,
             'afternoon'
         );
+        $data['time'] = $this->get_time($userId, $date, 'day');
         return $data;
     }
 
@@ -322,7 +323,8 @@ class PersoLogs extends BaseController
         $data['title'] = "Welcome";
         $data['rows'] = [
             'morning' => lang('tim_lang.rowMorning'),
-            'afternoon' => lang('tim_lang.rowAfternoon')
+            'afternoon' => lang('tim_lang.rowAfternoon'),
+            'total' => lang('tim_lang.timeTotal'),
         ];
         $day = Time::parse($day);
         $data['period'] = $period;
@@ -339,7 +341,7 @@ class PersoLogs extends BaseController
         }
         $this->display_view(
             [
-                'Timbreuse\Views\menu',
+                'Timbreuse\Views\period_menu',
                 'Timbreuse\Views\date', 'Timbreuse\Views\logs\week_time.php'
             ],
             $data
@@ -349,7 +351,7 @@ class PersoLogs extends BaseController
     {
         if (($day === null) or ($day == 'all')) {
             return redirect()->to(
-                $userId . '/' . Time::today()->toDateString() . '/all'
+                $userId . '/' . Time::today()->toDateString() . '/month'
             );
         }
         if ($period === null) {
