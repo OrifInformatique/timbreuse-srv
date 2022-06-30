@@ -17,4 +17,9 @@ return [
     'hour' => 'heure',
     'enter/exit' => 'entrée/sortie',
     'timeTotal' => 'Temps total',
+    'day' => 'jour',
+    'week' => 'semaine',
+    'month' => 'mois',
+    'today' => 'aujourd’hui',
+    'all' => 'tout',
 ];

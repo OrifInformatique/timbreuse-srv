@@ -16,7 +16,7 @@
             </thead>
             <?php foreach ($items as $item) : ?>
                 <tr>
-                    <th><?= $item['date'] ?></th>
+                    <td><?= $item['date'] ?></td>
                     <td><?= $item['time'] ?></td>
                 </tr>
             <?php endforeach ?>

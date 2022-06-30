@@ -381,24 +381,31 @@ class PersoLogs extends BaseController
     {
         switch ($period) {
             case 'day':
-                $interval = 1;
+                $past_day_str = $day->subDays(1)->toDateString();
+                $after_day_str = $day->addDays(1)->toDateString();
                 break;
             case 'month':
-                $interval = 30;
+                if ($day->day > 28) {
+                    # avoid skip a all month
+                    $day = $day->setDay(28);
+                }
+                $past_day_str = $day->subMonths(1)->toDateString();
+                $after_day_str = $day->addMonths(1)->toDateString();
                 break;
             case 'week':
-                $interval = 7;
+                $past_day_str = $day->subDays(7)->toDateString();
+                $after_day_str = $day->addDays(7)->toDateString();
                 break;
         }
+                $past_link = '../' . $past_day_str .  '/' . $period;
+                $after_link = '../' . $after_day_str .  '/' . $period;
         $buttons = [
             [
-                'link' => '../' . $day->subDays($interval)->toDateString() .
-                    '/' . $period,
+                'link' => $past_link,
                 'label' => '<'
             ],
             [
-                'link' => '../' . $day->addDays($interval)->toDateString()
-                    . '/' . $period,
+                'link' => $after_link,
                 'label' => '>'
             ],
         ];
@@ -486,7 +493,10 @@ class PersoLogs extends BaseController
     {
         $data = array();
         if (!$timeList) {
-            array_push($data, ['link' => '../', 'label' => 'Tout']);
+            array_push($data, [
+                'link' => '../',
+                'label' => ucfirst(lang('tim_lang.all'))
+            ]);
         }
         if ($period != 'all') {
             array_push(
@@ -494,7 +504,7 @@ class PersoLogs extends BaseController
                 [
                     'link' => '../' . Time::today()->toDateString() . '/' .
                         $period,
-                    'label' => 'Aujourd’hui'
+                    'label' => ucfirst(lang('tim_lang.today')),
                 ]
             );
         } else {
@@ -502,13 +512,22 @@ class PersoLogs extends BaseController
                 $data,
                 [
                     'link' => '../' . Time::today()->toDateString(),
-                    'label' => 'Aujourd’hui'
+                    'label' => ucfirst(lang('tim_lang.today')),
                 ]
             );
         }
-        array_push($data, ['link' => 'day', 'label' => 'Jour']);
-        array_push($data, ['link' => 'week', 'label' => 'Semaine']);
-        array_push($data, ['link' => 'month', 'label' => 'Mois']);
+        array_push($data, [
+            'link' => 'day',
+            'label' => ucfirst(lang('tim_lang.day'))
+        ]);
+        array_push($data, [
+            'link' => 'week',
+            'label' => ucfirst(lang('tim_lang.week'))
+        ]);
+        array_push($data, [
+            'link' => 'month',
+            'label' => ucfirst(lang('tim_lang.month'))
+        ]);
         return $data;
     }
 
