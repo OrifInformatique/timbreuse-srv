@@ -248,25 +248,25 @@ class PersoLogs extends BaseController
         $data['time'] = $this->get_time_array($logs);
         $data['time'] = $this->get_hours_by_seconds($data['time']);
         try {
-            $data['first'] = $model->get_border_log_by_period(
+            $data['firstEntry'] = $model->get_border_log_by_period(
                 $userId,
                 $date,
                 $halfDay
             )['date'];
-            $data['first'] = Time::parse($data['first'])->toTimeString();
+            $data['firstEntry'] = Time::parse($data['firstEntry'])->toTimeString();
         } catch (\Exception $e) {
-            $data['first'] = '';
+            $data['firstEntry'] = '';
         }
         try {
-            $data['last'] = $model->get_border_log_by_period(
+            $data['lastOuting'] = $model->get_border_log_by_period(
                 $userId,
                 $date,
                 $halfDay,
                 true
             )['date'];
-            $data['last'] = Time::parse($data['last'])->toTimeString();
+            $data['lastOuting'] = Time::parse($data['lastOuting'])->toTimeString();
         } catch (\Exception $e) {
-            $data['last'] = '';
+            $data['lastOuting'] = '';
         }
         return $data;
     }
@@ -326,9 +326,15 @@ class PersoLogs extends BaseController
             'afternoon' => lang('tim_lang.rowAfternoon'),
             'total' => lang('tim_lang.timeTotal'),
         ];
+        $data['rows2'] = [
+            'time' => lang('tim_lang.time'),
+            'firstEntry' => lang('tim_lang.firstEntry'),
+            'lastOuting' => lang('tim_lang.lastOuting'),
+        ];
         $day = Time::parse($day);
         $data['period'] = $period;
         $data['items'] = $this->get_week_time_table($userId, $day);
+        $data['sumTime'] = $this->get_time($userId, $day, $period);
 
         $data['list_title'] = $this->create_title($user, $day, $period);
         $data['buttons'] = $this->create_buttons($period, true);

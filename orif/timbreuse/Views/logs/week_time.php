@@ -12,27 +12,33 @@
                     <th>
                         <?= ucfirst(lang('tim_lang.hourly')) ?>
                     </th>
+                    <th></th>
                     <?php foreach ($items as $key => $item) : ?>
                         <th><a href="<?= $item['url'] ?>"><?= ucfirst(lang('tim_lang.' . $key)) . ' ' . $item['dayNb']  ?></a></th>
                     <?php endforeach ?>
                 </tr>
             </thead>
             <?php foreach ($rows as $halfKey => $row) : ?>
-                <tr>
-                    <th><?= $row ?></th>
-                    <?php foreach ($items as $item) : ?>
-                        <td>
-                            <?php if (isset($item[$halfKey])) : ?>
-                                <p><?= lang('tim_lang.time') . ' : ' . $item[$halfKey]['time'] ?></p>
-                                <p><?= lang('tim_lang.firstEntry') . ' : ' . $item[$halfKey]['first'] ?></p>
-                                <p><?= lang('tim_lang.lastOuting') . ' : ' . $item[$halfKey]['last'] ?></p>
-                            <?php elseif (isset($item['time'])) : ?>
-                                <?= $item['time'] ?>
-                            <?php endif ?>
-                        </td>
-                    <?php endforeach ?>
-                </tr>
+                <?php foreach ($rows2 as $typeKey => $type) : ?>
+                    <?php if (!(($halfKey == array_key_last($rows)) and ($typeKey != array_key_first($rows2)))) : ?>
+                        <tr>
+                            <th><?= $typeKey == array_key_first($rows2) ? $row : '' ?></th>
+                            <td><?= $halfKey == array_key_last($rows) ? '' : ucfirst($type) ?></td>
+                            <?php foreach ($items as $item) : ?>
+                                <td>
+                                    <?php if (isset($item[$halfKey])) : ?>
+                                        <p><?= $item[$halfKey][$typeKey] ?></p>
+                                    <?php elseif (isset($item['time'])) : ?>
+                                        <?= $item['time'] ?>
+                                    <?php endif ?>
+                                </td>
+                            <?php endforeach ?>
+                        </tr>
+                    <?php endif ?>
+                <?php endforeach ?>
             <?php endforeach ?>
+            <th><?= ucfirst(lang('tim_lang.weekTime')) ?></th>
+            <td><?= $sumTime ?></td>
         </table>
     </div>
 </div>

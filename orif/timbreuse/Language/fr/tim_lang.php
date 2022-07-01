@@ -22,4 +22,5 @@ return [
     'month' => 'mois',
     'today' => 'aujourd’hui',
     'all' => 'tout',
+    'weekTime' => 'temps total de la semaine'
 ];
