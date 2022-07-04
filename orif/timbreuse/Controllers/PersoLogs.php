@@ -10,6 +10,7 @@ use Timbreuse\Models\BadgesModel;
 use Timbreuse\Models\LogsModel;
 use Timbreuse\Models\UsersModel;
 use CodeIgniter\I18n\Time;
+use Timbreuse\Models\AccessTimModel;
 
 class PersoLogs extends BaseController
 {
@@ -20,13 +21,18 @@ class PersoLogs extends BaseController
     ) {
         $this->access_level = config(
             '\User\Config\UserConfig'
-        )->access_lvl_admin;
+        )->access_lvl_registered;
         parent::initController($request, $response, $logger);
         $this->session = \Config\Services::session();
     }
 
-    public function perso_logs_list($userId, $day = null, $period = null)
+    /**
+     * @deprecated
+     * is move in adminLogs
+     */
+    private function perso_logs_list($userId, $day = null, $period = null)
     {
+        trigger_error('Deprecated function called.', E_USER_DEPRECATED);
         if (($day === null) or ($day == 'all')) {
             return redirect()->to(
                 $userId . '/' . Time::today()->toDateString() . '/all'
@@ -111,7 +117,7 @@ class PersoLogs extends BaseController
         );
     }
 
-    protected function get_hours_by_seconds($seconds): string
+    static function get_hours_by_seconds($seconds): string
     {
         $hours = floor($seconds / 3600);
         $seconds -= $hours * 3600;
@@ -352,9 +358,15 @@ class PersoLogs extends BaseController
             ],
             $data
         );
+
     }
-    public function time_list($userId, $day = null, $period = null)
+    /**
+     * @deprecated
+     * is move in adminLogs
+     */
+    private function time_list($userId, $day = null, $period = null)
     {
+        trigger_error('Deprecated function called.', E_USER_DEPRECATED);
         if (($day === null) or ($day == 'all')) {
             return redirect()->to(
                 $userId . '/' . Time::today()->toDateString() . '/month'
@@ -363,6 +375,35 @@ class PersoLogs extends BaseController
         if ($period === null) {
             return redirect()->to($day . '/day');
         }
+
+        switch ($period) {
+            case 'week':
+                return $this->time_list_week($userId, $day, $period);
+                break;
+            case 'month':
+                return $this->time_list_month($userId, $day, $period);
+                break;
+            case 'day':
+                return $this->time_list_day($userId, $day, $period);
+                break;
+            default:
+                return $this->time_list_week($userId, $day, $period);
+                break;
+        }
+    }
+
+    public function perso_time($day = null, $period = null)
+    {
+        if (($day === null) or ($day == 'all')) {
+            return redirect()->to(
+                'perso_time/' . Time::today()->toDateString() . '/month'
+            );
+        }
+        if ($period === null) {
+            return redirect()->to($day . '/day');
+        }
+        $model = model(AccessTimModel::class);
+        $userId = $model->get_access_users($this->session->get('user_id'));
 
         switch ($period) {
             case 'week':

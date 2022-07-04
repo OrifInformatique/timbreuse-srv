@@ -106,3 +106,17 @@ AND date > '2022-05-18 12:30'
 AND date < '2022-05-18 17:45'
 AND inside = 0
 ORDER BY date DESC LIMIT 1;
+----------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `access_tim_user`
+(
+    `id_access` int NOT NULL AUTO_INCREMENT,
+    `id_user` int(11) NOT NULL,
+    `id_ci_user` int(10) unsigned NOT NULL,
+    PRIMARY KEY(`id_access`),
+    FOREIGN KEY (`id_user`) REFERENCES `user`(`id_user`),
+    FOREIGN KEY (`id_ci_user`) REFERENCES `ci_user`(`id`)
+);
+
+INSERT INTO `access_tim_user` (`id_user`, `id_ci_user`)
+VALUES (92, 8);

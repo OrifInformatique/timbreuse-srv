@@ -26,6 +26,7 @@ class Home extends BaseController
         $data['buttons'] = [
             ['link' => 'logs', 'label' => 'Logs'],
             ['link' => 'users', 'label' => 'Users'],
+            ['link' => 'persoLogs\perso_time', 'label' => 'perso_time'],
         ];
 
 		$this->display_view(['Timbreuse\Views\menu'], $data);
