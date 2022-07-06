@@ -173,7 +173,7 @@ class PersoLogs extends BaseController
         $data['url'] = '../' . $date->toDateString() . '/week';
         return $data;
     }
-    
+
 
     protected function time_list_day($userId, $day = null, $period = null)
     {
@@ -209,7 +209,6 @@ class PersoLogs extends BaseController
             ],
             $data
         );
-
     }
     protected function time_list_month($userId, $day = null, $period = null)
     {
@@ -358,7 +357,6 @@ class PersoLogs extends BaseController
             ],
             $data
         );
-
     }
     /**
      * @deprecated
@@ -394,6 +392,20 @@ class PersoLogs extends BaseController
 
     public function perso_time($day = null, $period = null)
     {
+
+        if (
+            session()->get('user_access') == config('\User\Config\UserConfig')
+            ->access_lvl_admin
+        ) {
+            return redirect()->to('./users');
+        } elseif (
+            session()->get('user_access') == config('\User\Config\UserConfig')
+            ->access_lvl_registered
+        ) {
+        } else {
+            return;
+        }
+
         if (($day === null) or ($day == 'all')) {
             return redirect()->to(
                 'perso_time/' . Time::today()->toDateString() . '/month'
@@ -444,8 +456,8 @@ class PersoLogs extends BaseController
                 $after_day_str = $day->addDays(7)->toDateString();
                 break;
         }
-                $past_link = '../' . $past_day_str .  '/' . $period;
-                $after_link = '../' . $after_day_str .  '/' . $period;
+        $past_link = '../' . $past_day_str .  '/' . $period;
+        $after_link = '../' . $after_day_str .  '/' . $period;
         $buttons = [
             [
                 'link' => $past_link,
@@ -737,18 +749,17 @@ class PersoLogs extends BaseController
                 $data['date']->second
             );
             $data['time'] = $log['inside'] ? lang('tim_lang.enter') :
-            lang('tim_lang.exit');
+                lang('tim_lang.exit');
             return $data;
         }, $logs);
     }
-    
+
     protected function get_time($userId, Time $day, string $period): string
     {
         $model = model(LogsModel::class);
         $logs = $model->get_filtered_logs($userId, $day, $period);
         $time = $this->get_time_array($logs);
         return $this->get_hours_by_seconds($time);
-
     }
 
     private function test1()

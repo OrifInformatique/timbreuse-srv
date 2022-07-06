@@ -22,5 +22,6 @@ return [
     'month' => 'mois',
     'today' => 'aujourd’hui',
     'all' => 'tout',
-    'weekTime' => 'temps total de la semaine'
+    'weekTime' => 'temps total de la semaine',
+    'delete' => 'supprimer',
 ];
