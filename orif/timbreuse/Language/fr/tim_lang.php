@@ -24,4 +24,14 @@ return [
     'all' => 'tout',
     'weekTime' => 'temps total de la semaine',
     'delete' => 'supprimer',
+    'cancel' => 'annuler',
+    'confirm' => 'confirmer',
+    'addAccess' => 'Voulez-vous ajouter l’autorisation au compte site web « %s » de contrôler les logs du compte timbreuse « %s » ?',
+    'deleteAccess' => 'Voulez-vous supprimer l’autorisation du compte site web « %s » de contrôler les logs du compte timbreuse « %s » ?',
+    'add' => 'ajouter',
+    'ci_users_list_title' => 'Accès au compte timbreuse « %s »',
+    'username' => 'nom d’utilisateur',
+    'id_site' => 'id site',
+    'access' => 'accès',
+
 ];

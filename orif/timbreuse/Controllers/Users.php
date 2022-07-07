@@ -59,11 +59,17 @@ class Users extends BaseController
         $modelCi = model(User_model::class);
         $data['title'] = "Welcome";
 
+        $data['list_title'] = sprintf(
+            lang('tim_lang.ci_users_list_title'),
+            $this->get_username($userId)
+        );
+
+
 
         $data['columns'] = [
-            'id' => 'id_site',
-            'username' => 'Prénom',
-            'access' => 'accès',
+            'id' => lang('tim_lang.id_site'),
+            'username' => ucfirst(lang('tim_lang.username')),
+            'access' => ucfirst(lang('tim_lang.access')),
         ];
 
         $data['items'] = $model->get_access_users_timb_to_ci($userId);
@@ -88,30 +94,70 @@ class Users extends BaseController
         }, $data['items']);
 
         $data['primary_key_field']  = 'id';
-        $data['url_update'] = 'Users/add_access/' . $userId . '/';
-        $data['url_delete'] = 'Users/delete_access/' . $userId . '/';
+        $data['url_update'] = 'Users/form_add_access/' . $userId . '/';
+        $data['url_delete'] = 'Users/form_delete_access/' . $userId . '/';
         $this->display_view('Common\Views\items_list', $data);
+    }
+
+    protected function get_usernames($userId, $ciUserId){
+        $userName = $this->get_username($userId);
+
+        $ciUserName = $this->get_ci_username($ciUserId);
+        $data = array();
+        $data['userName'] = $userName;
+        $data['ciUserName'] = $ciUserName;
+        return $data;
+
+    }
+
+    protected function get_username($userId){
+        $model = model(UsersModel::class);
+        $userName = $model->select('name, surname')->find($userId);
+        $userName = $userName['name'].' '.$userName['surname'];
+        return $userName;
+    }
+
+    protected function get_ci_username($ciUserId){
+        $ciModel = model(User_model::class);
+        return $ciModel->select('username')->find($ciUserId)['username'];
     }
 
     public function form_add_access($userId, $ciUserId)
     {
+
+        $userNames = $this->get_usernames($userId, $ciUserId);
         $data = array();
         $data['userId'] = $userId;
         $data['ciUserId'] = $ciUserId;
-        $this->display_view('timbreuse\Views\confirm_form', $data);
+        $data['link'] = '../../post_add_access';
+        $data['cancel_link'] = '../../ci_users_list/' . $userId;
+        $data['label_button'] = lang('tim_lang.add');
+        $data['text'] = sprintf(
+            lang('tim_lang.addAccess'),
+            $userNames['ciUserName'],
+            $userNames['userName']
+        );
+        $this->display_view('Timbreuse\Views\confirm_form', $data);
     }
 
-    public function add_access($userId, $ciUserId)
+    protected function add_access($userId, $ciUserId)
     {
         $model = model(AccessTimModel::class);
         $data = array();
         $data['id_user'] = $userId;
         $data['id_ci_user'] = $ciUserId;
         $model->save($data);
-        return redirect()->back();
+        return redirect()->to('ci_users_list/' . $userId);
     }
 
-    public function delete_access($userId, $ciUserId)
+    public function post_add_access()
+    {
+        $request = \Config\Services::request();
+        return $this->add_access($request->getPostGet('userId'), $request
+            ->getPostGet('ciUserId'));
+    }
+
+    protected function delete_access($userId, $ciUserId)
     {
         $model = model(AccessTimModel::class);
         $data = array();
@@ -119,6 +165,30 @@ class Users extends BaseController
         $data['id_ci_user'] = $ciUserId;
         $model->where('id_user=', $userId)->where('id_ci_user=', $ciUserId)
             ->delete();
-        return redirect()->back();
+        return redirect()->to('ci_users_list/' . $userId);
+    }
+
+    public function form_delete_access($userId, $ciUserId)
+    {
+        $userNames = $this->get_usernames($userId, $ciUserId);
+        $data = array();
+        $data['userId'] = $userId;
+        $data['ciUserId'] = $ciUserId;
+        $data['link'] = '../../post_delete_access';
+        $data['cancel_link'] = '../../ci_users_list/' . $userId;
+        $data['label_button'] = lang('tim_lang.delete');
+        $data['text'] = sprintf(
+            lang('tim_lang.deleteAccess'),
+            $userNames['ciUserName'],
+            $userNames['userName']
+        );
+        $this->display_view('Timbreuse\Views\confirm_form', $data);
+    }
+
+    public function post_delete_access()
+    {
+        $request = \Config\Services::request();
+        return $this->delete_access($request->getPostGet('userId'), $request
+            ->getPostGet('ciUserId'));
     }
 }
