@@ -35,5 +35,8 @@ return [
     'access' => 'accès',
     'yes' => 'oui',
     'no' => 'non',
+    'id' => 'id',
+    'name' => 'prénom',
+    'surname' => 'nom',
 
 ];

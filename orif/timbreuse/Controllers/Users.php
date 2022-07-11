@@ -35,9 +35,9 @@ class Users extends BaseController
         $data['list_title'] = "Test tout les utilisateurs de la timbeurse";
 
         $data['columns'] = [
-            'id_user' => 'id',
-            'name' => 'Prénom',
-            'surname' => 'Nom'
+            'id_user' =>ucfirst(lang('tim_lang.id')),
+            'name' =>ucfirst(lang('tim_lang.name')),
+            'surname' =>ucfirst(lang('tim_lang.surname'))
         ];
         $data['items'] = $model->get_users();
 
@@ -70,8 +70,6 @@ class Users extends BaseController
             'access' => ucfirst(lang('tim_lang.access')),
         ];
 
-        $data['items'] = $model->get_access_users_timb_to_ci($userId);
-
         $data['items'] = $modelCi->select('id, username')->findall();
         $access = $model->select('id_ci_user')->where('id_user=', $userId)
             ->findall();
@@ -91,17 +89,7 @@ class Users extends BaseController
         $data['url_delete'] = 'Users/form_delete_access/' . $userId . '/';
         $this->display_view('Common\Views\items_list', $data);
     }
-
-    public function access_user_list($userId)
-    {
-        $model = model(AccessTimModel::class);
-        $data['items'] = $model->select('username, id, user.id_user')
-        ->from('user')->where('id=id_ci_user')
-        ->where('id_user=', $userId)->findall();
-        var_dump($data['items']);
-        
-    }
-
+    
     protected function get_usernames($userId, $ciUserId){
         $userName = $this->get_username($userId);
 

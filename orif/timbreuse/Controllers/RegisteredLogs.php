@@ -37,4 +37,6 @@ class RegisteredLogs extends BaseController
 
     }
 
+
+
 }

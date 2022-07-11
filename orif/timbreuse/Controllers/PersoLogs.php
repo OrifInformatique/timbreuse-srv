@@ -210,6 +210,7 @@ class PersoLogs extends BaseController
             $data
         );
     }
+
     protected function time_list_month($userId, $day = null, $period = null)
     {
 
@@ -358,6 +359,7 @@ class PersoLogs extends BaseController
             $data
         );
     }
+
     /**
      * @deprecated
      * is move in adminLogs
@@ -406,7 +408,36 @@ class PersoLogs extends BaseController
             return;
         }
 
-        if (($day === null) or ($day == 'all')) {
+        if (!(session()->has('userIdAccess'))) {
+            $model = model(AccessTimModel::class);
+            $userId = $model->get_access_users($this->session->get('user_id'));
+            switch (count($userId)) {
+                case 0:
+                    return $this->display_view('\User\errors\403error');
+                    break;
+                case 1:
+                    $userId = $userId[0]['id_user'];
+                    break;
+                default:
+                    return $this->access_user_list();
+                    break;
+            }
+
+        } elseif (($day === null) and ($period === null)) {
+            session()->remove('userIdAccess');
+        } else {
+            $model = model(AccessTimModel::class);
+            $ciUserId = $this->session->get('user_id');
+            $userId = session()->get('userIdAccess');
+            if (!($model->is_access($ciUserId, $userId))) {
+                session()->remove('userIdAccess');
+                return $this->display_view('\User\errors\403error');
+            }
+
+        }
+
+
+        if (($day === null)) {
             return redirect()->to(
                 'perso_time/' . Time::today()->toDateString() . '/month'
             );
@@ -414,9 +445,12 @@ class PersoLogs extends BaseController
         if ($period === null) {
             return redirect()->to($day . '/day');
         }
-        $model = model(AccessTimModel::class);
-        $userId = $model->get_access_users($this->session->get('user_id'));
 
+        return $this->perso_time_period($userId, $day, $period);
+
+    }
+
+    protected function perso_time_period($userId, $day, $period) {
         switch ($period) {
             case 'week':
                 return $this->time_list_week($userId, $day, $period);
@@ -431,6 +465,7 @@ class PersoLogs extends BaseController
                 return $this->time_list_week($userId, $day, $period);
                 break;
         }
+
     }
 
 
@@ -762,6 +797,39 @@ class PersoLogs extends BaseController
         return $this->get_hours_by_seconds($time);
     }
 
+    public function access_user_list()
+    {
+
+        $ciUserId = $this->session->get('user_id');
+        $model = model(AccessTimModel::class);
+        $data['items'] = $model->get_access_users_with_info($ciUserId);
+        $data['columns'] = [
+            'name' => ucfirst(lang('tim_lang.name')),
+            'surname' => ucfirst(lang('tim_lang.surname')),
+        ];
+        $data['primary_key_field']  = 'id_user';
+        $data['url_detail'] = 'PersoLogs/access_user/';
+        $this->display_view('Common\Views\items_list', $data);
+        
+    }
+
+    public function access_user($userId)
+    {
+        $model = model(AccessTimModel::class);
+        $ciUserId = $this->session->get('user_id');
+
+        if ($model->is_access($ciUserId, $userId)) {
+            session()->set('userIdAccess', $userId);
+            $today = Time::today()->toDateString();
+            return redirect()->to(
+                './PersoLogs/perso_time/' . $today . '/month'
+            );
+        }
+    }
+
+
+
+
     private function test1()
     {
         $model = model(LogsModel::class);
@@ -940,5 +1008,11 @@ class PersoLogs extends BaseController
         $day = '2022-05-18 12:11:22';
         $day = Time::parse($day);
         var_dump($this->get_time('92', $day, 'week'));
+    }
+
+    private function test16()
+    {
+        $model = model(AccessTimModel::class);
+        var_dump($model->is_access(8, 92));
     }
 }
