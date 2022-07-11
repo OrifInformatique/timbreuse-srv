@@ -64,8 +64,6 @@ class Users extends BaseController
             $this->get_username($userId)
         );
 
-
-
         $data['columns'] = [
             'id' => lang('tim_lang.id_site'),
             'username' => ucfirst(lang('tim_lang.username')),
@@ -74,10 +72,6 @@ class Users extends BaseController
 
         $data['items'] = $model->get_access_users_timb_to_ci($userId);
 
-        #     $data['items'] = $modelCi->select('username, id, id_user')
-        #         ->from('access_tim_user')->where('id=id_ci_user')
-        #         ->where('id_user=', $userId)->findall();
-        #     var_dump($data['items']);
         $data['items'] = $modelCi->select('id, username')->findall();
         $access = $model->select('id_ci_user')->where('id_user=', $userId)
             ->findall();
@@ -86,10 +80,9 @@ class Users extends BaseController
             return array_pop($access);
         }, $access);
 
-
-
         $data['items'] = array_map(function (array $item) use ($access) {
-            $item['access'] = array_search($item['id'], $access) !== false;
+            $item['access'] = array_search($item['id'], $access) !== false ?
+                lang('tim_lang.yes') : lang('tim_lang.no');
             return $item;
         }, $data['items']);
 
@@ -97,6 +90,16 @@ class Users extends BaseController
         $data['url_update'] = 'Users/form_add_access/' . $userId . '/';
         $data['url_delete'] = 'Users/form_delete_access/' . $userId . '/';
         $this->display_view('Common\Views\items_list', $data);
+    }
+
+    public function access_user_list($userId)
+    {
+        $model = model(AccessTimModel::class);
+        $data['items'] = $model->select('username, id, user.id_user')
+        ->from('user')->where('id=id_ci_user')
+        ->where('id_user=', $userId)->findall();
+        var_dump($data['items']);
+        
     }
 
     protected function get_usernames($userId, $ciUserId){
@@ -107,7 +110,6 @@ class Users extends BaseController
         $data['userName'] = $userName;
         $data['ciUserName'] = $ciUserName;
         return $data;
-
     }
 
     protected function get_username($userId){

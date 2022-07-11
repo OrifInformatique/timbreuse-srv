@@ -33,5 +33,7 @@ return [
     'username' => 'nom d’utilisateur',
     'id_site' => 'id site',
     'access' => 'accès',
+    'yes' => 'oui',
+    'no' => 'non',
 
 ];
