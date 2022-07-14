@@ -120,3 +120,39 @@ CREATE TABLE IF NOT EXISTS `access_tim_user`
 
 INSERT INTO `access_tim_user` (`id_user`, `id_ci_user`)
 VALUES (92, 8);
+
+----------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `fake_log`(
+    `id_fake_log` int NOT NULL AUTO_INCREMENT,
+    `id_user` int(11) NOT NULL,
+    `id_ci_user` int(10) unsigned NOT NULL,
+    `date` datetime NOT NULL,
+    `date_site` datetime NOT NULL DEFAULT NOW(),
+    `inside` tinyint(1) NOT NULL,
+    PRIMARY KEY (`id_fake_log`),
+    FOREIGN KEY (`id_user`) REFERENCES `user`(`id_user`),
+    FOREIGN KEY (`id_ci_user`) REFERENCES `ci_user`(`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-------------------------------------------------------------------
+insert into fake_log values (1, 92, 8, '2022-05-30 16:00:00', now(), 0);
+-------------------------------------------------------------------
+select date from fake_log, log;
+-------------------------------------------------------------------
+select date from fake_log
+UNION
+select date from log;
+-------------------------------------------------------------------
+alter table log drop constraint primary key;
+alter table log add id_log int not null AUTO_INCREMENT primary key;
+-------------------------------------------------------------------
+select date, id_user, inside, id_fake_log from fake_log
+UNION
+select date, id_user, inside, NULL from log, badge where badge.id_badge = log.id_badge 
+Order by date;
+-------------------------------------------------------------------
+CREATE VIEW log_fake_log AS 
+SELECT `date`, `id_user`, `inside`, `id_fake_log` FROM `fake_log`
+UNION
+SELECT `date`, `id_user`, `inside`, NULL FROM `log`, `badge` WHERE `badge`.`id_badge` = `log`.`id_badge` 
+ORDER BY `date`;
+-------------------------------------------------------------------

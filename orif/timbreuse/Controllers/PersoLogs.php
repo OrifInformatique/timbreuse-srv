@@ -11,6 +11,7 @@ use Timbreuse\Models\LogsModel;
 use Timbreuse\Models\UsersModel;
 use CodeIgniter\I18n\Time;
 use Timbreuse\Models\AccessTimModel;
+use Timbreuse\Models\LogsFakeLogsModel;
 
 class PersoLogs extends BaseController
 {
@@ -190,6 +191,7 @@ class PersoLogs extends BaseController
         $data['items'] = $this->get_day_view_day_array($userId, $day);
         $sumTime = array();
         $sumTime['time'] = $this->get_time($userId, $day, $period);
+        $sumTime['modifyTime'] = $this->get_time($userId, $day, $period, true);
         $sumTime['date'] = lang('tim_lang.timeTotal');
         array_push($data['items'], $sumTime);
 
@@ -394,7 +396,6 @@ class PersoLogs extends BaseController
 
     public function perso_time($day = null, $period = null)
     {
-
         if (
             session()->get('user_access') == config('\User\Config\UserConfig')
             ->access_lvl_admin
@@ -427,13 +428,8 @@ class PersoLogs extends BaseController
             session()->remove('userIdAccess');
         } else {
             $model = model(AccessTimModel::class);
-            $ciUserId = $this->session->get('user_id');
             $userId = session()->get('userIdAccess');
-            if (!($model->is_access($ciUserId, $userId))) {
-                session()->remove('userIdAccess');
-                return $this->display_view('\User\errors\403error');
-            }
-
+            $this->check_and_block_user();
         }
 
 
@@ -468,7 +464,31 @@ class PersoLogs extends BaseController
 
     }
 
+    protected function is_session_access()
+    {
+        if (session()->has('userIdAccess')) {
+            $model = model(AccessTimModel::class);
+            $ciUserId = session()->get('user_id');
+            $userId = session()->get('userIdAccess');
+            return $model->is_access($ciUserId, $userId);
+        } else {
+            return false;
+        }
+    }
 
+    protected function block_user()
+    {
+        session()->remove('userIdAccess');
+        return $this->display_view('\User\errors\403error');
+    }
+    
+    protected function check_and_block_user()
+    {
+        if (!($this->is_session_access())) {
+            return $this->block_user();
+        }
+
+    }
 
 
     protected function create_time_links($day, $period)
@@ -789,9 +809,13 @@ class PersoLogs extends BaseController
         }, $logs);
     }
 
-    protected function get_time($userId, Time $day, string $period): string
+    protected function get_time($userId, Time $day, string $period, $fake=false): string
     {
-        $model = model(LogsModel::class);
+        if (!$fake) {
+            $model = model(LogsModel::class);
+        } else {
+            $model = model(LogsFakeLogsModel::class);
+        }
         $logs = $model->get_filtered_logs($userId, $day, $period);
         $time = $this->get_time_array($logs);
         return $this->get_hours_by_seconds($time);
@@ -825,6 +849,18 @@ class PersoLogs extends BaseController
                 './PersoLogs/perso_time/' . $today . '/month'
             );
         }
+    }
+
+    public function detail_modify($fakeLogFakeId=1){
+        $model = model(LogsFakeLogsModel::class);
+        $data['items'] = $model->find($fakeLogFakeId);
+        $data['labels'] = array();
+        $data['labels']['date'] = 'date';
+        $data['labels']['id_user'] = 'id ut';
+        $data['labels']['inside'] = 'en';
+        $data['labels']['id_fake_log'] = 'test';
+        var_dump($data['items']);
+        $this->display_view('Timbreuse\Views\logs\modify_log', $data);
     }
 
 
@@ -1014,5 +1050,25 @@ class PersoLogs extends BaseController
     {
         $model = model(AccessTimModel::class);
         var_dump($model->is_access(8, 92));
+    }
+
+    public function test17()
+    {
+        $model = model(LogsFakeLogsModel::class);
+        $day = Time::parse('2022-05-31');
+        var_dump($model->get_border_log_by_period(92, $day, 'morning', true));
+    }
+
+    public function test18()
+    {
+        $data['items'] = array();
+        $data['items'][0]['label'] = 'test';
+        $data['items'][0]['data'] = 'data';
+        $data['items'][1]['label'] = 'test2';
+        $data['items'][1]['data'] = 'data2';
+        $data['items'][2]['label'] = 'test3';
+        $data['items'][2]['data'] = 'data3';
+        $data['list_title'] = 'test';
+        $this->display_view('Timbreuse\Views\logs\modify_log', $data);
     }
 }

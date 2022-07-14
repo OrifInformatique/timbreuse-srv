@@ -20,7 +20,7 @@ class LogsModel extends Model
         }
     }
 
-    public function get_id_badge($userId)
+    public function where_id_badge($userId)
     {
         $modelBadge = model(BadgesModel::class);
         $this->whereIn('id_badge', function () use ($modelBadge, $userId) {
@@ -30,7 +30,7 @@ class LogsModel extends Model
 
     public function get_filtered_logs($userId, $date, $period): array
     {
-        $this->get_id_badge($userId);
+        $this->where_id_badge($userId);
         if ($period == 'day') {
             $this->where('DAY(date)', $date->getDay());
         }
@@ -70,7 +70,7 @@ class LogsModel extends Model
      */
     public function get_logs_by_period($userId, $date, $halfDay): array
     {
-        $this->get_id_badge($userId);
+        $this->where_id_badge($userId);
         $border = $this->get_border_interval($date, $halfDay);
         $this->where('date >=', $border['startTime']);
         $this->where('date <', $border['endTime']);
@@ -83,7 +83,7 @@ class LogsModel extends Model
         $halfDay,
         $last = false
     ): array {
-        $this->get_id_badge($userId);
+        $this->where_id_badge($userId);
         $border = $this->get_border_interval($date, $halfDay);
         $this->where('date >', $border['startTime']);
         $this->where('date <', $border['endTime']);
