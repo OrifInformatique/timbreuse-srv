@@ -12,6 +12,7 @@ use Timbreuse\Models\UsersModel;
 use CodeIgniter\I18n\Time;
 use Timbreuse\Models\AccessTimModel;
 use Timbreuse\Models\LogsFakeLogsModel;
+use Timbreuse\Models\FakeLogsModel;
 
 class PersoLogs extends BaseController
 {
@@ -396,10 +397,7 @@ class PersoLogs extends BaseController
 
     public function perso_time($day = null, $period = null)
     {
-        if (
-            session()->get('user_access') == config('\User\Config\UserConfig')
-            ->access_lvl_admin
-        ) {
+        if ($this->is_admin()) {
             return redirect()->to('./users');
         } elseif (
             session()->get('user_access') == config('\User\Config\UserConfig')
@@ -470,15 +468,24 @@ class PersoLogs extends BaseController
             $model = model(AccessTimModel::class);
             $ciUserId = session()->get('user_id');
             $userId = session()->get('userIdAccess');
-            return $model->is_access($ciUserId, $userId);
+            return $model->is_access($ciUserId, $userId) or $this->is_admin();
         } else {
-            return false;
+            return false or $this->is_admin();
         }
+    }
+
+    protected function is_admin()
+    {
+        return session()->get('user_access') == config(
+            '\User\Config\UserConfig'
+        )->access_lvl_admin;
     }
 
     protected function block_user()
     {
         session()->remove('userIdAccess');
+        $this->display_view('\User\errors\403error');
+        exit();
         return $this->display_view('\User\errors\403error');
     }
     
@@ -852,15 +859,43 @@ class PersoLogs extends BaseController
     }
 
     public function detail_modify($fakeLogFakeId=1){
-        $model = model(LogsFakeLogsModel::class);
-        $data['items'] = $model->find($fakeLogFakeId);
+        $data['items'] = $this->get_items_array_detail_modify($fakeLogFakeId);
         $data['labels'] = array();
-        $data['labels']['date'] = 'date';
-        $data['labels']['id_user'] = 'id ut';
-        $data['labels']['inside'] = 'en';
-        $data['labels']['id_fake_log'] = 'test';
-        var_dump($data['items']);
+        $data['labels']['date'] = ucfirst(lang('tim_lang.hour'));
+        $data['labels']['id_user'] = ucfirst(lang('tim_lang.username'));
+        $data['labels']['inside'] = ucfirst(lang('tim_lang.enter'));
+        $data['labels']['id_ci_user'] = ucfirst(lang('tim_lang.ciUsername'));
+        $data['labels']['date_site'] = ucfirst(lang('tim_lang.modifyDate'));
         $this->display_view('Timbreuse\Views\logs\modify_log', $data);
+    }
+
+    protected function get_items_array_detail_modify($fakeLogFakeId = 1)
+    {
+        $model = model(FakeLogsModel::class);
+        $this->check_and_block_user();
+        $items = $model->find($fakeLogFakeId);
+        unset($items['id_fake_log']);
+        $items['id_user'] = $this->get_username($items['id_user']);
+        $items['id_ci_user'] = $this->get_site_username($items['id_ci_user']);
+        return $items;
+    }
+    
+    /**
+     * duplicate from Users.php
+     */
+    protected function get_username($userId){
+        $model = model(UsersModel::class);
+        $userName = $model->select('name, surname')->find($userId);
+        $userName = $userName['name'].' '.$userName['surname'];
+        return $userName;
+    }
+
+    protected function get_site_username($ciUserId)
+    {
+        $model = model(UsersModel::class);
+        $userName = $model->select('ci_user.username')->from('ci_user')
+        ->where('ci_user.id', $ciUserId)->findall(1)[0]['username'];
+        return $userName;
     }
 
 

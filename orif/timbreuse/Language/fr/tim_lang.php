@@ -38,5 +38,7 @@ return [
     'id' => 'id',
     'name' => 'prénom',
     'surname' => 'nom',
+    'ciUsername' => 'nom d’utilisateur du compte site',
+    'modifyDate' => 'date de modification',
 
 ];
