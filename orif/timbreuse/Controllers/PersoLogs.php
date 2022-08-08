@@ -866,7 +866,21 @@ class PersoLogs extends BaseController
         $data['labels']['inside'] = ucfirst(lang('tim_lang.enter'));
         $data['labels']['id_ci_user'] = ucfirst(lang('tim_lang.ciUsername'));
         $data['labels']['date_site'] = ucfirst(lang('tim_lang.modifyDate'));
-        $this->display_view('Timbreuse\Views\logs\modify_log', $data);
+
+        $data['buttons'] = array();
+        $button = array();
+        $agent = $this->request->getUserAgent();
+        $button['link'] = $agent->getReferrer();
+        #$button['link'] = $this->session->get('_ci_previous_url');
+        $button['label'] = ucfirst(lang('tim_lang.back'));
+        array_push($data['buttons'], $button);
+        $this->display_view(
+            [
+                'Timbreuse\Views\menu',
+                'Timbreuse\Views\logs\modify_log',
+            ],
+            $data
+        );
     }
 
     protected function get_items_array_detail_modify($fakeLogFakeId = 1)
