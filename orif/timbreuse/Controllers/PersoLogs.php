@@ -816,8 +816,12 @@ class PersoLogs extends BaseController
         }, $logs);
     }
 
-    protected function get_time($userId, Time $day, string $period, $fake=false): string
-    {
+    protected function get_time(
+        $userId,
+        Time $day,
+        string $period,
+        $fake = false
+    ): string {
         if (!$fake) {
             $model = model(LogsModel::class);
         } else {
@@ -888,6 +892,9 @@ class PersoLogs extends BaseController
         $model = model(FakeLogsModel::class);
         $this->check_and_block_user();
         $items = $model->find($fakeLogFakeId);
+        $items['inside'] = $items['inside'] == 1 ? lang('tim_lang.yes') :
+            lang('tim_lang.no');
+        var_dump($items);
         unset($items['id_fake_log']);
         $items['id_user'] = $this->get_username($items['id_user']);
         $items['id_ci_user'] = $this->get_site_username($items['id_ci_user']);
