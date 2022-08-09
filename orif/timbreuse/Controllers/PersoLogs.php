@@ -195,7 +195,7 @@ class PersoLogs extends BaseController
 
         $day = Time::parse($day);
         $data['period'] = $period;
-        $data['items'] = $this->get_day_view_day_array($userId, $day);
+        $data['items'] = $this->get_day_view_day_array($userId, $day, true);
         $sumTime = array();
         $sumTime['time'] = $this->get_time_day_by_period(
             $userId,
@@ -484,13 +484,17 @@ class PersoLogs extends BaseController
 
     }
 
-    protected function is_session_access()
+    protected function is_session_access($id=null)
     {
         if (session()->has('userIdAccess')) {
             $model = model(AccessTimModel::class);
             $ciUserId = session()->get('user_id');
             $userId = session()->get('userIdAccess');
             return $model->is_access($ciUserId, $userId) or $this->is_admin();
+        } else if (isset($id)) {
+            $model = model(AccessTimModel::class);
+            $ciUserId = session()->get('user_id');
+            return $model->is_access($ciUserId, $id) or $this->is_admin();
         } else {
             return false or $this->is_admin();
         }
@@ -510,10 +514,10 @@ class PersoLogs extends BaseController
         exit();
         return $this->display_view('\User\errors\403error');
     }
-    
-    protected function check_and_block_user()
+
+    protected function check_and_block_user($id = null)
     {
-        if (!($this->is_session_access())) {
+        if (!($this->is_session_access($id))) {
             return $this->block_user();
         }
 
@@ -820,14 +824,14 @@ class PersoLogs extends BaseController
     }
 
     /**
-     * @param $fakeLog choice use model with log create with the website
+     * @param bool $fakeLog choice to use model with log that created with the
+     * website
      */
     protected function get_day_view_day_array(
         $userId,
         Time $date,
         bool $fakeLog = false
-    )
-    {
+    ) {
         if (!$fakeLog) {
             $model = model(LogsModel::class);
         } else {
@@ -844,7 +848,10 @@ class PersoLogs extends BaseController
                 $data['date']->second
             );
             $data['time'] = $log['inside'] ? lang('tim_lang.enter') :
-                lang('tim_lang.exit');
+            lang('tim_lang.exit');
+            $data['url'] = isset($log['id_fake_log']) ?
+            '../../../../persoLogs/detail_modify/' .
+            $log['id_fake_log'] : null;
             return $data;
         }, $logs);
     }
@@ -923,8 +930,8 @@ class PersoLogs extends BaseController
     protected function get_items_array_detail_modify($fakeLogFakeId = 1)
     {
         $model = model(FakeLogsModel::class);
-        $this->check_and_block_user();
         $items = $model->find($fakeLogFakeId);
+        $this->check_and_block_user($items['id_user']);
         $items['inside'] = boolval($items['inside']) ? lang('tim_lang.yes') :
             lang('tim_lang.no');
         unset($items['id_fake_log']);

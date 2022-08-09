@@ -42,5 +42,6 @@ return [
     'modifyDate' => 'date de modification',
     'back' => 'retour',
     'modifyTime' => 'temps modifié',
+    'modify' => 'modifié',
 
 ];

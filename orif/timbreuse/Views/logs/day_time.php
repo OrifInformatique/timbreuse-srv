@@ -16,7 +16,18 @@
             </thead>
             <?php foreach ($items as $item) : ?>
                 <tr>
-                    <td><?= $item['date'] ?></td>
+                    <?php if (isset($item['url'])) : ?>
+                        <td>
+                            <a href="<?= $item['url'] ?>">
+                                <?= $item['date'] ?>
+                            </a>
+                            <div class="font-weight-light">
+                                <?= lang('tim_lang.modify') ?>
+                            </div>
+                        </td>
+                    <?php else : ?>
+                        <td><?= $item['date'] ?></td>
+                    <?php endif; ?>
                     <td><?= $item['time'] ?></td>
                 </tr>
             <?php endforeach ?>
