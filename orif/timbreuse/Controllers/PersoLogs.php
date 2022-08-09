@@ -49,7 +49,8 @@ class PersoLogs extends BaseController
 
         $data['title'] = "Welcome";
 
-        # Display a test of the generic "items_list" view (defined in common module)
+        # Display a test of the generic "items_list" view (defined in common
+        # module)
         $data['columns'] = [
             'date' => 'Date',
             'id_badge' => 'Numéro du badge',
@@ -167,10 +168,15 @@ class PersoLogs extends BaseController
     protected function get_day_week_array($userId, Time $date): array
     {
         $model = model(LogsModel::class);
+        $fakeModel = model(LogsFakeLogsModel::class);
         $logs = $model->get_filtered_logs($userId, $date, 'week');
+        $fakeLogs = $fakeModel->get_filtered_logs($userId, $date, 'week');
         $data['label_week'] = $this->get_workdays_text($date);
         $data['time'] = $this->get_hours_by_seconds(
             $this->get_time_array($logs)
+        );
+        $data['modifyTime'] = $this->get_hours_by_seconds(
+            $this->get_time_array($fakeLogs)
         );
         $data['url'] = '../' . $date->toDateString() . '/week';
         return $data;
@@ -191,10 +197,21 @@ class PersoLogs extends BaseController
         $data['period'] = $period;
         $data['items'] = $this->get_day_view_day_array($userId, $day);
         $sumTime = array();
-        $sumTime['time'] = $this->get_time($userId, $day, $period);
-        $sumTime['modifyTime'] = $this->get_time($userId, $day, $period, true);
-        $sumTime['date'] = lang('tim_lang.timeTotal');
+        $sumTime['time'] = $this->get_time_day_by_period(
+            $userId,
+            $day,
+            $period
+        );
+        $sumModifyTime['time'] = $this->get_time_day_by_period(
+            $userId,
+            $day,
+            $period,
+            true
+        );
+        $sumTime['date'] = ucfirst(lang('tim_lang.timeTotal'));
+        $sumModifyTime['date'] = ucfirst(lang('tim_lang.modifyTime'));
         array_push($data['items'], $sumTime);
+        array_push($data['items'], $sumModifyTime);
 
         $data['list_title'] = $this->create_title($user, $day, $period);
         $data['buttons'] = $this->create_buttons($period, true);
@@ -224,6 +241,7 @@ class PersoLogs extends BaseController
         $data['columns'] = array();
         $data['columns'][0] = lang('tim_lang.week');
         $data['columns'][1] = lang('tim_lang.time');
+        $data['columns'][2] = lang('tim_lang.modifyTime');
 
         $day = Time::parse($day);
         $data['period'] = $period;
@@ -297,7 +315,7 @@ class PersoLogs extends BaseController
             $date,
             'afternoon'
         );
-        $data['time'] = $this->get_time($userId, $date, 'day');
+        $data['time'] = $this->get_time_day_by_period($userId, $date, 'day');
         return $data;
     }
 
@@ -333,7 +351,7 @@ class PersoLogs extends BaseController
         $data['rows'] = [
             'morning' => lang('tim_lang.rowMorning'),
             'afternoon' => lang('tim_lang.rowAfternoon'),
-            'total' => lang('tim_lang.timeTotal'),
+            'total' => ucfirst(lang('tim_lang.timeTotal')),
         ];
         $data['rows2'] = [
             'time' => lang('tim_lang.time'),
@@ -343,7 +361,11 @@ class PersoLogs extends BaseController
         $day = Time::parse($day);
         $data['period'] = $period;
         $data['items'] = $this->get_week_time_table($userId, $day);
-        $data['sumTime'] = $this->get_time($userId, $day, $period);
+        $data['sumTime'] = $this->get_time_day_by_period(
+            $userId,
+            $day,
+            $period
+        );
 
         $data['list_title'] = $this->create_title($user, $day, $period);
         $data['buttons'] = $this->create_buttons($period, true);
@@ -797,9 +819,20 @@ class PersoLogs extends BaseController
         return $bDay and $bMonths and $bYears;
     }
 
-    protected function get_day_view_day_array($userId, Time $date)
+    /**
+     * @param $fakeLog choice use model with log create with the website
+     */
+    protected function get_day_view_day_array(
+        $userId,
+        Time $date,
+        bool $fakeLog = false
+    )
     {
-        $model = model(LogsModel::class);
+        if (!$fakeLog) {
+            $model = model(LogsModel::class);
+        } else {
+            $model = model(LogsFakeLogsModel::class);
+        }
         $logs = $model->get_filtered_logs($userId, $date, 'day');
         return array_map(function ($log) {
             $data = array();
@@ -816,13 +849,13 @@ class PersoLogs extends BaseController
         }, $logs);
     }
 
-    protected function get_time(
+    protected function get_time_day_by_period(
         $userId,
         Time $day,
         string $period,
-        $fake = false
+        bool $fakeLog = false
     ): string {
-        if (!$fake) {
+        if (!$fakeLog) {
             $model = model(LogsModel::class);
         } else {
             $model = model(LogsFakeLogsModel::class);
@@ -892,9 +925,8 @@ class PersoLogs extends BaseController
         $model = model(FakeLogsModel::class);
         $this->check_and_block_user();
         $items = $model->find($fakeLogFakeId);
-        $items['inside'] = $items['inside'] == 1 ? lang('tim_lang.yes') :
+        $items['inside'] = boolval($items['inside']) ? lang('tim_lang.yes') :
             lang('tim_lang.no');
-        var_dump($items);
         unset($items['id_fake_log']);
         $items['id_user'] = $this->get_username($items['id_user']);
         $items['id_ci_user'] = $this->get_site_username($items['id_ci_user']);
@@ -1099,7 +1131,7 @@ class PersoLogs extends BaseController
     {
         $day = '2022-05-18 12:11:22';
         $day = Time::parse($day);
-        var_dump($this->get_time('92', $day, 'week'));
+        var_dump($this->get_time_day_by_period('92', $day, 'week'));
     }
 
     private function test16()
@@ -1126,5 +1158,12 @@ class PersoLogs extends BaseController
         $data['items'][2]['data'] = 'data3';
         $data['list_title'] = 'test';
         $this->display_view('Timbreuse\Views\logs\modify_log', $data);
+    }
+
+    public function test19()
+    {
+        $day = Time::parse('2022-05-30');
+        var_dump($this->get_day_view_day_array(92, $day));
+        var_dump($this->get_day_view_day_array(92, $day, true));
     }
 }

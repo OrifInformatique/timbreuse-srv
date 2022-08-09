@@ -16,7 +16,7 @@ return [
     'exit' => 'sortie',
     'hour' => 'heure',
     'enter/exit' => 'entrée/sortie',
-    'timeTotal' => 'Temps total',
+    'timeTotal' => 'temps total',
     'day' => 'jour',
     'week' => 'semaine',
     'month' => 'mois',
@@ -41,5 +41,6 @@ return [
     'ciUsername' => 'nom d’utilisateur du compte site',
     'modifyDate' => 'date de modification',
     'back' => 'retour',
+    'modifyTime' => 'temps modifié',
 
 ];
