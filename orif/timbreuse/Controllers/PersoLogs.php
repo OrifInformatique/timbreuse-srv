@@ -268,61 +268,117 @@ class PersoLogs extends BaseController
     /**
      * use for week view with time
      */
-    protected function get_day_time_table($userId, $date, $halfDay): array
+    protected function get_day_time_table(
+        $userId,
+        $date,
+        $halfDay,
+        $fakeLog = false
+    ): array
     {
-        $model = model(LogsModel::class);
+        if (!$fakeLog) {
+            $model = model(LogsModel::class);
+        } else {
+            $model = model(LogsFakeLogsModel::class);
+        }
         $logs = $model->get_logs_by_period($userId, $date, $halfDay);
         $data['time'] = $this->get_time_array($logs);
         $data['time'] = $this->get_hours_by_seconds($data['time']);
-        try {
-            $data['firstEntry'] = $model->get_border_log_by_period(
-                $userId,
-                $date,
-                $halfDay
-            )['date'];
-            $data['firstEntry'] = Time::parse($data['firstEntry'])->toTimeString();
-        } catch (\Exception $e) {
-            $data['firstEntry'] = '';
+        if ($this->is_fake_log($logs)) {
+            $data['time'] = $data['time'] . '✱';
         }
+        $data['firstEntry'] = $this->get_string_time_for_day_time_table(
+            $userId,
+            $date,
+            $halfDay,
+            false,
+            $model
+        );
+        $data['lastOuting'] = $this->get_string_time_for_day_time_table(
+            $userId,
+            $date,
+            $halfDay,
+            true,
+            $model
+        );
+        return $data;
+    }
+
+    protected function get_string_time_for_day_time_table(
+        int $userId,
+        $date,
+        $halfDay,
+        bool $isLast,
+        LogsModel $model
+    ): string {
         try {
-            $data['lastOuting'] = $model->get_border_log_by_period(
+            $entry = $model->get_border_log_by_period(
                 $userId,
                 $date,
                 $halfDay,
-                true
-            )['date'];
-            $data['lastOuting'] = Time::parse($data['lastOuting'])->toTimeString();
+                $isLast
+            );
+            $entryStr = Time::parse($entry['date'])
+                ->toTimeString();
+
+            if (isset($entry['id_fake_log'])) {
+                $entryStr .= '✱';
+            }
         } catch (\Exception $e) {
-            $data['lastOuting'] = '';
+            $entryStr = '';
         }
-        return $data;
+        return $entryStr;
+    }
+
+    protected function is_fake_log(array $logs) {
+        foreach ($logs as $log) {
+            if (isset($log['id_fake_log'])) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
      * use for week view with time
      */
-    protected function get_upper_day_time_table($userId, $date): array
+    protected function get_upper_day_time_table(
+        $userId,
+        $date,
+        $fakeLog = false
+    ): array
     {
         $data['dayNb'] = $date->day;
         $data['url'] = '../' . $date->toDateString() . '/day';
         $data['morning'] = $this->get_day_time_table(
             $userId,
             $date,
-            'morning'
+            'morning',
+            $fakeLog
         );
         $data['afternoon'] = $this->get_day_time_table(
             $userId,
             $date,
-            'afternoon'
+            'afternoon',
+            $fakeLog
         );
-        $data['time'] = $this->get_time_day_by_period($userId, $date, 'day');
+        $data['time'] = $this->get_time_day_by_period(
+            $userId,
+            $date,
+            'day',
+            $fakeLog,
+            $fakeLog,
+        );
         return $data;
     }
 
     /**
      * use for week view with time
      */
-    protected function get_week_time_table($userId, $date): array
+    protected function get_week_time_table(
+        $userId,
+        $date,
+        $fakeLog = false
+    ): array
     {
         $monday = $this->get_last_monday($date);
         $weekdays = [
@@ -336,14 +392,23 @@ class PersoLogs extends BaseController
         foreach ($weekdays as $i => $weekday) {
             $data[$weekday] = $this->get_upper_day_time_table(
                 $userId,
-                $monday->addDays($i)
+                $monday->addDays($i),
+                $fakeLog
             );
         }
         return $data;
     }
 
-    protected function time_list_week($userId, $day = null, $period = null)
+    protected function time_list_week(
+        $userId,
+        $day = null,
+        $period = null
+    ): void
     {
+        if (!(session()->has('isFakeLog'))) {
+            session()->set('isFakeLog', true);
+        }
+        $data['isFakeLog'] = session()->get('isFakeLog');
         $usersModel = model(UsersModel::class);
         $user = $usersModel->get_users($userId);
 
@@ -360,15 +425,27 @@ class PersoLogs extends BaseController
         ];
         $day = Time::parse($day);
         $data['period'] = $period;
-        $data['items'] = $this->get_week_time_table($userId, $day);
+        $data['items'] = $this->get_week_time_table(
+            $userId,
+            $day,
+            $data['isFakeLog']
+        );
         $data['sumTime'] = $this->get_time_day_by_period(
             $userId,
             $day,
-            $period
+            $period,
+            $data['isFakeLog'],
+            $data['isFakeLog'],
         );
 
         $data['list_title'] = $this->create_title($user, $day, $period);
         $data['buttons'] = $this->create_buttons($period, true);
+
+        array_push($data['buttons'], [
+            'link' => '../../../../persologs/turnSiteData',
+            'label' => ucfirst(lang('tim_lang.siteData'))
+        ]);
+
         if ($period != 'all') {
             $data['buttons'] = array_merge(
                 $this->create_time_links($day, $period),
@@ -383,6 +460,12 @@ class PersoLogs extends BaseController
             ],
             $data
         );
+    }
+
+    public function turnSiteData()
+    {
+        session()->set('isFakeLog', !session()->get('isFakeLog'));
+        return redirect()->back();
     }
 
     /**
@@ -860,7 +943,8 @@ class PersoLogs extends BaseController
         $userId,
         Time $day,
         string $period,
-        bool $fakeLog = false
+        bool $fakeLog = false,
+        bool $showAsterisk = false
     ): string {
         if (!$fakeLog) {
             $model = model(LogsModel::class);
@@ -869,7 +953,12 @@ class PersoLogs extends BaseController
         }
         $logs = $model->get_filtered_logs($userId, $day, $period);
         $time = $this->get_time_array($logs);
-        return $this->get_hours_by_seconds($time);
+        $time = $this->get_hours_by_seconds($time);
+        if ($showAsterisk) {
+            return $this->is_fake_log($logs) ? $time . '✱' : $time;
+        } else {
+            return $time;
+        }
     }
 
     public function access_user_list()

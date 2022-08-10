@@ -47,4 +47,7 @@
             </tfoot>
         </table>
     </div>
+    <p>
+        <?= $isFakeLog ? lang('tim_lang.msgAsterisk') : '' ?>
+    </p>
 </div>

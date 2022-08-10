@@ -43,5 +43,6 @@ return [
     'back' => 'retour',
     'modifyTime' => 'temps modifié',
     'modify' => 'modifié',
-
+    'msgAsterisk' => '✱Données provenant de modification sur le site web',
+    'siteData' => 'données du site'
 ];
