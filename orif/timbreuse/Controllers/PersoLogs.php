@@ -1048,6 +1048,24 @@ class PersoLogs extends BaseController
     }
 
 
+    public function create_fake_log():void {
+        $model = model(FakeLogsModel::class);
+        var_dump($this->request->getPost());
+        if ($this->request->getMethod() === 'post' && $this->validate([
+            'time' => 'required|regex_match[([0-1][0-9])|(2[0-3]):[0-5][0-9]]',
+            'inside'  => 'required|regex_match[(true)|(false)]',
+        ])) {
+            var_dump($this->request->getPost());
+            #$model->save([
+            #    'title' => $this->request->getPost('title'),
+            #    'slug'  => url_title($this->request->getPost('title'), '-', true),
+            #    'body'  => $this->request->getPost('body'),
+            #]);
+
+        } else {
+        }
+    }
+
 
 
     private function test1()

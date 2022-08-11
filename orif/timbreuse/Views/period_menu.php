@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container py-1">
     <ul class='nav nav-pills'>
         <?php foreach ($buttons as $button) : ?>
             <li class='nav-item'>

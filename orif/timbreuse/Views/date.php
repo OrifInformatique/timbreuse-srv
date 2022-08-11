@@ -1,6 +1,6 @@
 <?php if (isset($date)) : ?>
-    <div class="container">
-        <input type='date' value='<?= $date ?>'>
+    <div class="container py-1">
+            <input type='date' class='form-control' value='<?= $date ?>'>
     </div>
     <script>
         function redirection() {

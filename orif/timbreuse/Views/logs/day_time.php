@@ -33,4 +33,44 @@
             <?php endforeach ?>
         </table>
     </div>
+    <button class="btn btn-primary" ><?= ucfirst(lang('tim_lang.new_record')) ?></button>
 </div>
+<div class="container mt-5" hidden id='form'>
+    <h4>
+        <?= ucfirst(lang('tim_lang.new_record')) ?>
+    </h4>
+    <?= service('validation')->listErrors() ?>
+    <form action='../../../../persologs/create_fake_log' method='post'>
+        <? csrf_field() ?>
+        <div class="form-group">
+            <label for="time" class='form-label'><?= ucfirst(lang('tim_lang.hour')) ?></label>
+            <input type="time" id='time' class='form-control' name='time'>
+        </div>
+        <div class="form-group">
+            <div class="form-check">
+                <input type="radio" id='in' class='form-check-input' name='inside' value='true'>
+                <label for="in" class='form-check-label'>
+                    <?= ucfirst(lang('tim_lang.enter')) ?>
+                </label>
+            </div>
+            <div class="form-check">
+                <input type="radio" id='out' class='form-check-input' name='inside' value='false'>
+                <label for="out" class='form-check-label'>
+                    <?= ucfirst(lang('tim_lang.exit')) ?>
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <input type="submit" class="btn btn-primary" value=<?= ucfirst(lang('tim_lang.record')) ?>
+                >
+        </div>
+    </form>
+</div>
+<script>
+    let form = document.getElementById("form");
+    let button = document.getElementsByTagName("button")[0];
+    button.onclick = function () {
+        form.hidden = false;
+        button.hidden = true;
+    }
+</script>

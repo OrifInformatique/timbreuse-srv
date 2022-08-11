@@ -44,5 +44,7 @@ return [
     'modifyTime' => 'temps modifié',
     'modify' => 'modifié',
     'msgAsterisk' => '✱Données provenant de modification sur le site web',
-    'siteData' => 'données du site'
+    'siteData' => 'données du site',
+    'new_record' => 'nouveau pointage',
+    'record' => 'pointer',
 ];
