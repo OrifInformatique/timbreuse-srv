@@ -222,6 +222,7 @@ class PersoLogs extends BaseController
             );
             $data['date'] = $day->toDateString();
         }
+        $data['userId'] = $userId;
         $this->display_view(
             [
                 'Timbreuse\Views\period_menu',
@@ -1048,21 +1049,24 @@ class PersoLogs extends BaseController
     }
 
 
-    public function create_fake_log():void {
+    public function create_fake_log() {
+        $this->check_and_block_user($this->request->getPost('userId'));
         $model = model(FakeLogsModel::class);
-        var_dump($this->request->getPost());
         if ($this->request->getMethod() === 'post' && $this->validate([
-            'time' => 'required|regex_match[([0-1][0-9])|(2[0-3]):[0-5][0-9]]',
-            'inside'  => 'required|regex_match[(true)|(false)]',
+            'time' => 'required|regex_match[^([0-1][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$]',
+            'inside'  => 'required|regex_match[^(true|false)$]',
+            'date' => 'required|valid_date',
+            'userId' => 'required|integer',
         ])) {
-            var_dump($this->request->getPost());
-            #$model->save([
-            #    'title' => $this->request->getPost('title'),
-            #    'slug'  => url_title($this->request->getPost('title'), '-', true),
-            #    'body'  => $this->request->getPost('body'),
-            #]);
-
+            $request_array = array();
+            $request_array['id_ci_user'] = $this->session->get('user_id');
+            $request_array['id_user'] = $this->request->getPost('userId');
+            $request_array['date'] = $this->request->getPost('date') . ' ' . $this->request->getPost('time');
+            $request_array['inside'] = $this->request->getPost('inside') == 'true';
+            $model->save($request_array);
+            return redirect()->back();
         } else {
+            return redirect()->back()->withInput();
         }
     }
 

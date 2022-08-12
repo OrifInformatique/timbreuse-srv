@@ -21,9 +21,9 @@
                             <a href="<?= $item['url'] ?>">
                                 <?= $item['date'] ?>
                             </a>
-                            <div class="font-weight-light">
+                            <span class="badge badge-primary">
                                 <?= lang('tim_lang.modify') ?>
-                            </div>
+                            </span>
                         </td>
                     <?php else : ?>
                         <td><?= $item['date'] ?></td>
@@ -33,43 +33,46 @@
             <?php endforeach ?>
         </table>
     </div>
-    <button class="btn btn-primary" ><?= ucfirst(lang('tim_lang.new_record')) ?></button>
+    <button class="btn btn-primary" <?= is_null(old('time')) && is_null(old('inside')) ? '' : 'hidden' ?>>
+        <?= ucfirst(lang('tim_lang.new_record')) ?> 
+    </button>
 </div>
-<div class="container mt-5" hidden id='form'>
+<div class="container mt-5" id='form' <?= is_null(old('time')) && is_null(old('inside')) ? 'hidden' : '' ?>>
     <h4>
         <?= ucfirst(lang('tim_lang.new_record')) ?>
     </h4>
     <?= service('validation')->listErrors() ?>
     <form action='../../../../persologs/create_fake_log' method='post'>
-        <? csrf_field() ?>
+        <?= csrf_field() ?>
         <div class="form-group">
             <label for="time" class='form-label'><?= ucfirst(lang('tim_lang.hour')) ?></label>
-            <input type="time" id='time' class='form-control' name='time'>
+            <input type="time" id='time' class='form-control' name='time' step='1' value='<?= old('time') ?>'>
         </div>
         <div class="form-group">
             <div class="form-check">
-                <input type="radio" id='in' class='form-check-input' name='inside' value='true'>
+                <input type="radio" id='in' class='form-check-input' name='inside' value='true' <?= old('inside') == 'true' ? 'checked' : '' ?>>
                 <label for="in" class='form-check-label'>
                     <?= ucfirst(lang('tim_lang.enter')) ?>
                 </label>
             </div>
             <div class="form-check">
-                <input type="radio" id='out' class='form-check-input' name='inside' value='false'>
+                <input type="radio" id='out' class='form-check-input' name='inside' value='false' <?= old('inside') == 'false' ? 'checked' : '' ?>>
                 <label for="out" class='form-check-label'>
                     <?= ucfirst(lang('tim_lang.exit')) ?>
                 </label>
             </div>
         </div>
         <div class="form-group">
-            <input type="submit" class="btn btn-primary" value=<?= ucfirst(lang('tim_lang.record')) ?>
-                >
+            <input type="submit" class="btn btn-primary" value=<?= ucfirst(lang('tim_lang.record')) ?>>
         </div>
+        <input type="date" hidden value='<?= $date ?>' name='date'>
+        <input type="number" hidden value='<?= $userId ?>' name='userId'>
     </form>
 </div>
 <script>
     let form = document.getElementById("form");
     let button = document.getElementsByTagName("button")[0];
-    button.onclick = function () {
+    button.onclick = function() {
         form.hidden = false;
         button.hidden = true;
     }
