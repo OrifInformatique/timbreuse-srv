@@ -47,4 +47,5 @@ return [
     'siteData' => 'données du site',
     'new_record' => 'nouveau pointage',
     'record' => 'pointer',
+    'confirmDelete' => 'Êtes-vous sûr·e de vouloir supprimer ce pointage.'
 ];

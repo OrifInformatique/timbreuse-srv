@@ -22,4 +22,5 @@ class LogsFakeLogsModel extends LogsModel {
         $this->where('id_user', $userId);
     }
 
+
 }

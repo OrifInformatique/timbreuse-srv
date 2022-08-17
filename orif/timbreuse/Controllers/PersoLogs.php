@@ -16,6 +16,8 @@ use Timbreuse\Models\FakeLogsModel;
 
 class PersoLogs extends BaseController
 {
+    const RETURN_METHOD_NAME = 'perso_time';
+    
     public function initController(
         RequestInterface $request,
         ResponseInterface $response,
@@ -933,11 +935,14 @@ class PersoLogs extends BaseController
             );
             $data['time'] = $log['inside'] ? lang('tim_lang.enter') :
             lang('tim_lang.exit');
-            $data['url'] = isset($log['id_fake_log']) ?
-            '../../../../persoLogs/detail_modify/' .
-            $log['id_fake_log'] : null;
+            $data['url'] = $this->get_url_for_get_day_view_day_array($log['id_fake_log']);
             return $data;
         }, $logs);
+    }
+
+    protected function get_url_for_get_day_view_day_array($fakeLogId){
+            return isset($fakeLogId) ?  '../../detail_modify/' .
+                $fakeLogId : null;
     }
 
     protected function get_time_day_by_period(
@@ -992,7 +997,8 @@ class PersoLogs extends BaseController
         }
     }
 
-    public function detail_modify($fakeLogFakeId=1){
+    public function detail_modify($fakeLogFakeId){
+        $data['fakeLogId'] = $fakeLogFakeId;
         $data['items'] = $this->get_items_array_detail_modify($fakeLogFakeId);
         $data['labels'] = array();
         $data['labels']['date'] = ucfirst(lang('tim_lang.hour'));
@@ -1003,8 +1009,13 @@ class PersoLogs extends BaseController
 
         $data['buttons'] = array();
         $button = array();
-        $agent = $this->request->getUserAgent();
-        $button['link'] = $agent->getReferrer();
+
+        #$agent = $this->request->getUserAgent();
+        #$button['link'] = $agent->getReferrer();
+        $model = model(FakeLogsModel::class);
+        $log = $model->find($fakeLogFakeId);
+        $button['link'] = '../' . $this->redirect_log($log);
+
         #$button['link'] = $this->session->get('_ci_previous_url');
         $button['label'] = ucfirst(lang('tim_lang.back'));
         array_push($data['buttons'], $button);
@@ -1049,7 +1060,7 @@ class PersoLogs extends BaseController
     }
 
 
-    public function create_fake_log() {
+    public function create_modify_log() {
         $this->check_and_block_user($this->request->getPost('userId'));
         $model = model(FakeLogsModel::class);
         if ($this->request->getMethod() === 'post' && $this->validate([
@@ -1068,6 +1079,44 @@ class PersoLogs extends BaseController
         } else {
             return redirect()->back()->withInput();
         }
+    }
+
+    public function delete_modify_log($fakeLogId) {
+        $model = model(FakeLogsModel::class);
+        $data['userId'] = $model->find($fakeLogId)['id_user'];
+
+        $data['id'] = $fakeLogId;
+        $data['text'] = lang('tim_lang.confirmDelete');
+        $data['link'] = '../confirm_delete_modify_log';
+        $data['cancel_link'] = '../detail_modify/' . $fakeLogId;
+        $data['label_button'] = ucfirst(lang('tim_lang.delete')); 
+        $data['ciUserId'] = $this->session->get('user_id');
+
+        $this->display_view('Timbreuse\Views\logs\confirm_delete', $data);
+    
+    }
+
+    public function confirm_delete_modify_log() {
+        if ($this->request->getMethod() === 'post') {
+            $id = $this->request->getPost('id');
+            $model = model(FakeLogsModel::class);
+            $fakeLog = $model->find($id);
+            $this->check_and_block_user($fakeLog['id_user']);
+            $model->delete($id);
+            $this->redirect_log($fakeLog);
+            return redirect()->to($this->redirect_log($fakeLog));
+        } else {
+            $this->display_view('\User\errors\403error');
+            exit();
+            return $this->display_view('\User\errors\403error');
+        }
+    }
+
+    protected function redirect_log(array $log) {
+        $link = explode(' ', $log['date'])[0];
+        $link .= '/day';
+        $link = self::RETURN_METHOD_NAME . '/' . $link;
+        return $link;
     }
 
 

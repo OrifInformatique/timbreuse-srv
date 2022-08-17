@@ -42,7 +42,7 @@
         <?= ucfirst(lang('tim_lang.new_record')) ?>
     </h4>
     <?= service('validation')->listErrors() ?>
-    <form action='../../../../persologs/create_fake_log' method='post'>
+    <form action='../../../../persologs/create_modify_log' method='post'>
         <?= csrf_field() ?>
         <div class="form-group">
             <label for="time" class='form-label'><?= ucfirst(lang('tim_lang.hour')) ?></label>

@@ -14,6 +14,8 @@ use CodeIgniter\I18n\Time;
 
 class AdminLogs extends PersoLogs
 {
+    const RETURN_METHOD_NAME = 'time_list';
+
     public function initController(
         RequestInterface $request,
         ResponseInterface $response,
@@ -108,5 +110,17 @@ class AdminLogs extends PersoLogs
                 return $this->time_list_week($userId, $day, $period);
                 break;
         }
+    }
+
+    protected function get_url_for_get_day_view_day_array($fakeLogId){
+            return isset($fakeLogId) ?  '../../../detail_modify/' .
+                $fakeLogId : null;
+    }
+
+    protected function redirect_log(array $log) {
+        $link = explode(' ', $log['date'])[0];
+        $link .= '/day';
+        $link = self::RETURN_METHOD_NAME . '/' . $log['id_user'] . '/' . $link;
+        return $link;
     }
 }
