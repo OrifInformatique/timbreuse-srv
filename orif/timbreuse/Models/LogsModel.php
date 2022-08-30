@@ -43,6 +43,7 @@ class LogsModel extends Model
         if ($period != 'all') {
             $this->where('YEAR(date)', $date->getYear());
         }
+        $this->orderBy('date');
         return $this->get()->getResultArray();
     }
 
