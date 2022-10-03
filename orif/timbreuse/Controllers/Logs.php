@@ -7,9 +7,12 @@ use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Timbreuse\Models\LogsModel;
+use CodeIgniter\API\ResponseTrait;
+
 
 class Logs extends BaseController
 {
+    use ResponseTrait;
     public function initController(
         RequestInterface $request,
         ResponseInterface $response,
@@ -53,4 +56,30 @@ class Logs extends BaseController
         $this->display_view('Common\Views\items_list', $data);
 
 	}
+
+    public function add($date, $badgeId, $inside, $token)
+    {
+        $model = model(LogsModel::class);
+        $data = array();
+        $data['date'] = $date;
+        $data['id_badge'] = $badgeId;
+        $data['inside'] = $inside;
+        if ($token == $this->create_token($date, $badgeId, $inside)) {
+            if ($model->insert($data)) {
+                return $this->respondCreated();
+            } else {
+                return $this->failServerError('database error');
+            }
+        } else {
+            return $this->failUnauthorized();
+        }
+    }
+
+    private function create_token($date, $badgeId, $inside)
+    {
+        $text = $date.$badgeId.$inside;
+        $key = 'a'; # to put a truth in a file not in git
+        $token_text = hash_hmac('sha256', $text, $key);
+        return $token_text;
+    }
 }

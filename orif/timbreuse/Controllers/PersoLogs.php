@@ -445,7 +445,7 @@ class PersoLogs extends BaseController
         $data['buttons'] = $this->create_buttons($period, true);
 
         array_push($data['buttons'], [
-            'link' => '../../../../persologs/turnSiteData',
+            'link' => '../../../../PersoLogs/turnSiteData',
             'label' => ucfirst(lang('tim_lang.siteData'))
         ]);
 

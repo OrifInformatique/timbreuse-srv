@@ -8,7 +8,9 @@ use CodeIgniter\I18n\Time;
 
 class LogsModel extends Model
 {
-    protected $table = 'log';
+    protected $table = 'log_sync';
+    protected $primaryKey = 'id_log';
+    protected $allowedFields = ['date', 'id_badge', 'inside'];
 
     public function get_logs($idBadge = null)
     {
@@ -101,4 +103,6 @@ class LogsModel extends Model
             return array();
         }
     }
+
+    
 }
