@@ -10,7 +10,8 @@ class LogsModel extends Model
 {
     protected $table = 'log_sync';
     protected $primaryKey = 'id_log';
-    protected $allowedFields = ['date', 'id_badge', 'inside'];
+    protected $allowedFields = ['date', 'id_badge', 'inside', 'id_user'];
+    protected $checkWithBadgeId = true;
 
     public function get_logs($idBadge = null)
     {
@@ -22,6 +23,9 @@ class LogsModel extends Model
         }
     }
 
+    /**
+     * prepare query to filtered with current user’s badge id 
+     */
     public function where_id_badge($userId)
     {
         $modelBadge = model(BadgesModel::class);
@@ -32,7 +36,11 @@ class LogsModel extends Model
 
     public function get_filtered_logs($userId, $date, $period): array
     {
-        $this->where_id_badge($userId);
+        if ($this->checkWithBadgeId) {
+            $this->where_id_badge($userId);
+        } else {
+            $this->where('id_user', $userId);
+        }
         if ($period == 'day') {
             $this->where('DAY(date)', $date->getDay());
         }
@@ -73,7 +81,11 @@ class LogsModel extends Model
      */
     public function get_logs_by_period($userId, $date, $halfDay): array
     {
-        $this->where_id_badge($userId);
+        if ($this->checkWithBadgeId) {
+            $this->where_id_badge($userId);
+        } else {
+            $this->where('id_user', $userId);
+        }
         $border = $this->get_border_interval($date, $halfDay);
         $this->where('date >=', $border['startTime']);
         $this->where('date <', $border['endTime']);
@@ -86,7 +98,11 @@ class LogsModel extends Model
         $halfDay,
         $last = false
     ): array {
-        $this->where_id_badge($userId);
+        if ($this->checkWithBadgeId) {
+            $this->where_id_badge($userId);
+        } else {
+            $this->where('id_user', $userId);
+        }
         $border = $this->get_border_interval($date, $halfDay);
         $this->where('date >', $border['startTime']);
         $this->where('date <', $border['endTime']);

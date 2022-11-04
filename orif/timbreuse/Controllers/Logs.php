@@ -8,6 +8,7 @@ use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Timbreuse\Models\LogsModel;
 use CodeIgniter\API\ResponseTrait;
+use Timbreuse\Models\BadgesModel;
 
 use CodeIgniter\I18n\Time;
 
@@ -58,9 +59,13 @@ class Logs extends BaseController
 
 	}
 
+    /**
+     * maybe rename this in put or post to looks like http method
+     */
     public function add($date, $badgeId, $inside, $token)
     {
-        $model = model(LogsModel::class);
+        $logModel = model(LogsModel::class);
+        $badgeModel = model(badgesModel::class);
         $data = array();
         $data['date'] = $date;
         $data['id_badge'] = $badgeId;
@@ -68,8 +73,10 @@ class Logs extends BaseController
         if ($token == $this->create_token($date, $badgeId, $inside)) {
             # direct reponse created if already in the db withtout insert 
             # again
-            if ($model->is_replicate($date, $badgeId, $inside) or 
-            ($model->insert($data))) {
+            $userId = $badgeModel->select('id_user')->find($badgeId);
+            $data += $userId;
+            if ($logModel->is_replicate($date, $badgeId, $inside) or 
+            ($logModel->insert($data))) {
                 return $this->respondCreated();
             } else {
                 return $this->failServerError('database error');
@@ -107,6 +114,10 @@ class Logs extends BaseController
         return $this->respondCreated(json_encode($data));
     }
 
+    /**
+     * this is like of http method get for API
+     *  maybe rename this in get
+     */
     public function get_logs($StartLogId) {
         $model = model(LogsModel::class);
         $model->where('id_log >', $StartLogId);
@@ -116,12 +127,23 @@ class Logs extends BaseController
         return $this->respondCreated(json_encode($model->findAll()));
     }
 
-    public function test() {
+    private function test() {
         $model = model(LogsModel::class);
         $date = '2022-10-10 16:33:32';
         $badgeId = '42';
         $inside = true;
         var_dump($model->is_replicate($date, $badgeId, $inside));
+    }
+
+    /**
+     * http://localhost:8080/logs/test2
+     */
+    public function test2() {
+        $date = '2022-11-01 14:35:45';
+        $id_badge = 42;
+        $inside = true;
+        var_dump($this->add($date, $id_badge, $inside, $this->create_token($date,
+                $id_badge, $inside)));
     }
 
 }
