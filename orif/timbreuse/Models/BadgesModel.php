@@ -4,7 +4,7 @@ namespace Timbreuse\Models;
 use CodeIgniter\Model;
 
 class BadgesModel extends Model {
-    protected $table = 'badge';
+    protected $table = 'badge_sync';
     protected $primaryKey = 'id_badge';
 
     public function get_badges($idUser=null) {
