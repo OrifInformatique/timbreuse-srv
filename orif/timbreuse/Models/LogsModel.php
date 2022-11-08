@@ -11,7 +11,12 @@ class LogsModel extends Model
     protected $table = 'log_sync';
     protected $primaryKey = 'id_log';
     protected $allowedFields = ['date', 'id_badge', 'inside', 'id_user'];
-    protected $checkWithBadgeId = true;
+
+
+    # the switching check mode in check with badge id is not safe, since 
+    # adding user id in log table.
+    # this is to comeback in the old check with badge id in log table
+    protected $checkWithBadgeId = false; #  must be false
 
     public function get_logs($idBadge = null)
     {

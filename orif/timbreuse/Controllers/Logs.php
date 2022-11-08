@@ -138,7 +138,7 @@ class Logs extends BaseController
     /**
      * http://localhost:8080/logs/test2
      */
-    public function test2() {
+    private function test2() {
         $date = '2022-11-01 14:35:45';
         $id_badge = 42;
         $inside = true;
