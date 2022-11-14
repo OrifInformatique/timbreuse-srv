@@ -118,9 +118,9 @@ class Logs extends BaseController
      * this is like of http method get for API
      *  maybe rename this in get
      */
-    public function get_logs($StartLogId) {
+    public function get_logs($startLogId) {
         $model = model(LogsModel::class);
-        $model->where('id_log >', $StartLogId);
+        $model->where('id_log >', $startLogId);
         $model->orderBy('id_log');
         # to fix with respond() but necessary change access level of the 
         # controller
