@@ -29,7 +29,7 @@ class UsersAPI extends BaseController
 
     public function get($startUserId, string $token) {
         helper('UtilityFunctions');
-        if ($token == create_token($startUserId, $token)) {
+        if ($token == create_token($startUserId)) {
             $model = model(UsersModel::class);
             $model->where('id_user', $startUserId);
             $model->orderBy('id_user');

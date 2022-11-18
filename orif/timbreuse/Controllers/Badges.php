@@ -45,23 +45,17 @@ class Badges extends BaseController
 
     
     /**
-     * @deprecated
-     * because do not give the user data
+     * get data badges
      */
-    public function _get($startIdBadge)
+    public function get($startIdBadge)
     {
-        trigger_error('Deprecated function called.', E_USER_DEPRECATED);
-
         $model = model(BadgesModel::class);
         $model->where('id_badge >', $startIdBadge);
         $model->orderBy('id_badge');
         return $this->respond(json_encode($model->findAll()));
     }
 
-    /**
-     * get data badges and users 
-     */
-    public function get($startUserId)
+    public function get2($startUserId)
     {
         $model = model(BadgesModel::class);
         $data = $model->get_users_and_badges($startUserId);
