@@ -31,7 +31,7 @@ class UsersAPI extends BaseController
         helper('UtilityFunctions');
         if ($token == create_token($startUserId)) {
             $model = model(UsersModel::class);
-            $model->where('id_user', $startUserId);
+            $model->where('id_user >', $startUserId);
             $model->orderBy('id_user');
             return $this->respond(json_encode($model->findAll()));
         } else {

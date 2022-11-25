@@ -47,11 +47,11 @@ class Badges extends BaseController
     /**
      * get data badges
      */
-    public function get($startIdBadge)
+    public function get($startBadgeRowID)
     {
         $model = model(BadgesModel::class);
-        $model->where('id_badge >', $startIdBadge);
-        $model->orderBy('id_badge');
+        $model->where('rowid_badge >', $startBadgeRowID);
+        $model->orderBy('rowid_badge');
         return $this->respond(json_encode($model->findAll()));
     }
 
