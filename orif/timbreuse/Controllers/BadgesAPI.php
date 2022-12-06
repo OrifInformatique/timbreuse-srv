@@ -16,7 +16,8 @@ class BadgesAPI extends BaseController
         $model = model(BadgesModel::class);
         # when is not a test ; 
         # $token == $this->create_token($badgeId, $name, $surname)
-        if ($token == $this->create_token($badgeId, $name, $surname)) {
+        helper('UtilityFunctions');
+        if ($token == create_token($badgeId, $name, $surname)) {
             if ((boolval($model->find($badgeId))) or ($model->
             add_badge_and_user($badgeId, $name, $surname))) {
                 return $this->respondCreated();
@@ -28,8 +29,12 @@ class BadgesAPI extends BaseController
         }
     }
 
+    /**
+     * @deprecated
+     */
     private function create_token($badgeId, $name, $surname)
     {
+        trigger_error('Deprecated function called.', E_USER_DEPRECATED);
         $text = $badgeId.$name.$surname;
         helper('UtilityFunctions');
         $key = load_key();
@@ -45,11 +50,10 @@ class BadgesAPI extends BaseController
 
     
     /**
-     * @deprecated
+     * get data badges
      */
-    public function get_old($startBadgeRowID)
+    public function get($startBadgeRowID)
     {
-        trigger_error('Deprecated function called.', E_USER_DEPRECATED);
         $model = model(BadgesModel::class);
         $model->where('rowid_badge >', $startBadgeRowID);
         $model->orderBy('rowid_badge');
@@ -57,10 +61,11 @@ class BadgesAPI extends BaseController
     }
 
     /**
-     * get data badges
+     * @deprecated
      */
-    public function get($startUserId)
+    public function get_old($startUserId)
     {
+        trigger_error('Deprecated function called.', E_USER_DEPRECATED);
         $model = model(BadgesModel::class);
         $data = $model->get_users_and_badges($startUserId);
         return $this->respond(json_encode($data));

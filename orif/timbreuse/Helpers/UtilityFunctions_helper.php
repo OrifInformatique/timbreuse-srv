@@ -10,12 +10,12 @@ function testhelper() {
 
 function create_token(string ...$texts)
 {
-    $return_text = '';
+    $concat_text = '';
     foreach ($texts as $text) {
-        $return_text.= $text;
+        $concat_text .= $text;
     }
     helper('UtilityFunctions');
     $key = load_key();
-    $token_text = hash_hmac('sha256', $text, $key);
+    $token_text = hash_hmac('sha256', $concat_text, $key);
     return $token_text;
 }

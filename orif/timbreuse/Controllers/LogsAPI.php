@@ -26,7 +26,7 @@ class LogsAPI extends BaseController
         $data['id_badge'] = $badgeId;
         $data['inside'] = $inside;
         helper('UtilityFunctions');
-        if ($token == $create_token($date, $badgeId, $inside)) {
+        if ($token == create_token($date, $badgeId, $inside)) {
             # direct reponse created if already in the db withtout insert 
             # again
             $userId = $badgeModel->select('id_user')->find($badgeId);
@@ -38,13 +38,12 @@ class LogsAPI extends BaseController
                 return $this->failServerError('database error');
             }
         } else {
-            return $this->failUnauthorized();
+            # return $this->failUnauthorized();
         }
     }
 
     /**
      * @deprecated
-     * is move in adminLogs
      */
     private function create_token($date, $badgeId, $inside)
     {
@@ -54,6 +53,8 @@ class LogsAPI extends BaseController
         helper('UtilityFunctions');
         $key = load_key();
         $token_text = hash_hmac('sha256', $text, $key);
+        var_dump($text);
+        var_dump($token_text);
         return $token_text;
     }
 
