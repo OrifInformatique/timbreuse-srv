@@ -6,13 +6,13 @@ use App\Controllers\BaseController;
 use CodeIgniter\API\ResponseTrait;
 use Timbreuse\Models\BadgesModel;
 
-class Badges extends BaseController
+class BadgesAPI extends BaseController
 {
     use ResponseTrait; # API Response Trait
     /**
      * api
      */
-    public function add($badgeId, $name, $surname, $token) {
+    public function put($badgeId, $name, $surname, $token) {
         $model = model(BadgesModel::class);
         # when is not a test ; 
         # $token == $this->create_token($badgeId, $name, $surname)
@@ -45,17 +45,21 @@ class Badges extends BaseController
 
     
     /**
-     * get data badges
+     * @deprecated
      */
-    public function get($startBadgeRowID)
+    public function get_old($startBadgeRowID)
     {
+        trigger_error('Deprecated function called.', E_USER_DEPRECATED);
         $model = model(BadgesModel::class);
         $model->where('rowid_badge >', $startBadgeRowID);
         $model->orderBy('rowid_badge');
         return $this->respond(json_encode($model->findAll()));
     }
 
-    public function get2($startUserId)
+    /**
+     * get data badges
+     */
+    public function get($startUserId)
     {
         $model = model(BadgesModel::class);
         $data = $model->get_users_and_badges($startUserId);
