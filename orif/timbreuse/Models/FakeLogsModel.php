@@ -13,6 +13,17 @@ class FakeLogsModel extends Model {
             'date' => 'required|valid_date',
     ];
 
+    /**
+     * @deprecated 
+     */
+    public function __construct()
+    {
+        trigger_error(
+            'Method ' . __METHOD__ . ' is deprecated',
+            E_USER_DEPRECATED
+        ); 
+    }
+
     public function get_info($fakeLogId=null)
     {
         if ($fakeLogId === null) {

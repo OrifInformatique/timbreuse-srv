@@ -31,6 +31,7 @@ class LogsAPI extends BaseController
             # again
             $userId = $badgeModel->select('id_user')->find($badgeId);
             $data += $userId;
+            $data['date_badge'] = $date;
             if ($logModel->is_replicate($date, $badgeId, $inside) or 
             ($logModel->insert($data))) {
                 return $this->respondCreated();
@@ -72,13 +73,24 @@ class LogsAPI extends BaseController
     }
 
     /**
-     * this is like of http method get for API
-     *  maybe rename this in get
+     * @deprecated
      */
-    public function get($startLogId) {
+    public function _get($startLogId) {
+        trigger_error('Deprecated function called.', E_USER_DEPRECATED);
         $model = model(LogsModel::class);
         $model->where('id_log >', $startLogId);
         $model->orderBy('id_log');
+        return $this->respond(json_encode($model->findAll()));
+    }
+
+    /**
+     * this is like of http method get for API
+     *  maybe rename this in get
+     */
+    public function get($startDate) {
+        $model = model(LogsModel::class);
+        $model->where('date_modif >=', $startDate);
+        $model->orderBy('date_modif');
         return $this->respond(json_encode($model->findAll()));
     }
 

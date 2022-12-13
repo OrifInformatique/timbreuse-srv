@@ -7,6 +7,17 @@ class LogsFakeLogsModel extends LogsModel {
     protected $table = 'log_fake_log';
     protected $primaryKey ='id_fake_log';
 
+    /**
+     * @deprecated 
+     */
+    public function __construct()
+    {
+        trigger_error(
+            'Method ' . __METHOD__ . ' is deprecated',
+            E_USER_DEPRECATED
+        ); 
+    }
+
     public function get_logs($userId = null)
     {
         if ($userId === null) {
