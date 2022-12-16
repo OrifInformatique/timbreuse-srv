@@ -170,16 +170,16 @@ class PersoLogs extends BaseController
     protected function get_day_week_array($userId, Time $date): array
     {
         $model = model(LogsModel::class);
-        $fakeModel = model(LogsFakeLogsModel::class);
+        #$fakeModel = model(LogsFakeLogsModel::class);
         $logs = $model->get_filtered_logs($userId, $date, 'week');
-        $fakeLogs = $fakeModel->get_filtered_logs($userId, $date, 'week');
+        #$fakeLogs = $fakeModel->get_filtered_logs($userId, $date, 'week');
         $data['label_week'] = $this->get_workdays_text($date);
         $data['time'] = $this->get_hours_by_seconds(
             $this->get_time_array($logs)
         );
-        $data['modifyTime'] = $this->get_hours_by_seconds(
-            $this->get_time_array($fakeLogs)
-        );
+        # $data['modifyTime'] = $this->get_hours_by_seconds(
+        #     $this->get_time_array($fakeLogs)
+        # );
         $data['url'] = '../' . $date->toDateString() . '/week';
         return $data;
     }
@@ -244,7 +244,6 @@ class PersoLogs extends BaseController
         $data['columns'] = array();
         $data['columns'][0] = lang('tim_lang.week');
         $data['columns'][1] = lang('tim_lang.time');
-        $data['columns'][2] = lang('tim_lang.modifyTime');
 
         $day = Time::parse($day);
         $data['period'] = $period;
@@ -274,19 +273,14 @@ class PersoLogs extends BaseController
     protected function get_day_time_table(
         $userId,
         $date,
-        $halfDay,
-        $fakeLog = false
+        $halfDay
     ): array
     {
-        if (!$fakeLog) {
-            $model = model(LogsModel::class);
-        } else {
-            $model = model(LogsFakeLogsModel::class);
-        }
+        $model = model(LogsModel::class);
         $logs = $model->get_logs_by_period($userId, $date, $halfDay);
         $data['time'] = $this->get_time_array($logs);
         $data['time'] = $this->get_hours_by_seconds($data['time']);
-        if ($this->is_fake_log($logs)) {
+        if ($this->is_not_tim_logs($logs)) {
             $data['time'] = $data['time'] . '✱';
         }
         $data['firstEntry'] = $this->get_string_time_for_day_time_table(
@@ -332,13 +326,38 @@ class PersoLogs extends BaseController
         return $entryStr;
     }
 
+    /**
+     * @deprecated
+     */
     protected function is_fake_log(array $logs) {
+        trigger_error('Deprecated function called.', E_USER_DEPRECATED);
         foreach ($logs as $log) {
             if (isset($log['id_fake_log'])) {
                 return true;
             }
         }
         return false;
+    }
+    protected function is_backdate_log(array $logs) {
+        foreach ($logs as $log) {
+            if (isset($log['date_badge'])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected function is_not_tim_logs(array $logs) {
+        foreach ($logs as $log) {
+            if ($this->is_not_tim_log($log)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected function is_not_tim_log(array $log) {
+        return $log['date']!=$log['date_badge'];
     }
 
     /**
@@ -380,7 +399,6 @@ class PersoLogs extends BaseController
     protected function get_week_time_table(
         $userId,
         $date,
-        $fakeLog = false
     ): array
     {
         $monday = $this->get_last_monday($date);
@@ -396,7 +414,6 @@ class PersoLogs extends BaseController
             $data[$weekday] = $this->get_upper_day_time_table(
                 $userId,
                 $monday->addDays($i),
-                $fakeLog
             );
         }
         return $data;
@@ -408,10 +425,10 @@ class PersoLogs extends BaseController
         $period = null
     ): void
     {
-        if (!(session()->has('isFakeLog'))) {
-            session()->set('isFakeLog', true);
-        }
-        $data['isFakeLog'] = session()->get('isFakeLog');
+        # if (!(session()->has('isFakeLog'))) {
+        #     session()->set('isFakeLog', true);
+        # }
+        # $data['isFakeLog'] = session()->get('isFakeLog');
         $usersModel = model(UsersModel::class);
         $user = $usersModel->get_users($userId);
 
@@ -431,23 +448,20 @@ class PersoLogs extends BaseController
         $data['items'] = $this->get_week_time_table(
             $userId,
             $day,
-            $data['isFakeLog']
         );
         $data['sumTime'] = $this->get_time_day_by_period(
             $userId,
             $day,
             $period,
-            $data['isFakeLog'],
-            $data['isFakeLog'],
         );
 
         $data['list_title'] = $this->create_title($user, $day, $period);
         $data['buttons'] = $this->create_buttons($period, true);
 
-        array_push($data['buttons'], [
-            'link' => '../../../../PersoLogs/turnSiteData',
-            'label' => ucfirst(lang('tim_lang.siteData'))
-        ]);
+        # array_push($data['buttons'], [
+        #     'link' => '../../../../PersoLogs/turnSiteData',
+        #     'label' => ucfirst(lang('tim_lang.siteData'))
+        # ]);
 
         if ($period != 'all') {
             $data['buttons'] = array_merge(
@@ -465,8 +479,12 @@ class PersoLogs extends BaseController
         );
     }
 
+    /**
+     * @deprecated
+     */
     public function turnSiteData()
     {
+        trigger_error('Deprecated function called.', E_USER_DEPRECATED);
         session()->set('isFakeLog', !session()->get('isFakeLog'));
         return redirect()->back();
     }
@@ -916,13 +934,8 @@ class PersoLogs extends BaseController
     protected function get_day_view_day_array(
         $userId,
         Time $date,
-        bool $fakeLog = false
     ) {
-        if (!$fakeLog) {
-            $model = model(LogsModel::class);
-        } else {
-            $model = model(LogsFakeLogsModel::class);
-        }
+        $model = model(LogsModel::class);
         $logs = $model->get_filtered_logs($userId, $date, 'day');
         return array_map(function ($log) {
             $data = array();
@@ -935,33 +948,28 @@ class PersoLogs extends BaseController
             );
             $data['time'] = $log['inside'] ? lang('tim_lang.enter') :
             lang('tim_lang.exit');
-            $data['url'] = $this->get_url_for_get_day_view_day_array($log['id_fake_log']);
+            $data['url'] = $this->get_url_for_get_day_view_day_array($log);
             return $data;
         }, $logs);
     }
 
-    protected function get_url_for_get_day_view_day_array($fakeLogId){
-            return isset($fakeLogId) ?  '../../detail_modify/' .
-                $fakeLogId : null;
+    protected function get_url_for_get_day_view_day_array(array $log){
+            return $this->is_not_tim_log($log) ?  '../../detail_modify/' .
+                $log['id_log'] : null;
     }
 
     protected function get_time_day_by_period(
         $userId,
         Time $day,
         string $period,
-        bool $fakeLog = false,
-        bool $showAsterisk = false
+        bool $showAsterisk = true
     ): string {
-        if (!$fakeLog) {
-            $model = model(LogsModel::class);
-        } else {
-            $model = model(LogsFakeLogsModel::class);
-        }
+        $model = model(LogsModel::class);
         $logs = $model->get_filtered_logs($userId, $day, $period);
         $time = $this->get_time_array($logs);
         $time = $this->get_hours_by_seconds($time);
         if ($showAsterisk) {
-            return $this->is_fake_log($logs) ? $time . '✱' : $time;
+            return $this->is_not_tim_logs($logs) ? $time . '✱' : $time;
         } else {
             return $time;
         }
@@ -969,7 +977,6 @@ class PersoLogs extends BaseController
 
     public function access_user_list()
     {
-
         $ciUserId = $this->session->get('user_id');
         $model = model(AccessTimModel::class);
         $data['items'] = $model->get_access_users_with_info($ciUserId);
@@ -1332,5 +1339,17 @@ class PersoLogs extends BaseController
         $day = Time::parse('2022-05-30');
         var_dump($this->get_day_view_day_array(92, $day));
         var_dump($this->get_day_view_day_array(92, $day, true));
+    }
+
+    public function test20()
+    {
+        $model = model(LogsModel::class);
+        $model->delete(362);
+    }
+
+    public function test21()
+    {
+        $model = model(LogsModel::class);
+        var_dump($model->select('id_log')->findAll());
     }
 }

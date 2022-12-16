@@ -18,7 +18,6 @@
                 <tr>
                     <th><a href="<?= $item['url'] ?>"><?= $item['label_week'] ?></a></th>
                     <td><?= $item['time'] ?></td>
-                    <td><?= $item['modifyTime'] ?></td>
                 </tr>
             <?php endforeach ?>
         </table>

@@ -48,6 +48,6 @@
         </table>
     </div>
     <p>
-        <?= $isFakeLog ? lang('tim_lang.msgAsterisk') : '' ?>
+        <?= lang('tim_lang.msgAsterisk') ?>
     </p>
 </div>

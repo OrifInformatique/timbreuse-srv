@@ -112,9 +112,9 @@ class AdminLogs extends PersoLogs
         }
     }
 
-    protected function get_url_for_get_day_view_day_array($fakeLogId){
-            return isset($fakeLogId) ?  '../../../detail_modify/' .
-                $fakeLogId : null;
+    protected function get_url_for_get_day_view_day_array(array $log){
+            return $this->is_not_tim_log($log) ?  '../../../detail_modify/' .
+                $log['id_log'] : null;
     }
 
     protected function redirect_log(array $log) {

@@ -43,7 +43,7 @@ return [
     'back' => 'retour',
     'modifyTime' => 'temps modifié',
     'modify' => 'modifié',
-    'msgAsterisk' => '✱Données provenant de modification sur le site web',
+    'msgAsterisk' => '✱Données saisies ou modifiées sur le site web',
     'siteData' => 'données du site',
     'new_record' => 'nouveau pointage',
     'record' => 'pointer',

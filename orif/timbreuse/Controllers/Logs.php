@@ -63,8 +63,12 @@ class Logs extends BaseController
     /**
      * maybe rename this in put or post to looks like http method
      */
-    public function add($date, $badgeId, $inside, $token)
+    /**
+     * @deprecated
+     */
+    private function add($date, $badgeId, $inside, $token)
     {
+        trigger_error('Deprecated function called.', E_USER_DEPRECATED);
         $logModel = model(LogsModel::class);
         $badgeModel = model(badgesModel::class);
         $data = array();
@@ -87,8 +91,12 @@ class Logs extends BaseController
         }
     }
 
+    /**
+     * @deprecated
+     */
     private function create_token($date, $badgeId, $inside)
     {
+        trigger_error('Deprecated function called.', E_USER_DEPRECATED);
         $text = $date.$badgeId.$inside;
         # $key = 'a'; # to put a truth in a file not in git
         helper('UtilityFunctions');
@@ -103,7 +111,7 @@ class Logs extends BaseController
     #     return json_decode($fileText, true)['key'];
     # }
 
-    public function get_logs_test() {
+    private function get_logs_test() {
         $data = array();
         $data['a'] = 0;
         $data['b'] = 'c';
@@ -119,7 +127,11 @@ class Logs extends BaseController
      * this is like of http method get for API
      *  maybe rename this in get
      */
-    public function get_logs($startLogId) {
+    /**
+     * @deprecated
+     */
+    private function get_logs($startLogId) {
+        trigger_error('Deprecated function called.', E_USER_DEPRECATED);
         $model = model(LogsModel::class);
         $model->where('id_log >', $startLogId);
         $model->orderBy('id_log');

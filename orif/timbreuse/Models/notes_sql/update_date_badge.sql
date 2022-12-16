@@ -1,0 +1,13 @@
+START TRANSACTION;
+UPDATE log_sync
+SET date_badge=date
+WHERE date_badge IS NULL
+ROLLBACK;
+COMMIT;
+
+START TRANSACTION;
+UPDATE log_sync
+SET date_modif=date
+WHERE date_modif='0000-00-00 00:00:00'
+ROLLBACK;
+COMMIT;

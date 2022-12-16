@@ -89,6 +89,10 @@ class LogsAPI extends BaseController
      */
     public function get($startDate) {
         $model = model(LogsModel::class);
+        $model->select(
+            'date, id_badge, inside, id_log, id_user, date_badge, date_modif, '
+            .'date_delete'
+        );
         $model->where('date_modif >=', $startDate);
         $model->orderBy('date_modif');
         return $this->respond(json_encode($model->findAll()));
