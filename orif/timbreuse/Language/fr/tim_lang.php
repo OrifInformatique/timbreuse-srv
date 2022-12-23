@@ -47,5 +47,9 @@ return [
     'siteData' => 'données du site',
     'new_record' => 'nouveau pointage',
     'record' => 'pointer',
-    'confirmDelete' => 'Êtes-vous sûr·e de vouloir supprimer ce pointage.'
+    'confirmDelete' => 'Êtes-vous sûr·e de vouloir supprimer ce pointage.',
+    'badgeId' => 'Numéro du badge',
+    'idLog' => 'Identifiant du timbrage',
+    'badgeDate' => 'date de timbrage physique sur une pointeuse',
+    'deleteDate' => 'date de suppression',
 ];

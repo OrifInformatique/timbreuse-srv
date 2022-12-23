@@ -1005,6 +1005,7 @@ class PersoLogs extends BaseController
     }
 
     public function detail_modify($fakeLogFakeId){
+        # to do rename fakeLogFakeId, rename in modify_log.php
         $data['fakeLogId'] = $fakeLogFakeId;
         $data['items'] = $this->get_items_array_detail_modify($fakeLogFakeId);
         $data['labels'] = array();
@@ -1012,14 +1013,18 @@ class PersoLogs extends BaseController
         $data['labels']['id_user'] = ucfirst(lang('tim_lang.username'));
         $data['labels']['inside'] = ucfirst(lang('tim_lang.enter'));
         $data['labels']['id_ci_user'] = ucfirst(lang('tim_lang.ciUsername'));
-        $data['labels']['date_site'] = ucfirst(lang('tim_lang.modifyDate'));
+        $data['labels']['date_modif'] = ucfirst(lang('tim_lang.modifyDate'));
+        $data['labels']['id_badge'] = ucfirst(lang('tim_lang.badgeId'));
+        $data['labels']['id_log'] = ucfirst(lang('tim_lang.idLog'));
+        $data['labels']['date_badge'] = ucfirst(lang('tim_lang.badgeDate'));
+        $data['labels']['date_delete'] = ucfirst(lang('tim_lang.deleteDate'));
 
         $data['buttons'] = array();
         $button = array();
 
         #$agent = $this->request->getUserAgent();
         #$button['link'] = $agent->getReferrer();
-        $model = model(FakeLogsModel::class);
+        $model = model(LogsModel::class);
         $log = $model->find($fakeLogFakeId);
         $button['link'] = '../' . $this->redirect_log($log);
 
@@ -1035,9 +1040,10 @@ class PersoLogs extends BaseController
         );
     }
 
-    protected function get_items_array_detail_modify($fakeLogFakeId = 1)
+    protected function get_items_array_detail_modify($fakeLogFakeId)
     {
-        $model = model(FakeLogsModel::class);
+        # to do rename fakeLogFakeId
+        $model = model(LogsModel::class);
         $items = $model->find($fakeLogFakeId);
         $this->check_and_block_user($items['id_user']);
         $items['inside'] = boolval($items['inside']) ? lang('tim_lang.yes') :
@@ -1061,15 +1067,20 @@ class PersoLogs extends BaseController
     protected function get_site_username($ciUserId)
     {
         $model = model(UsersModel::class);
-        $userName = $model->select('ci_user.username')->from('ci_user')
-        ->where('ci_user.id', $ciUserId)->findall(1)[0]['username'];
+        try {
+            $userName = $model->select('ci_user.username')->from('ci_user')
+            ->where('ci_user.id', $ciUserId)->findAll()[0]['username'];
+        } catch (\Exception $e) {
+            $userName = '';
+        }
         return $userName;
     }
 
 
     public function create_modify_log() {
         $this->check_and_block_user($this->request->getPost('userId'));
-        $model = model(FakeLogsModel::class);
+        #$model = model(FakeLogsModel::class);
+        $model = model(LogsModel::class);
         if ($this->request->getMethod() === 'post' && $this->validate([
             'time' => 'required|regex_match[^([0-1][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$]',
             'inside'  => 'required|regex_match[^(true|false)$]',
@@ -1089,7 +1100,8 @@ class PersoLogs extends BaseController
     }
 
     public function delete_modify_log($fakeLogId) {
-        $model = model(FakeLogsModel::class);
+        # maybe rename fakeLogId
+        $model = model(LogsModel::class);
         $data['userId'] = $model->find($fakeLogId)['id_user'];
 
         $data['id'] = $fakeLogId;
@@ -1104,9 +1116,10 @@ class PersoLogs extends BaseController
     }
 
     public function confirm_delete_modify_log() {
+        # to do rename fakeLog
         if ($this->request->getMethod() === 'post') {
             $id = $this->request->getPost('id');
-            $model = model(FakeLogsModel::class);
+            $model = model(LogsModel::class);
             $fakeLog = $model->find($id);
             $this->check_and_block_user($fakeLog['id_user']);
             $model->delete($id);

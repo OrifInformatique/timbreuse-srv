@@ -72,7 +72,7 @@ class LogsModel extends Model
             $this->where('YEAR(date)', $date->getYear());
         }
         $this->orderBy('date');
-        return $this->get()->getResultArray();
+        return $this->findAll();
     }
 
     public function get_border_interval($date, $halfDay): array
@@ -107,7 +107,7 @@ class LogsModel extends Model
         $border = $this->get_border_interval($date, $halfDay);
         $this->where('date >=', $border['startTime']);
         $this->where('date <', $border['endTime']);
-        return $this->get()->getResultArray();
+        return $this->findAll();
     }
 
     public function get_border_log_by_period(
@@ -132,7 +132,7 @@ class LogsModel extends Model
         }
         $this->limit(1);
         try {
-            return $this->get()->getResultArray()[0];
+            return $this->findAll()[0];
         } catch (\Exception $e) {
             return array();
         }
