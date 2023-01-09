@@ -627,10 +627,6 @@ class PersoLogs extends BaseController
                 return $user['surname'] . ' ' . $user['name'] . ' semaine ' .
                     $date;
                 break;
-            case 'all':
-                return 'tous les logs ' . $user['surname'] . ' ' .
-                    $user['name'];
-                break;
         }
     }
 
@@ -692,24 +688,13 @@ class PersoLogs extends BaseController
     protected function create_buttons($period)
     {
         $data = array();
-        if ($period != 'all') {
-            array_push(
-                $data,
-                [
-                    'link' => '../' . Time::today()->toDateString() . '/' .
-                        $period,
-                    'label' => ucfirst(lang('tim_lang.today')),
-                ]
-            );
-        } else {
-            array_push(
-                $data,
-                [
-                    'link' => '../' . Time::today()->toDateString(),
-                    'label' => ucfirst(lang('tim_lang.today')),
-                ]
-            );
-        }
+        array_push($data,
+            [
+                'link' => '../' . Time::today()->toDateString() . '/' .
+                    $period,
+                'label' => ucfirst(lang('tim_lang.today')),
+            ]
+        );
         array_push($data, [
             'link' => 'day',
             'label' => ucfirst(lang('tim_lang.day'))
