@@ -138,7 +138,8 @@ class LogsModel extends Model
         }
     }
 
-    public function is_replicate($date, $badgeId, $inside) {
+    public function is_replicate($date, $badgeId, $inside)
+    {
         $this->where('date =', $date);
         $this->where('id_badge =', $badgeId);
         $this->where('inside =', $inside);

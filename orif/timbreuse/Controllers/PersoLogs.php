@@ -22,7 +22,8 @@ class PersoLogs extends BaseController
         RequestInterface $request,
         ResponseInterface $response,
         LoggerInterface $logger
-    ) {
+    )
+    {
         $this->access_level = config(
             '\User\Config\UserConfig'
         )->access_lvl_registered;
@@ -185,50 +186,66 @@ class PersoLogs extends BaseController
     }
 
 
-    protected function time_list_day($userId, $day = null, $period = null)
+    protected function get_texts_for_day_view()
     {
-        $usersModel = model(UsersModel::class);
-        $user = $usersModel->get_users($userId);
-
         $data['title'] = "Welcome";
         $data['columns'] = array();
         $data['columns'][0] = lang('tim_lang.hour');
         $data['columns'][1] = lang('tim_lang.enter/exit');
-
-        $day = Time::parse($day);
-        $data['period'] = $period;
-        $data['items'] = $this->get_day_view_day_array($userId, $day, true);
-        $sumTime = array();
-        $sumTime['time'] = $this->get_time_day_by_period(
-            $userId,
-            $day,
-            $period
-        );
-        $sumModifyTime['time'] = $this->get_time_day_by_period(
-            $userId,
-            $day,
-            $period,
-            true
-        );
-        $sumTime['date'] = ucfirst(lang('tim_lang.timeTotal'));
-        $sumModifyTime['date'] = ucfirst(lang('tim_lang.modifyTime'));
-        array_push($data['items'], $sumTime);
-        array_push($data['items'], $sumModifyTime);
-
+        return $data;
+    }
+    protected function get_page_title_for_log_views($userId, $day, $period)
+    {
+        $usersModel = model(UsersModel::class);
+        $user = $usersModel->get_users($userId);
         $data['list_title'] = $this->create_title($user, $day, $period);
-        $data['buttons'] = $this->create_buttons($period, true);
-        if ($period != 'all') {
-            $data['buttons'] = array_merge(
-                $this->create_time_links($day, $period),
-                $data['buttons']
-            );
-            $data['date'] = $day->toDateString();
+        return $data;
+    }
+
+    protected function get_sum_time_for_day_view($userId, $day, $period)
+    {
+        $sumTime = array();
+        $sumTime['time'] = $this->get_time_day_by_period( $userId, $day,
+                $period);
+        $sumTime['date'] = ucfirst(lang('tim_lang.timeTotal'));
+        return $sumTime;
+    }
+
+    protected function get_buttons_for_log_views($day, $period)
+    {
+        $data['buttons'] = $this->create_buttons($period);
+        $data['buttons'] = array_merge(
+            $this->create_time_links($day, $period),
+            $data['buttons']
+        );
+        return $data;
+    }
+
+    protected function put_args_in_array_for_log_views($userId, $day, $period)
+    {
+        $data['period'] = $period;
+        $data['date'] = $day->toDateString();
+        if ($period == 'day') {
+            $data['userId'] = $userId;
         }
-        $data['userId'] = $userId;
+        return $data;
+
+    }
+
+    protected function time_list_day($userId, $day = null, $period = null)
+    {
+        $day = Time::parse($day);
+        $data = $this->put_args_in_array_for_log_views($userId, $day, $period);
+        $data['items'] = $this->get_day_view_day_array($userId, $day, true);
+        $data += $this->get_texts_for_day_view();
+        $data += $this->get_page_title_for_log_views($userId, $day, $period);
+        $data += $this->get_buttons_for_log_views($day, $period);
+        array_push($data['items'], $this->get_sum_time_for_day_view($userId,
+                $day, $period));
         $this->display_view(
             [
-                'Timbreuse\Views\period_menu',
-                'Timbreuse\Views\date', 'Timbreuse\Views\logs\day_time.php'
+                'Timbreuse\Views\period_menu', 'Timbreuse\Views\date',
+                'Timbreuse\Views\logs\day_time.php'
             ],
             $data
         );
@@ -236,28 +253,19 @@ class PersoLogs extends BaseController
 
     protected function time_list_month($userId, $day = null, $period = null)
     {
-
-        $usersModel = model(UsersModel::class);
-        $user = $usersModel->get_users($userId);
-
         $data['title'] = "Welcome";
         $data['columns'] = array();
         $data['columns'][0] = lang('tim_lang.week');
         $data['columns'][1] = lang('tim_lang.time');
 
         $day = Time::parse($day);
-        $data['period'] = $period;
+        $data += $this->put_args_in_array_for_log_views($userId, $day,
+                $period);
         $data['items'] = $this->get_month_week_array($userId, $day);
 
-        $data['list_title'] = $this->create_title($user, $day, $period);
-        $data['buttons'] = $this->create_buttons($period, true);
-        if ($period != 'all') {
-            $data['buttons'] = array_merge(
-                $this->create_time_links($day, $period),
-                $data['buttons']
-            );
-            $data['date'] = $day->toDateString();
-        }
+        $data += $this->get_page_title_for_log_views($userId, $day,
+                $period);
+        $data += $this->get_buttons_for_log_views($day, $period);
         $this->display_view(
             [
                 'Timbreuse\Views\period_menu',
@@ -284,33 +292,18 @@ class PersoLogs extends BaseController
             $data['time'] = $data['time'] . '✱';
         }
         $data['firstEntry'] = $this->get_string_time_for_day_time_table(
-            $userId,
-            $date,
-            $halfDay,
-            false,
-            $model
-        );
+            $userId, $date, $halfDay, false, $model);
         $data['lastOuting'] = $this->get_string_time_for_day_time_table(
-            $userId,
-            $date,
-            $halfDay,
-            true,
-            $model
-        );
+            $userId, $date, $halfDay, true, $model);
         return $data;
     }
 
-    protected function get_string_time_for_day_time_table(
-        int $userId,
-        $date,
-        $halfDay,
-        bool $isLast,
-        LogsModel $model
-    ): string {
+    protected function get_string_time_for_day_time_table(int $userId, $date,
+        $halfDay, bool $isLast, LogsModel $model): string
+    {
         try {
             $entry = $model->get_border_log_by_period(
-                $userId,
-                $date,
+                $userId, $date,
                 $halfDay,
                 $isLast
             );
@@ -329,7 +322,8 @@ class PersoLogs extends BaseController
     /**
      * @deprecated
      */
-    protected function is_fake_log(array $logs) {
+    protected function is_fake_log(array $logs)
+    {
         trigger_error('Deprecated function called.', E_USER_DEPRECATED);
         foreach ($logs as $log) {
             if (isset($log['id_fake_log'])) {
@@ -338,7 +332,9 @@ class PersoLogs extends BaseController
         }
         return false;
     }
-    protected function is_backdate_log(array $logs) {
+
+    protected function is_backdate_log(array $logs)
+    {
         foreach ($logs as $log) {
             if (isset($log['date_badge'])) {
                 return true;
@@ -347,7 +343,8 @@ class PersoLogs extends BaseController
         return false;
     }
 
-    protected function is_not_tim_logs(array $logs) {
+    protected function is_not_tim_logs(array $logs)
+    {
         foreach ($logs as $log) {
             if ($this->is_not_tim_log($log)){
                 return true;
@@ -356,82 +353,48 @@ class PersoLogs extends BaseController
         return false;
     }
 
-    protected function is_not_tim_log(array $log) {
-        return $log['date']!=$log['date_badge'];
+    /**
+     * log is created on site or modifyed
+     */
+    protected function is_not_tim_log(array $log)
+    {
+        return $log['date'] != $log['date_badge'];
     }
 
     /**
      * use for week view with time
      */
-    protected function get_upper_day_time_table(
-        $userId,
-        $date,
-        $fakeLog = false
-    ): array
+    protected function get_upper_day_time_table( $userId, $date,
+        $fakeLog = true): array
     {
         $data['dayNb'] = $date->day;
         $data['url'] = '../' . $date->toDateString() . '/day';
-        $data['morning'] = $this->get_day_time_table(
-            $userId,
-            $date,
-            'morning',
-            $fakeLog
-        );
-        $data['afternoon'] = $this->get_day_time_table(
-            $userId,
-            $date,
-            'afternoon',
-            $fakeLog
-        );
-        $data['time'] = $this->get_time_day_by_period(
-            $userId,
-            $date,
-            'day',
-            $fakeLog,
-            $fakeLog,
-        );
+        $data['morning'] = $this->get_day_time_table($userId, $date,
+                'morning', $fakeLog);
+        $data['afternoon'] = $this->get_day_time_table($userId, $date,
+                'afternoon', $fakeLog);
+        $data['time'] = $this->get_time_day_by_period($userId, $date, 'day',
+                $fakeLog,);
         return $data;
     }
 
     /**
      * use for week view with time
      */
-    protected function get_week_time_table(
-        $userId,
-        $date,
-    ): array
+    protected function get_week_time_table( $userId, $date): array
     {
         $monday = $this->get_last_monday($date);
-        $weekdays = [
-            'monday',
-            'tuesday',
-            'wednesday',
-            'thurday',
-            'friday',
-        ];
+        $weekdays = ['monday', 'tuesday', 'wednesday', 'thurday', 'friday'];
         $data = array();
         foreach ($weekdays as $i => $weekday) {
-            $data[$weekday] = $this->get_upper_day_time_table(
-                $userId,
-                $monday->addDays($i),
-            );
+            $data[$weekday] = $this->get_upper_day_time_table($userId,
+                    $monday->addDays($i));
         }
         return $data;
     }
 
-    protected function time_list_week(
-        $userId,
-        $day = null,
-        $period = null
-    ): void
+    protected function get_texts_for_month_view()
     {
-        # if (!(session()->has('isFakeLog'))) {
-        #     session()->set('isFakeLog', true);
-        # }
-        # $data['isFakeLog'] = session()->get('isFakeLog');
-        $usersModel = model(UsersModel::class);
-        $user = $usersModel->get_users($userId);
-
         $data['title'] = "Welcome";
         $data['rows'] = [
             'morning' => lang('tim_lang.rowMorning'),
@@ -443,40 +406,25 @@ class PersoLogs extends BaseController
             'firstEntry' => lang('tim_lang.firstEntry'),
             'lastOuting' => lang('tim_lang.lastOuting'),
         ];
+        return $data;
+    }
+
+    protected function time_list_week($userId, $day = null,
+            $period = null): void
+    {
         $day = Time::parse($day);
-        $data['period'] = $period;
-        $data['items'] = $this->get_week_time_table(
-            $userId,
-            $day,
-        );
-        $data['sumTime'] = $this->get_time_day_by_period(
-            $userId,
-            $day,
-            $period,
-        );
+        $data = $this->put_args_in_array_for_log_views($userId, $day,
+                $period);
+        $data += $this->get_texts_for_month_view();
+        $data['items'] = $this->get_week_time_table( $userId, $day,);
+        $data['sumTime'] = $this->get_time_day_by_period( $userId, $day,
+            $period,);
 
-        $data['list_title'] = $this->create_title($user, $day, $period);
-        $data['buttons'] = $this->create_buttons($period, true);
-
-        # array_push($data['buttons'], [
-        #     'link' => '../../../../PersoLogs/turnSiteData',
-        #     'label' => ucfirst(lang('tim_lang.siteData'))
-        # ]);
-
-        if ($period != 'all') {
-            $data['buttons'] = array_merge(
-                $this->create_time_links($day, $period),
-                $data['buttons']
-            );
-            $data['date'] = $day->toDateString();
-        }
-        $this->display_view(
-            [
-                'Timbreuse\Views\period_menu',
-                'Timbreuse\Views\date', 'Timbreuse\Views\logs\week_time.php'
-            ],
-            $data
-        );
+        $data += $this->get_page_title_for_log_views($userId, $day, $period);
+        $data += $this->get_buttons_for_log_views($day, $period);
+        $this->display_view(['Timbreuse\Views\period_menu',
+                'Timbreuse\Views\date', 'Timbreuse\Views\logs\week_time.php'],
+                $data);
     }
 
     /**
@@ -570,7 +518,8 @@ class PersoLogs extends BaseController
 
     }
 
-    protected function perso_time_period($userId, $day, $period) {
+    protected function perso_time_period($userId, $day, $period)
+    {
         switch ($period) {
             case 'week':
                 return $this->time_list_week($userId, $day, $period);
@@ -588,7 +537,7 @@ class PersoLogs extends BaseController
 
     }
 
-    protected function is_session_access($id=null)
+    protected function is_session_access($id = null)
     {
         if (session()->has('userIdAccess')) {
             $model = model(AccessTimModel::class);
@@ -740,15 +689,9 @@ class PersoLogs extends BaseController
         );
     }
 
-    protected function create_buttons($period, bool $timeList = false)
+    protected function create_buttons($period)
     {
         $data = array();
-        if (!$timeList) {
-            array_push($data, [
-                'link' => '../',
-                'label' => ucfirst(lang('tim_lang.all'))
-            ]);
-        }
         if ($period != 'all') {
             array_push(
                 $data,
@@ -934,7 +877,8 @@ class PersoLogs extends BaseController
     protected function get_day_view_day_array(
         $userId,
         Time $date,
-    ) {
+    )
+    {
         $model = model(LogsModel::class);
         $logs = $model->get_filtered_logs($userId, $date, 'day');
         return array_map(function ($log) {
@@ -953,7 +897,8 @@ class PersoLogs extends BaseController
         }, $logs);
     }
 
-    protected function get_url_for_get_day_view_day_array(array $log){
+    protected function get_url_for_get_day_view_day_array(array $log)
+    {
             return $this->is_not_tim_log($log) ?  '../../detail_modify/' .
                 $log['id_log'] : null;
     }
@@ -971,6 +916,11 @@ class PersoLogs extends BaseController
         if ($showAsterisk) {
             return $this->is_not_tim_logs($logs) ? $time . '✱' : $time;
         } else {
+            echo "<br>";
+            var_dump($time);
+            echo "<br>";
+            var_dump($logs);
+            echo "<br>";
             return $time;
         }
     }
@@ -1004,7 +954,8 @@ class PersoLogs extends BaseController
         }
     }
 
-    public function detail_modify($fakeLogFakeId){
+    public function detail_modify($fakeLogFakeId)
+    {
         # to do rename fakeLogFakeId, rename in modify_log.php
         $data['fakeLogId'] = $fakeLogFakeId;
         $data['items'] = $this->get_items_array_detail_modify($fakeLogFakeId);
@@ -1057,7 +1008,8 @@ class PersoLogs extends BaseController
     /**
      * duplicate from Users.php
      */
-    protected function get_username($userId){
+    protected function get_username($userId)
+    {
         $model = model(UsersModel::class);
         $userName = $model->select('name, surname')->find($userId);
         $userName = $userName['name'].' '.$userName['surname'];
@@ -1066,8 +1018,8 @@ class PersoLogs extends BaseController
 
     protected function get_site_username($ciUserId)
     {
-        $model = model(UsersModel::class);
         try {
+            $model = model(UsersModel::class);
             $userName = $model->select('ci_user.username')->from('ci_user')
             ->where('ci_user.id', $ciUserId)->findAll()[0]['username'];
         } catch (\Exception $e) {
@@ -1077,7 +1029,8 @@ class PersoLogs extends BaseController
     }
 
 
-    public function create_modify_log() {
+    public function create_modify_log()
+    {
         $this->check_and_block_user($this->request->getPost('userId'));
         #$model = model(FakeLogsModel::class);
         $model = model(LogsModel::class);
@@ -1099,7 +1052,8 @@ class PersoLogs extends BaseController
         }
     }
 
-    public function delete_modify_log($fakeLogId) {
+    public function delete_modify_log($fakeLogId)
+    {
         # maybe rename fakeLogId
         $model = model(LogsModel::class);
         $data['userId'] = $model->find($fakeLogId)['id_user'];
@@ -1115,7 +1069,8 @@ class PersoLogs extends BaseController
     
     }
 
-    public function confirm_delete_modify_log() {
+    public function confirm_delete_modify_log()
+    {
         # to do rename fakeLog
         if ($this->request->getMethod() === 'post') {
             $id = $this->request->getPost('id');
@@ -1132,7 +1087,8 @@ class PersoLogs extends BaseController
         }
     }
 
-    protected function redirect_log(array $log) {
+    protected function redirect_log(array $log)
+    {
         $link = explode(' ', $log['date'])[0];
         $link .= '/day';
         $link = self::RETURN_METHOD_NAME . '/' . $link;
