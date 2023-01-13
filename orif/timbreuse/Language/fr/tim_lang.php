@@ -42,7 +42,8 @@ return [
     'modifyDate' => 'date de modification',
     'back' => 'retour',
     'modifyTime' => 'temps modifié',
-    'modify' => 'modifié',
+    'modify' => 'modifier',
+    'modified' => 'modifié',
     'msgAsterisk' => '✱Données saisies ou modifiées sur le site web',
     'siteData' => 'données du site',
     'new_record' => 'nouveau pointage',
@@ -52,4 +53,7 @@ return [
     'idLog' => 'Identifiant du pointage',
     'badgeDate' => 'date de pointage physique sur une pointeuse',
     'deleteDate' => 'date de suppression',
+    'recordModification' => 'Modification du pointage',
+    'confirmRestore' => 'Êtes-vous sûr·e de vouloir restorer ce pointage.',
+    'restore' => 'restorer',
 ];

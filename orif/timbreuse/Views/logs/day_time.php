@@ -22,13 +22,15 @@
                                 <?= $item['date'] ?>
                             </a>
                             <span class="badge badge-primary">
-                                <?= lang('tim_lang.modify') ?>
+                                <?= lang('tim_lang.modified') ?>
                             </span>
                         </td>
                     <?php else : ?>
                         <td><?= $item['date'] ?></td>
                     <?php endif; ?>
+                    <!-- enter exit and time in last row -->
                     <td><?= $item['time'] ?></td>
+                    <td><a href='<?= '#' ?>'>o</a> </td>
                 </tr>
             <?php endforeach ?>
         </table>

@@ -1,3 +1,4 @@
+<!-- detail log modified -->
 <div class="items_list container">
     <div class="row mb-2">
         <div class="col-sm-8 text-left">

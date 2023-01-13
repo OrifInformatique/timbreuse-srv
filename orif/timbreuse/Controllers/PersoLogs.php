@@ -1037,16 +1037,52 @@ class PersoLogs extends BaseController
         }
     }
 
-    public function delete_modify_log($fakeLogId)
+    public function restore_log($logId)
     {
-        # maybe rename fakeLogId
+        # work in progress
         $model = model(LogsModel::class);
-        $data['userId'] = $model->find($fakeLogId)['id_user'];
+        $data['userId'] = $model->withDeleted()->find($logId)['id_user'];
 
-        $data['id'] = $fakeLogId;
+        $data['id'] = $logId;
+        $data['text'] = lang('tim_lang.confirmRestore');
+        $data['link'] = '../confirm_delete_modify_log';
+        $data['cancel_link'] = '../edit_log/' . $logId;
+        $data['label_button'] = ucfirst(lang('tim_lang.restore')); 
+        $data['ciUserId'] = $this->session->get('user_id');
+
+        $this->display_view('Timbreuse\Views\logs\confirm_delete', $data);
+    
+    }
+
+    public function approve_restore_log()
+    {
+        # work in progress
+        if ($this->request->getMethod() === 'post') {
+            $id = $this->request->getPost('id');
+            $model = model(LogsModel::class);
+            $log = $model->find($id);
+            $this->check_and_block_user($log['id_user']);
+            # to test if it need date_delete in allowedFields
+            $model->update($id, ['date_delete' => null]);
+            $this->redirect_log($log);
+            return redirect()->to($this->redirect_log($log));
+        } else {
+            $this->display_view('\User\errors\403error');
+            exit();
+            return $this->display_view('\User\errors\403error');
+        }
+    }
+
+    public function delete_modify_log($logId)
+    {
+        # maybe rename  the methode name
+        $model = model(LogsModel::class);
+        $data['userId'] = $model->find($logId)['id_user'];
+
+        $data['id'] = $logId;
         $data['text'] = lang('tim_lang.confirmDelete');
         $data['link'] = '../confirm_delete_modify_log';
-        $data['cancel_link'] = '../detail_modify/' . $fakeLogId;
+        $data['cancel_link'] = '../detail_modify/' . $logId;
         $data['label_button'] = ucfirst(lang('tim_lang.delete')); 
         $data['ciUserId'] = $this->session->get('user_id');
 
@@ -1078,6 +1114,19 @@ class PersoLogs extends BaseController
         $link .= '/day';
         $link = self::RETURN_METHOD_NAME . '/' . $link;
         return $link;
+    }
+
+    public function edit_log($logId)
+    {
+        $model = model(LogsModel::class);
+        $data = $model->withDeleted()->find($logId);
+        $this->check_and_block_user($data['id_user']);
+        $datetime = Time::parse($data['date']);
+        $data['time'] = $datetime->format('H:i:s');
+        
+        $data['cancel_link'] = '../' . $this->redirect_log($data);
+
+        $this->display_view('Timbreuse\Views\logs\edit_log', $data);
     }
 
 
@@ -1306,4 +1355,16 @@ class PersoLogs extends BaseController
         $model = model(LogsModel::class);
         var_dump($model->select('id_log')->findAll());
     }
+
+    public function test22()
+    {
+        $data['date'] = Time::parse('2022-05-30');
+        $data['time'] = '18:33';
+        $data['userId'] = 33;
+        $data['inside'] = 'false';
+
+        $this->display_view('Timbreuse\Views\logs\edit_log', $data);
+    }
+    
+
 }
