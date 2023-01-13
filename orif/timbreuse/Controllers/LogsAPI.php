@@ -95,6 +95,7 @@ class LogsAPI extends BaseController
         );
         $model->where('date_modif >=', $startDate);
         $model->orderBy('date_modif');
+        $model->withDeleted();
         return $this->respond(json_encode($model->findAll()));
     }
 
