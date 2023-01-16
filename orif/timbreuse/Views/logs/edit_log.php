@@ -4,7 +4,7 @@
             <?= ucfirst(lang('tim_lang.recordModification')) ?>
         </h1>
         <?= service('validation')->listErrors() ?>
-        <form action='<?= base_url() ?>/PersoLogs/#' method='post'>
+        <form action='<?= $update_link ?>' method='post'>
             <?= csrf_field() ?>
             <div class="form-group">
                 <label for="time" class='form-label'><?= ucfirst(lang('tim_lang.hour')) ?></label>
@@ -29,10 +29,13 @@
                 <input type="submit" class="btn btn-primary" value=<?= ucfirst(lang('tim_lang.modify')) ?>>
             </div>
             <div class="form-group">
-                <a href='../delete_modify_log/<?= $id_log ?>' class="btn btn-danger"><?= ucfirst(lang('tim_lang.delete')) ?></a>
+                <?php if (! $date_delete): ?>
+                    <a href='<?= $delete_link ?>' class="btn btn-danger"><?= ucfirst(lang('tim_lang.delete')) ?></a>
+                <?php else: ?>
+                    <a href='<?= $restore_link ?>' class="btn btn-danger"><?= ucfirst(lang('tim_lang.restore')) ?></a>
+                <?php endif ?>
             </div>
-            <input type="date" hidden value='<?= $date ?>' name='date'>
-            <input type="number" hidden value='<?= $id_user ?>' name='userId'>
+            <input type='number' hidden value='<?= $id_log ?>' name='logId'>
         </form>
     </div>
 </div>

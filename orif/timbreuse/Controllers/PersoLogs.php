@@ -1039,38 +1039,54 @@ class PersoLogs extends BaseController
 
     public function restore_log($logId)
     {
-        # work in progress
-        $model = model(LogsModel::class);
-        $data['userId'] = $model->withDeleted()->find($logId)['id_user'];
-
         $data['id'] = $logId;
         $data['text'] = lang('tim_lang.confirmRestore');
-        $data['link'] = '../confirm_delete_modify_log';
+        $data['link'] = '../approve_restore_log/';
         $data['cancel_link'] = '../edit_log/' . $logId;
         $data['label_button'] = ucfirst(lang('tim_lang.restore')); 
-        $data['ciUserId'] = $this->session->get('user_id');
-
-        $this->display_view('Timbreuse\Views\logs\confirm_delete', $data);
-    
+        $this->display_view('Timbreuse\Views\logs\approve_restore_log', $data);
     }
 
     public function approve_restore_log()
     {
-        # work in progress
-        if ($this->request->getMethod() === 'post') {
-            $id = $this->request->getPost('id');
-            $model = model(LogsModel::class);
-            $log = $model->find($id);
-            $this->check_and_block_user($log['id_user']);
-            # to test if it need date_delete in allowedFields
-            $model->update($id, ['date_delete' => null]);
-            $this->redirect_log($log);
-            return redirect()->to($this->redirect_log($log));
-        } else {
-            $this->display_view('\User\errors\403error');
-            exit();
+        if ($this->request->getMethod() !== 'post') {
             return $this->display_view('\User\errors\403error');
-        }
+        } 
+        $logId = $this->request->getPost('id');
+        $model = model(LogsModel::class);
+        $log = $model->withDeleted()->find($logId);
+        $this->check_and_block_user($log['id_user']);
+        $model->onlyDeleted()->update($logId, ['date_delete' => null]);
+        return redirect()->to($this->redirect_log($log));
+    }
+
+    protected function replace_time_in_date($date, $time)
+    {
+        $oldDate = Time::parse($date);
+        $time = Time::parse($time);
+        return Time::create($oldDate->year, $oldDate->month,
+            $oldDate->day, $time->hour, $time->minute, $time->second);
+    }
+
+    public function update_log()
+    {
+        if ($this->request->getMethod() !== 'post') {
+            return $this->display_view('\User\errors\403error');
+        } 
+        $model = model(LogsModel::class);
+        $logId = $this->request->getPost('logId');
+        $log = $model->find($logId);
+        $this->check_and_block_user($log['id_user']);
+        $newDate = $this->replace_time_in_date($log['date'],
+            $this->request->getPost('time'));
+        $inside = $this->request->getPost('inside');
+        $model->update($logId, 
+            [
+                'date' => $newDate,
+                'inside' => $inside,
+            ]
+        );
+        return redirect()->to($this->redirect_log($log));
     }
 
     public function delete_modify_log($logId)
@@ -1125,6 +1141,9 @@ class PersoLogs extends BaseController
         $data['time'] = $datetime->format('H:i:s');
         
         $data['cancel_link'] = '../' . $this->redirect_log($data);
+        $data['delete_link'] = '../delete_modify_log/'.$logId;
+        $data['restore_link'] = '../restore_log/' .$logId;
+        $data['update_link'] = '../update_log';
 
         $this->display_view('Timbreuse\Views\logs\edit_log', $data);
     }

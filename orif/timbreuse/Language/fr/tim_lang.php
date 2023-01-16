@@ -55,5 +55,5 @@ return [
     'deleteDate' => 'date de suppression',
     'recordModification' => 'Modification du pointage',
     'confirmRestore' => 'Êtes-vous sûr·e de vouloir restorer ce pointage.',
-    'restore' => 'restorer',
+    'restore' => 'restaurer',
 ];

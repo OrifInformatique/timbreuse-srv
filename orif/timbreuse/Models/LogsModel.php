@@ -13,7 +13,7 @@ class LogsModel extends Model
     protected $useAutoIncrement = true;
     protected $allowedFields = [
         'date', 'id_badge', 'inside', 'id_user',
-        'date_badge', 'id_ci_user'
+        'date_badge', 'id_ci_user', 'date_delete',
     ];
     protected $useSoftDeletes = true;
 
