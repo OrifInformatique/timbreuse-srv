@@ -60,4 +60,5 @@ return [
     'webUsers' => 'utilisateurs du site web',
     'users' => 'utilisateurs',
     'details' => 'détails',
+    'deleted' => 'supprimé',
 ];

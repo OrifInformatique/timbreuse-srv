@@ -52,13 +52,8 @@ class LogsModel extends Model
         });
     }
 
-    public function get_filtered_logs($userId, $date, $period): array
+    public function limit_period($date, $period)
     {
-        if ($this->checkWithBadgeId) {
-            $this->where_id_badge($userId);
-        } else {
-            $this->where('id_user', $userId);
-        }
         if ($period == 'day') {
             $this->where('DAY(date)', $date->getDay());
         }
@@ -68,9 +63,34 @@ class LogsModel extends Model
         if ($period == 'week') {
             $this->where('WEEKOFYEAR(date)', $date->getWeekOfYear());
         }
-        if ($period != 'all') {
-            $this->where('YEAR(date)', $date->getYear());
+        $this->where('YEAR(date)', $date->getYear());
+        # if ($period != 'all') {
+        #     $this->where('YEAR(date)', $date->getYear());
+        # }
+    }
+
+    public function limit_user($userId)
+    {
+        if ($this->checkWithBadgeId) {
+            $this->where_id_badge($userId);
+        } else {
+            $this->where('id_user', $userId);
         }
+    }
+
+    public function get_day_userlogs_with_deleted($userId, $date): array
+    {
+        $this->limit_user($userId);
+        $this->limit_period($date, 'day');
+        $this->orderBy('date');
+        $this->withDeleted();
+        return $this->findAll();
+    }
+
+    public function get_filtered_logs($userId, $date, $period): array
+    {
+        $this->limit_user($userId);
+        $this->limit_period($date, $period);
         $this->orderBy('date');
         return $this->findAll();
     }
@@ -99,11 +119,7 @@ class LogsModel extends Model
      */
     public function get_logs_by_period($userId, $date, $halfDay): array
     {
-        if ($this->checkWithBadgeId) {
-            $this->where_id_badge($userId);
-        } else {
-            $this->where('id_user', $userId);
-        }
+        $this->limit_user($userId);
         $border = $this->get_border_interval($date, $halfDay);
         $this->where('date >=', $border['startTime']);
         $this->where('date <', $border['endTime']);
@@ -116,11 +132,7 @@ class LogsModel extends Model
         $halfDay,
         $last = false
     ): array {
-        if ($this->checkWithBadgeId) {
-            $this->where_id_badge($userId);
-        } else {
-            $this->where('id_user', $userId);
-        }
+        $this->limit_user($userId);
         $border = $this->get_border_interval($date, $halfDay);
         $this->where('date >', $border['startTime']);
         $this->where('date <', $border['endTime']);

@@ -17,7 +17,14 @@
             </thead>
             <?php foreach ($items as $item) : ?>
                 <tr>
-                    <?php if (isset($item['url'])) : ?>
+                    <?php if (isset($item['is_deleted']) and $item['is_deleted']) : ?>
+                        <td>
+                            <del><?= $item['date'] ?></del>
+                            <span class="badge badge-secondary">
+                                <?= lang('tim_lang.deleted') ?>
+                            </span>
+                        </td>
+                    <?php elseif (isset($item['url'])) : ?>
                         <td>
                             <a href="<?= $item['url'] ?>">
                                 <?= $item['date'] ?>
@@ -29,8 +36,12 @@
                     <?php else : ?>
                         <td><?= $item['date'] ?></td>
                     <?php endif; ?>
+                    <?php if (isset($item['is_deleted']) and $item['is_deleted']) : ?>
+                        <td><del><?= $item['time'] ?></del></td>
+                    <?php else : ?>
                     <!-- enter exit and time in last row -->
-                    <td><?= $item['time'] ?></td>
+                        <td><?= $item['time'] ?></td>
+                    <?php endif; ?>
                     <?php if (isset($item['edit_url'])) : ?>
                         <td>
                             <a href='<?= $item['edit_url'] ?>'>

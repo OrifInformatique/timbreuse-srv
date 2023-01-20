@@ -861,26 +861,20 @@ class PersoLogs extends BaseController
     /**
      * add (return) items to array data
      */
-    protected function get_day_view_day_array(
-        $userId,
-        Time $date,
-    )
+    protected function get_day_view_day_array( $userId, Time $date,)
     {
         $model = model(LogsModel::class);
-        $logs = $model->get_filtered_logs($userId, $date, 'day');
+        $logs = $model->get_day_userlogs_with_deleted($userId, $date);
         return array_map(function ($log) {
             $data = array();
             $data['date'] = Time::parse($log['date']);
-            $data['date'] = sprintf(
-                '%02d:%02d:%02d',
-                $data['date']->hour,
-                $data['date']->minute,
-                $data['date']->second
-            );
+            $data['date'] = sprintf('%02d:%02d:%02d', $data['date']->hour,
+                $data['date']->minute, $data['date']->second);
             $data['time'] = $log['inside'] ? lang('tim_lang.enter') :
             lang('tim_lang.exit');
             $data['url'] = $this->get_url_for_get_day_view_day_array($log);
             $data['edit_url'] = $this->get_edit_url_for_day_view($log);
+            $data['is_deleted'] = isset($log['date_delete']);
             return $data;
         }, $logs);
     }
@@ -1090,10 +1084,12 @@ class PersoLogs extends BaseController
             $this->request->getPost('time'));
         $inside = $this->request->getPost('inside');
         $inside = $inside === 'true';
+        $userCiId = $this->session->get('user_id');
         $model->update($logId, 
             [
                 'date' => $newDate,
                 'inside' => $inside,
+                'id_ci_user' => $userCiId,
             ]
         );
         return redirect()->to($this->redirect_log($log));
