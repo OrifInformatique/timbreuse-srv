@@ -27,12 +27,12 @@ class Users extends BaseController
     public function users_list()
     {
         $model = model(UsersModel::class);
-        $data['title'] = "Welcome";
+        $data['title'] = lang('tim_lang.users');
 
         /**
          * Display a test of the generic "items_list" view (defined in common module)
          */
-        $data['list_title'] = "Test tout les utilisateurs de la timbeurse";
+        $data['list_title'] = lang('tim_lang.timUsers');
 
         $data['columns'] = [
             'id_user' =>ucfirst(lang('tim_lang.id')),
@@ -57,7 +57,7 @@ class Users extends BaseController
     {
         $model = model(AccessTimModel::class);
         $modelCi = model(User_model::class);
-        $data['title'] = "Welcome";
+        $data['title'] = lang('tim_lang.webUsers');
 
         $data['list_title'] = sprintf(
             lang('tim_lang.ci_users_list_title'),

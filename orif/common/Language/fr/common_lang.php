@@ -9,10 +9,12 @@
 
 return[
 // Application name
-    'app_title'                      => 'Titre de l\'application',
+    #'app_title'                      => 'Titre de l\'application',
+    'app_title'                      => 'Pointeuse',
 
 // Page titles
-    'page_prefix'                    => 'Packbase V4',
+    #'page_prefix'                    => 'Packbase V4',
+    'page_prefix'                    => 'Pointeuse',
 
 // Buttons
     'btn_admin'                      => 'Administration',

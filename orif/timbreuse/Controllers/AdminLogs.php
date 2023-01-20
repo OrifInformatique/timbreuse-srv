@@ -112,6 +112,11 @@ class AdminLogs extends PersoLogs
         }
     }
 
+    protected function get_edit_url_for_day_view(array $log)
+    {
+            return '../../../edit_log/' .  $log['id_log'];
+    }
+
     protected function get_url_for_get_day_view_day_array(array $log){
             return $this->is_not_tim_log($log) ?  '../../../detail_modify/' .
                 $log['id_log'] : null;

@@ -56,4 +56,8 @@ return [
     'recordModification' => 'Modification du pointage',
     'confirmRestore' => 'Êtes-vous sûr·e de vouloir restorer ce pointage.',
     'restore' => 'restaurer',
+    'timUsers' => 'utilisateurs de la pointeuse',
+    'webUsers' => 'utilisateurs du site web',
+    'users' => 'utilisateurs',
+    'details' => 'détails',
 ];

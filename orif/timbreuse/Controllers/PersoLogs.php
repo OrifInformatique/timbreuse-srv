@@ -188,7 +188,7 @@ class PersoLogs extends BaseController
 
     protected function get_texts_for_day_view()
     {
-        $data['title'] = "Welcome";
+        $data['title'] = lang('tim_lang.day');
         $data['columns'] = array();
         $data['columns'][0] = lang('tim_lang.hour');
         $data['columns'][1] = lang('tim_lang.enter/exit');
@@ -221,6 +221,9 @@ class PersoLogs extends BaseController
         return $data;
     }
 
+    /**
+     * add period, date, userId(for day viw) to data array
+     */
     protected function put_args_in_array_for_log_views($userId, $day, $period)
     {
         $data['period'] = $period;
@@ -236,7 +239,7 @@ class PersoLogs extends BaseController
     {
         $day = Time::parse($day);
         $data = $this->put_args_in_array_for_log_views($userId, $day, $period);
-        $data['items'] = $this->get_day_view_day_array($userId, $day, true);
+        $data['items'] = $this->get_day_view_day_array($userId, $day);
         $data += $this->get_texts_for_day_view();
         $data += $this->get_page_title_for_log_views($userId, $day, $period);
         $data += $this->get_buttons_for_log_views($day, $period);
@@ -253,7 +256,7 @@ class PersoLogs extends BaseController
 
     protected function time_list_month($userId, $day = null, $period = null)
     {
-        $data['title'] = "Welcome";
+        $data['title'] = lang('tim_lang.month');
         $data['columns'] = array();
         $data['columns'][0] = lang('tim_lang.week');
         $data['columns'][1] = lang('tim_lang.time');
@@ -393,9 +396,9 @@ class PersoLogs extends BaseController
         return $data;
     }
 
-    protected function get_texts_for_month_view()
+    protected function get_texts_for_week_view()
     {
-        $data['title'] = "Welcome";
+        $data['title'] = lang('tim_lang.week');
         $data['rows'] = [
             'morning' => lang('tim_lang.rowMorning'),
             'afternoon' => lang('tim_lang.rowAfternoon'),
@@ -415,7 +418,7 @@ class PersoLogs extends BaseController
         $day = Time::parse($day);
         $data = $this->put_args_in_array_for_log_views($userId, $day,
                 $period);
-        $data += $this->get_texts_for_month_view();
+        $data += $this->get_texts_for_week_view();
         $data['items'] = $this->get_week_time_table( $userId, $day,);
         $data['sumTime'] = $this->get_time_day_by_period( $userId, $day,
             $period,);
@@ -856,8 +859,7 @@ class PersoLogs extends BaseController
     }
 
     /**
-     * @param bool $fakeLog choice to use model with log that created with the
-     * website
+     * add (return) items to array data
      */
     protected function get_day_view_day_array(
         $userId,
@@ -878,8 +880,14 @@ class PersoLogs extends BaseController
             $data['time'] = $log['inside'] ? lang('tim_lang.enter') :
             lang('tim_lang.exit');
             $data['url'] = $this->get_url_for_get_day_view_day_array($log);
+            $data['edit_url'] = $this->get_edit_url_for_day_view($log);
             return $data;
         }, $logs);
+    }
+
+    protected function get_edit_url_for_day_view(array $log)
+    {
+            return '../../edit_log/' .  $log['id_log'];
     }
 
     protected function get_url_for_get_day_view_day_array(array $log)
@@ -967,6 +975,7 @@ class PersoLogs extends BaseController
         #$button['link'] = $this->session->get('_ci_previous_url');
         $button['label'] = ucfirst(lang('tim_lang.back'));
         array_push($data['buttons'], $button);
+        $data['title'] = lang('tim_lang.details');
         $this->display_view(
             [
                 'Timbreuse\Views\menu',
@@ -1080,6 +1089,7 @@ class PersoLogs extends BaseController
         $newDate = $this->replace_time_in_date($log['date'],
             $this->request->getPost('time'));
         $inside = $this->request->getPost('inside');
+        $inside = $inside === 'true';
         $model->update($logId, 
             [
                 'date' => $newDate,
@@ -1102,6 +1112,7 @@ class PersoLogs extends BaseController
         $data['label_button'] = ucfirst(lang('tim_lang.delete')); 
         $data['ciUserId'] = $this->session->get('user_id');
 
+        $data['title'] = lang('tim_lang.delete');
         $this->display_view('Timbreuse\Views\logs\confirm_delete', $data);
     
     }
@@ -1139,12 +1150,12 @@ class PersoLogs extends BaseController
         $this->check_and_block_user($data['id_user']);
         $datetime = Time::parse($data['date']);
         $data['time'] = $datetime->format('H:i:s');
-        
         $data['cancel_link'] = '../' . $this->redirect_log($data);
         $data['delete_link'] = '../delete_modify_log/'.$logId;
         $data['restore_link'] = '../restore_log/' .$logId;
         $data['update_link'] = '../update_log';
 
+        $data['title'] = lang('tim_lang.recordModification');
         $this->display_view('Timbreuse\Views\logs\edit_log', $data);
     }
 

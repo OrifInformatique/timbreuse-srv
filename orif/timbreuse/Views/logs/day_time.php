@@ -12,6 +12,7 @@
                     <?php foreach ($columns as $column) : ?>
                         <th><?= ucfirst($column) ?></th>
                     <?php endforeach ?>
+                        <th></th>
                 </tr>
             </thead>
             <?php foreach ($items as $item) : ?>
@@ -30,7 +31,15 @@
                     <?php endif; ?>
                     <!-- enter exit and time in last row -->
                     <td><?= $item['time'] ?></td>
-                    <td><a href='<?= '#' ?>'>o</a> </td>
+                    <?php if (isset($item['edit_url'])) : ?>
+                        <td>
+                            <a href='<?= $item['edit_url'] ?>'>
+                                <i class="bi-pencil" style="font-size: 20px;"></i>
+                            </a>
+                        </td>
+                    <?php else: ?>
+                        <td></td>
+                    <?php endif; ?>
                 </tr>
             <?php endforeach ?>
         </table>
