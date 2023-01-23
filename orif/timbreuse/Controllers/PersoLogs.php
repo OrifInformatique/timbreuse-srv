@@ -171,16 +171,11 @@ class PersoLogs extends BaseController
     protected function get_day_week_array($userId, Time $date): array
     {
         $model = model(LogsModel::class);
-        #$fakeModel = model(LogsFakeLogsModel::class);
         $logs = $model->get_filtered_logs($userId, $date, 'week');
-        #$fakeLogs = $fakeModel->get_filtered_logs($userId, $date, 'week');
         $data['label_week'] = $this->get_workdays_text($date);
         $data['time'] = $this->get_hours_by_seconds(
             $this->get_time_array($logs)
         );
-        # $data['modifyTime'] = $this->get_hours_by_seconds(
-        #     $this->get_time_array($fakeLogs)
-        # );
         $data['url'] = '../' . $date->toDateString() . '/week';
         return $data;
     }
@@ -281,11 +276,7 @@ class PersoLogs extends BaseController
     /**
      * use for week view with time
      */
-    protected function get_day_time_table(
-        $userId,
-        $date,
-        $halfDay
-    ): array
+    protected function get_day_time_table($userId, $date, $halfDay): array
     {
         $model = model(LogsModel::class);
         $logs = $model->get_logs_by_period($userId, $date, $halfDay);
@@ -301,12 +292,12 @@ class PersoLogs extends BaseController
         return $data;
     }
 
+
     protected function get_string_time_for_day_time_table(int $userId, $date,
         $halfDay, bool $isLast, LogsModel $model): string
     {
         try {
-            $entry = $model->get_border_log_by_period(
-                $userId, $date,
+            $entry = $model->get_border_log_by_period($userId, $date,
                 $halfDay,
                 $isLast
             );
@@ -325,7 +316,7 @@ class PersoLogs extends BaseController
     /**
      * @deprecated
      */
-    protected function is_fake_log(array $logs)
+    protected function is_fake_log(array $logs): bool
     {
         trigger_error('Deprecated function called.', E_USER_DEPRECATED);
         foreach ($logs as $log) {
@@ -336,7 +327,12 @@ class PersoLogs extends BaseController
         return false;
     }
 
-    protected function is_backdate_log(array $logs)
+    protected function is_site_log(array $log): bool
+    {
+        return isset($log['date_badge']); 
+    }
+
+    protected function is_site_logs(array $logs): bool
     {
         foreach ($logs as $log) {
             if (isset($log['date_badge'])) {
@@ -346,7 +342,7 @@ class PersoLogs extends BaseController
         return false;
     }
 
-    protected function is_not_tim_logs(array $logs)
+    protected function is_not_tim_logs(array $logs): bool
     {
         foreach ($logs as $log) {
             if ($this->is_not_tim_log($log)){
@@ -359,7 +355,7 @@ class PersoLogs extends BaseController
     /**
      * log is created on site or modifyed
      */
-    protected function is_not_tim_log(array $log)
+    protected function is_not_tim_log(array $log): bool
     {
         return $log['date'] != $log['date_badge'];
     }
@@ -1020,10 +1016,10 @@ class PersoLogs extends BaseController
     public function create_modify_log()
     {
         $this->check_and_block_user($this->request->getPost('userId'));
-        #$model = model(FakeLogsModel::class);
         $model = model(LogsModel::class);
         if ($this->request->getMethod() === 'post' && $this->validate([
-            'time' => 'required|regex_match[^([0-1][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$]',
+            'time' => 'required|regex_match[^([0-1][0-9]|2[0-3]):[0-5][0-9]:'.
+                '[0-5][0-9]$]',
             'inside'  => 'required|regex_match[^(true|false)$]',
             'date' => 'required|valid_date',
             'userId' => 'required|integer',
@@ -1031,8 +1027,10 @@ class PersoLogs extends BaseController
             $request_array = array();
             $request_array['id_ci_user'] = $this->session->get('user_id');
             $request_array['id_user'] = $this->request->getPost('userId');
-            $request_array['date'] = $this->request->getPost('date') . ' ' . $this->request->getPost('time');
-            $request_array['inside'] = $this->request->getPost('inside') == 'true';
+            $request_array['date'] = $this->request->getPost('date') . ' ' . 
+                $this->request->getPost('time');
+            $request_array['inside'] = $this->request->getPost('inside') === 
+                'true';
             $model->save($request_array);
             return redirect()->back();
         } else {

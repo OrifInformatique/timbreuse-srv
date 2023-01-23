@@ -7,5 +7,8 @@
 * [x] déplacer les méthodes api de Logs.php dans LogsAPI.php
 * [ ] mise à jour codeigniter
 * [ ] mise à jour bootstrape
-* [ ] ajouter bouton pour modifier un log existant
-* [ ] 
+* [x] ajouter bouton pour modifier un log existant
+* [ ] corriger le bouton annuler quand on confirme la suppresion
+* [ ] corriger l’astérisque sur la vue jour
+* [ ] modifier une attribution de de badge
+* [ ] soft deleted un utilisateur de timbreuse
