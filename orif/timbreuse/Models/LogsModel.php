@@ -128,7 +128,7 @@ class LogsModel extends Model
 
     public function get_border_log_by_period($userId, $date, $halfDay,
         $last = false): array 
-        {
+    {
         $this->limit_user($userId);
         $border = $this->get_border_interval($date, $halfDay);
         $this->where('date >', $border['startTime']);

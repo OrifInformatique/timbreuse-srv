@@ -16,5 +16,4 @@
             <?php endforeach ?>
         </table>
     </div>
-    <a href='../delete_modify_log/<?= $fakeLogId ?>' class="btn btn-danger"><?= ucfirst(lang('tim_lang.delete')) ?></a>
 </div>

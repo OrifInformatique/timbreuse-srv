@@ -200,7 +200,7 @@ class PersoLogs extends BaseController
     protected function get_sum_time_for_day_view($userId, $day, $period)
     {
         $sumTime = array();
-        $sumTime['time'] = $this->get_time_day_by_period( $userId, $day,
+        $sumTime['time'] = $this->get_time_day_by_period($userId, $day,
                 $period);
         $sumTime['date'] = ucfirst(lang('tim_lang.timeTotal'));
         return $sumTime;
@@ -286,31 +286,29 @@ class PersoLogs extends BaseController
             $data['time'] = $data['time'] . '✱';
         }
         $data['firstEntry'] = $this->get_string_time_for_day_time_table(
-            $userId, $date, $halfDay, false, $model);
+            $userId, $date, $halfDay, false);
         $data['lastOuting'] = $this->get_string_time_for_day_time_table(
-            $userId, $date, $halfDay, true, $model);
+            $userId, $date, $halfDay, true);
         return $data;
     }
 
 
     protected function get_string_time_for_day_time_table(int $userId, $date,
-        $halfDay, bool $isLast, LogsModel $model): string
+        $halfDay, bool $isLast): string
     {
         try {
-            $entry = $model->get_border_log_by_period($userId, $date,
-                $halfDay,
-                $isLast
-            );
-            $entryStr = Time::parse($entry['date'])
-                ->toTimeString();
+            $model = model(LogsModel::class);
+            $entry = $model->get_border_log_by_period($userId, $date, $halfDay,
+                                                        $isLast);
+            $entryStr = Time::parse($entry['date'])->toTimeString();
 
-            if (isset($entry['id_fake_log'])) {
+            if ($this->is_not_tim_log($entry)) {
                 $entryStr .= '✱';
             }
+            return $entryStr;
         } catch (\Exception $e) {
-            $entryStr = '';
+            return '';
         }
-        return $entryStr;
     }
 
     /**
@@ -372,8 +370,8 @@ class PersoLogs extends BaseController
                 'morning', $fakeLog);
         $data['afternoon'] = $this->get_day_time_table($userId, $date,
                 'afternoon', $fakeLog);
-        $data['time'] = $this->get_time_day_by_period($userId, $date, 'day',
-                $fakeLog,);
+        $data['time'] = $this->get_time_day_by_period_with_asterisk($userId,
+            $date, 'day');
         return $data;
     }
 
@@ -415,9 +413,9 @@ class PersoLogs extends BaseController
         $data = $this->put_args_in_array_for_log_views($userId, $day,
                 $period);
         $data += $this->get_texts_for_week_view();
-        $data['items'] = $this->get_week_time_table( $userId, $day,);
-        $data['sumTime'] = $this->get_time_day_by_period( $userId, $day,
-            $period,);
+        $data['items'] = $this->get_week_time_table($userId, $day,);
+        $data['sumTime'] = $this->get_time_day_by_period_with_asterisk(
+                $userId, $day, $period,);
 
         $data += $this->get_page_title_for_log_views($userId, $day, $period);
         $data += $this->get_buttons_for_log_views($day, $period);
@@ -886,26 +884,24 @@ class PersoLogs extends BaseController
                 $log['id_log'] : null;
     }
 
-    protected function get_time_day_by_period(
-        $userId,
-        Time $day,
-        string $period,
-        bool $showAsterisk = true
-    ): string {
+    protected function get_time_day_by_period($userId, Time $day,
+        string $period): string
+    {
         $model = model(LogsModel::class);
         $logs = $model->get_filtered_logs($userId, $day, $period);
         $time = $this->get_time_array($logs);
         $time = $this->get_hours_by_seconds($time);
-        if ($showAsterisk) {
-            return $this->is_not_tim_logs($logs) ? $time . '✱' : $time;
-        } else {
-            echo "<br>";
-            var_dump($time);
-            echo "<br>";
-            var_dump($logs);
-            echo "<br>";
-            return $time;
-        }
+        return $time;
+    }
+
+    protected function get_time_day_by_period_with_asterisk($userId, Time $day,
+        string $period): string
+    {
+        $model = model(LogsModel::class);
+        $logs = $model->get_filtered_logs($userId, $day, $period);
+        $time = $this->get_time_array($logs);
+        $time = $this->get_hours_by_seconds($time);
+        return $this->is_not_tim_logs($logs) ? $time . '✱' : $time;
     }
 
     public function access_user_list()
@@ -937,49 +933,46 @@ class PersoLogs extends BaseController
         }
     }
 
-    public function detail_modify($fakeLogFakeId)
+    public function get_labels_for_array_detail()
     {
-        # to do rename fakeLogFakeId, rename in modify_log.php
-        $data['fakeLogId'] = $fakeLogFakeId;
-        $data['items'] = $this->get_items_array_detail_modify($fakeLogFakeId);
-        $data['labels'] = array();
-        $data['labels']['date'] = ucfirst(lang('tim_lang.hour'));
-        $data['labels']['id_user'] = ucfirst(lang('tim_lang.username'));
-        $data['labels']['inside'] = ucfirst(lang('tim_lang.enter'));
-        $data['labels']['id_ci_user'] = ucfirst(lang('tim_lang.ciUsername'));
-        $data['labels']['date_modif'] = ucfirst(lang('tim_lang.modifyDate'));
-        $data['labels']['id_badge'] = ucfirst(lang('tim_lang.badgeId'));
-        $data['labels']['id_log'] = ucfirst(lang('tim_lang.idLog'));
-        $data['labels']['date_badge'] = ucfirst(lang('tim_lang.badgeDate'));
-        $data['labels']['date_delete'] = ucfirst(lang('tim_lang.deleteDate'));
-
+        $labels = array();
+        $labels['date'] = ucfirst(lang('tim_lang.hour'));
+        $labels['id_user'] = ucfirst(lang('tim_lang.username'));
+        $labels['inside'] = ucfirst(lang('tim_lang.enter'));
+        $labels['id_ci_user'] = ucfirst(lang('tim_lang.ciUsername'));
+        $labels['date_modif'] = ucfirst(lang('tim_lang.modifyDate'));
+        $labels['id_badge'] = ucfirst(lang('tim_lang.badgeId'));
+        $labels['id_log'] = ucfirst(lang('tim_lang.idLog'));
+        $labels['date_badge'] = ucfirst(lang('tim_lang.badgeDate'));
+        $labels['date_delete'] = ucfirst(lang('tim_lang.deleteDate'));
+        return $labels;
+    }
+    public function detail_modify($logId)
+    {
+        $data['items'] = $this->get_items_array_detail_modify($logId);
+        $data['labels'] = $this->get_labels_for_array_detail();
         $data['buttons'] = array();
         $button = array();
 
         #$agent = $this->request->getUserAgent();
         #$button['link'] = $agent->getReferrer();
         $model = model(LogsModel::class);
-        $log = $model->find($fakeLogFakeId);
+        $log = $model->find($logId);
         $button['link'] = '../' . $this->redirect_log($log);
 
         #$button['link'] = $this->session->get('_ci_previous_url');
         $button['label'] = ucfirst(lang('tim_lang.back'));
         array_push($data['buttons'], $button);
         $data['title'] = lang('tim_lang.details');
-        $this->display_view(
-            [
-                'Timbreuse\Views\menu',
-                'Timbreuse\Views\logs\modify_log',
-            ],
-            $data
-        );
+        $this->display_view(['Timbreuse\Views\menu',
+                'Timbreuse\Views\logs\detail_modify_log',], $data);
     }
 
-    protected function get_items_array_detail_modify($fakeLogFakeId)
+    protected function get_items_array_detail_modify($logId)
     {
         # to do rename fakeLogFakeId
         $model = model(LogsModel::class);
-        $items = $model->find($fakeLogFakeId);
+        $items = $model->find($logId);
         $this->check_and_block_user($items['id_user']);
         $items['inside'] = boolval($items['inside']) ? lang('tim_lang.yes') :
             lang('tim_lang.no');
