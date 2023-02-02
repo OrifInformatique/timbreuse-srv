@@ -61,4 +61,7 @@ return [
     'users' => 'utilisateurs',
     'details' => 'détails',
     'deleted' => 'supprimé',
+    'timUserEdit' => 'Édition utilisateur de la pointeuse',
+    'siteAccountLabel' => 'modifier l’accès compte timbreuse',
+    'allocationBadgeLabel' => 'modifier l’attribution des badges',
 ];

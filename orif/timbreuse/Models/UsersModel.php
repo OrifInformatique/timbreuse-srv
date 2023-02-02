@@ -6,7 +6,16 @@ use CodeIgniter\Model;
 class UserModel extends Model {
     protected $table = 'user_sync';
     protected $primaryKey ='id_user';
-    protected $allowedFields = ['name', 'surname'];
+    protected $allowedFields = ['name', 'surname', 'date_delete'];
+
+    protected $useAutoIncrement = true;
+    protected $useSoftDeletes = true;
+
+    protected $useTimestamps = true;
+    protected $createdField  = '';
+    protected $updatedField  = 'date_modif';
+    protected $deletedField  = 'date_delete';
+    protected $dateFormat = 'datetime';
 
     public function get_users($userId=null) {
         if ($userId === null) {

@@ -27,12 +27,14 @@ class UsersAPI extends BaseController
         }
     }
 
-    public function get($startUserId, string $token) {
+    public function get($startDate, string $token) {
         helper('UtilityFunctions');
-        if ($token == create_token($startUserId)) {
+        if ($token == create_token($startDate)) {
             $model = model(UsersModel::class);
-            $model->where('id_user >', $startUserId);
-            $model->orderBy('id_user');
+            $model->select('id_user, name, surname, date_modif, date_delete');
+            $model->where('date_modif >=', $startDate);
+            $model->orderBy('date_modif');
+            $model->withDeleted();
             return $this->respond(json_encode($model->findAll()));
         } else {
             return $this->failUnauthorized();

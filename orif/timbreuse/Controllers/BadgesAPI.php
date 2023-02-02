@@ -52,11 +52,16 @@ class BadgesAPI extends BaseController
     /**
      * get data badges
      */
-    public function get($startBadgeRowID)
+    public function get($startDate)
     {
         $model = model(BadgesModel::class);
-        $model->where('rowid_badge >', $startBadgeRowID);
-        $model->orderBy('rowid_badge');
+        $model->select(
+            'id_badge, id_user, rowid_badge, date_modif, date_delete');
+        # $model->where('rowid_badge >', $startBadgeRowID);
+        # $model->orderBy('rowid_badge');
+        $model->where('date_modif >=', $startDate);
+        $model->orderBy('date_modif');
+        $model->withDeleted();
         return $this->respond(json_encode($model->findAll()));
     }
 

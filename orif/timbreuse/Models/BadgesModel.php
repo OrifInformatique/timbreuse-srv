@@ -7,6 +7,14 @@ class BadgesModel extends Model {
     protected $table = 'badge_sync';
     protected $primaryKey = 'id_badge';
 
+    protected $useSoftDeletes = true;
+
+    protected $useTimestamps = true;
+    protected $createdField  = '';
+    protected $updatedField  = 'date_modif';
+    protected $deletedField  = 'date_delete';
+    protected $dateFormat = 'datetime';
+
     public function get_badges($idUser=null) {
         if ($idUser === null) {
             return $this->findAll();
