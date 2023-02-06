@@ -143,9 +143,8 @@ class Users extends BaseController
 
     public function post_add_access()
     {
-        $request = \Config\Services::request();
-        return $this->add_access($request->getPostGet('userId'), $request
-            ->getPostGet('ciUserId'));
+        return $this->add_access($this->request->getPostGet('userId'), 
+                $this->request ->getPostGet('ciUserId'));
     }
 
     protected function delete_access($userId, $ciUserId)
@@ -178,21 +177,26 @@ class Users extends BaseController
 
     public function post_delete_access()
     {
-        $request = \Config\Services::request();
-        return $this->delete_access($request->getPostGet('userId'), $request
-            ->getPostGet('ciUserId'));
+        return $this->delete_access($this->request->getPostGet('userId'),
+                $this->request ->getPostGet('ciUserId'));
     }
 
     public function edit_tim_user($timUserId)
     {
+        if (($this->request->getMethod() === 'post') and $this->validate([
+            'name' => 'required',
+            'surname' => 'required',
+            'timUserId' => 'required',
+        ])) {
+            return $this->post_edit_tim_user();
+        }
         $model = model(UsersModel::class);
         $data = $model->select('id_user, name, surname')->find($timUserId);
-        $data['deleteUrl'] = '#';
-        $data['editUrl'] = '../post_edit_tim_user';
-        $data['siteAccountUrl'] = '../ci_users_list/'.$data['id_user'];
+        $data['editUrl'] = '../edit_tim_user/' . $timUserId;
+        $data['siteAccountUrl'] = '../ci_users_list/'. $timUserId;
         $data['allocationBadgeUrl'] = '#';
         $data['returnUrl'] = '..';
-        $data['deleteUrl'] = '#';
+        $data['deleteUrl'] = '../delete_tim_user/' . $timUserId;
         $data['h3title'] = lang('tim_lang.timUserEdit');
         $data['nameLabel'] = ucfirst(lang('tim_lang.name'));
         $data['surnameLabel'] = ucfirst(lang('tim_lang.surname'));
@@ -205,21 +209,44 @@ class Users extends BaseController
         $this->display_view('Timbreuse\Views\users\edit_tim_user', $data);
     }
 
-    public function post_edit_tim_user()
+    protected function post_edit_tim_user()
     {
-        $request = \Config\Services::request();
-        $data['name'] = $request->getPost('name');
-        $data['surname'] = $request->getPost('surname');
-        $timUserId = $request->getPost('timUserId');
-        $model = model(UsersModel::class);
-        if ($timUserId !== null){
-            $model->update($timUserId, $data);
+        if ($this->request->getMethod() !== 'post') {
+            return $this->display_view('\User\errors\403error');
         }
+        $data['name'] = $this->request->getPost('name');
+        $data['surname'] = $this->request->getPost('surname');
+        $timUserId = $this->request->getPost('timUserId');
+        $model = model(UsersModel::class);
+        $model->update($timUserId, $data);
         return redirect()->to('../..');
     }
 
-    public function delete_tim_user()
+    public function delete_tim_user($timUserId)
     {
-        # work in progress
+        $model = model(UsersModel::class);
+        $names = $model->select('name, surname')->find($timUserId);
+        $data['text'] = sprintf(lang('tim_lang.confirmDeleteTimUser'),
+                $names['name'], $names['surname']);
+        $data['link'] = '../confirm_delete_tim_user';
+        $data['label_button'] = ucfirst(lang('tim_lang.delete')); 
+        $data['title'] = lang('tim_lang.delete');
+        $data['cancel_link'] = '../edit_tim_user/' . $timUserId;
+        $data['userId'] = $timUserId;
+        $data['ciUserId'] = null;
+        $this->display_view('Timbreuse\Views\confirm_form', $data);
+    }
+
+    public function confirm_delete_tim_user()
+    {
+        if ($this->request->getMethod() !== 'post') {
+            return $this->display_view('\User\errors\403error');
+        }
+        $model = model(UsersModel::class);
+        $timUserId = $this->request->getPost('userId');
+        if ($timUserId !== null) {
+            $model->delete($timUserId);
+        }
+        return redirect()->to('../..');
     }
 }

@@ -17,7 +17,7 @@
             </thead>
             <?php foreach ($items as $item) : ?>
                 <tr>
-                    <?php if (isset($item['is_deleted']) and $item['is_deleted']) : ?>
+                    <?php if (isset($item['status']) and ($item['status'] == 'deleted')) : ?>
                         <td>
                             <del><?= $item['date'] ?></del>
                             <span class="badge badge-secondary">
@@ -30,13 +30,17 @@
                                 <?= $item['date'] ?>
                             </a>
                             <span class="badge badge-primary">
-                                <?= lang('tim_lang.modified') ?>
+                                <?php if ($item['status'] == 'site') : ?>
+                                    <?= lang('tim_lang.siteStatus') ?>
+                                <?php elseif ($item['status'] == 'modified') : ?>
+                                    <?= lang('tim_lang.modified') ?>
+                                <?php endif; ?>
                             </span>
                         </td>
                     <?php else : ?>
                         <td><?= $item['date'] ?></td>
                     <?php endif; ?>
-                    <?php if (isset($item['is_deleted']) and $item['is_deleted']) : ?>
+                    <?php if (isset($item['status']) and ($item['status'] == 'deleted')) : ?>
                         <td><del><?= $item['time'] ?></del></td>
                     <?php else : ?>
                     <!-- enter exit and time in last row -->

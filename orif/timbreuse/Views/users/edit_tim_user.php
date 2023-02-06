@@ -1,5 +1,7 @@
 <section class="container">
-    <h3><?=$h3title?></h3>
+    <h3><?= esc($h3title) ?></h3>
+    <?= session()->getFlashdata('error') ?>
+    <?= service('validation')->listErrors() ?>
     <form method='post' action="<?=$editUrl?>">
         <?= csrf_field() ?>
         <div class="form-row">

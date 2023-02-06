@@ -64,4 +64,7 @@ return [
     'timUserEdit' => 'Édition utilisateur de la pointeuse',
     'siteAccountLabel' => 'modifier l’accès compte timbreuse',
     'allocationBadgeLabel' => 'modifier l’attribution des badges',
+    'siteStatus' => 'site',
+    'confirmDeleteTimUser' => 'Êtes-vous sûr·e de vouloir supprimer l’utilisateur pointeuse « %s %s ».',
+    'confirmRestoreTimUser' => 'Êtes-vous sûr·e de vouloir restorer l’utilisateur pointeuse « %s %s ».',
 ];

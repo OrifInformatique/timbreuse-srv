@@ -22,3 +22,26 @@ DELIMITER ;
 
 # test
 # CALL `insert_badge_and_user`(43, 'a', 'b');
+
+# with on update
+DELIMITER //
+CREATE PROCEDURE `insert_badge_and_user`(_id_badge bigint,
+    _name text CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci,
+    _surname text CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci) 
+ MODIFIES SQL DATA
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+    START TRANSACTION;
+    INSERT INTO `user_sync` (`name`, `surname`) VALUES (_name, _surname);
+    INSERT INTO `badge_sync` (`id_badge`, `id_user`) VALUES
+    (_id_badge, (SELECT `id_user` FROM `user_sync` WHERE `name` = _name AND
+    `surname` = _surname ORDER BY `id_user` DESC)) 
+    ON DUPLICATE KEY UPDATE `id_badge`=_id_badge, `id_user`= (SELECT `id_user`
+    FROM `user_sync` WHERE `name` = _name AND `surname` = _surname
+    ORDER BY `id_user` DESC);
+    COMMIT;
+END //
+DELIMITER ;

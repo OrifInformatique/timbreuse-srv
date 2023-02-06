@@ -852,10 +852,23 @@ class PersoLogs extends BaseController
         return $bDay and $bMonths and $bYears;
     }
 
+    protected function get_log_status(array $log): string
+    {
+        if (isset($log['date_delete'])){
+            return 'deleted';
+        } elseif (!isset($log['date_badge'])) {
+            return 'site';
+        } elseif ($log['date_badge'] != $log['date']) {
+            return 'modified';
+        }
+        return '';
+
+    }
+
     /**
      * add (return) items to array data
      */
-    protected function get_day_view_day_array( $userId, Time $date,)
+    protected function get_day_view_day_array($userId, Time $date)
     {
         $model = model(LogsModel::class);
         $logs = $model->get_day_userlogs_with_deleted($userId, $date);
@@ -868,7 +881,7 @@ class PersoLogs extends BaseController
             lang('tim_lang.exit');
             $data['url'] = $this->get_url_for_get_day_view_day_array($log);
             $data['edit_url'] = $this->get_edit_url_for_day_view($log);
-            $data['is_deleted'] = isset($log['date_delete']);
+            $data['status'] = $this->get_log_status($log);
             return $data;
         }, $logs);
     }

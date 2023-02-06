@@ -123,6 +123,7 @@ class LogsModel extends Model
         $border = $this->get_border_interval($date, $halfDay);
         $this->where('date >=', $border['startTime']);
         $this->where('date <', $border['endTime']);
+        $this->orderBy('date');
         return $this->findAll();
     }
 

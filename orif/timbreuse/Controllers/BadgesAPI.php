@@ -12,13 +12,23 @@ class BadgesAPI extends BaseController
     /**
      * api
      */
+    protected function is_available($badgeId): bool
+    {
+        echo 'is_available';
+        $model = model(BadgesModel::class);
+        $data = $model->find($badgeId);
+        var_dump($data);
+        var_dump(!boolval($data) or is_null($data['id_user']));
+        return !boolval($data) or is_null($data['id_user']);
+    }
+
     public function put($badgeId, $name, $surname, $token) {
         $model = model(BadgesModel::class);
         # when is not a test ; 
         # $token == $this->create_token($badgeId, $name, $surname)
         helper('UtilityFunctions');
         if ($token == create_token($badgeId, $name, $surname)) {
-            if ((boolval($model->find($badgeId))) or ($model->
+            if (($this->is_available($badgeId)) and ($model->
             add_badge_and_user($badgeId, $name, $surname))) {
                 return $this->respondCreated();
             } else {
@@ -52,8 +62,12 @@ class BadgesAPI extends BaseController
     /**
      * get data badges
      */
-    public function get($startDate)
+    public function get($startDate, string $token)
     {
+        helper('UtilityFunctions');
+        if ($token != create_token($startDate)) {
+            return $this->failUnauthorized();
+        }
         $model = model(BadgesModel::class);
         $model->select(
             'id_badge, id_user, rowid_badge, date_modif, date_delete');

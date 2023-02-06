@@ -87,7 +87,12 @@ class LogsAPI extends BaseController
      * this is like of http method get for API
      *  maybe rename this in get
      */
-    public function get($startDate) {
+    public function get($startDate, string $token)
+    {
+        helper('UtilityFunctions');
+        if ($token != create_token($startDate)) {
+            return $this->failUnauthorized();
+        }
         $model = model(LogsModel::class);
         $model->select(
             'date, id_badge, inside, id_log, id_user, date_badge, date_modif, '
