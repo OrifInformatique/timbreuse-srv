@@ -32,7 +32,7 @@ class Users extends BaseController
         /**
          * Display a test of the generic "items_list" view (defined in common module)
          */
-        $data['list_title'] = lang('tim_lang.timUsers');
+        $data['list_title'] = ucfirst(lang('tim_lang.timUsers'));
 
         $data['columns'] = [
             'id_user' =>ucfirst(lang('tim_lang.id')),

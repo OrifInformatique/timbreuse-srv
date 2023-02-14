@@ -296,19 +296,20 @@ class PersoLogs extends BaseController
     protected function get_string_time_for_day_time_table(int $userId, $date,
         $halfDay, bool $isLast): string
     {
-        try {
-            $model = model(LogsModel::class);
-            $entry = $model->get_border_log_by_period($userId, $date, $halfDay,
-                                                        $isLast);
+        $model = model(LogsModel::class);
+        $entry = $model->get_border_log_by_period($userId, $date, $halfDay,
+                                                    $isLast);
+        # add because bug when production on site infomaniak
+        if (isset($entry['date'])){
             $entryStr = Time::parse($entry['date'])->toTimeString();
-
-            if ($this->is_not_tim_log($entry)) {
-                $entryStr .= '✱';
-            }
-            return $entryStr;
-        } catch (\Exception $e) {
-            return '';
+        } else {
+            $entryStr = '';
         }
+
+        if ($this->is_not_tim_log($entry)) {
+            $entryStr .= '✱';
+        }
+        return $entryStr;
     }
 
     /**
@@ -355,7 +356,10 @@ class PersoLogs extends BaseController
      */
     protected function is_not_tim_log(array $log): bool
     {
-        return $log['date'] != $log['date_badge'];
+        if (isset($log['date'])) {
+            return $log['date'] != $log['date_badge'];
+        }
+        return true;
     }
 
     /**
@@ -504,7 +508,7 @@ class PersoLogs extends BaseController
 
         if (($day === null)) {
             return redirect()->to(
-                'perso_time/' . Time::today()->toDateString() . '/month'
+                'perso_time/' . Time::today()->toDateString() . '/day'
             );
         }
         if ($period === null) {
@@ -1008,14 +1012,13 @@ class PersoLogs extends BaseController
 
     protected function get_site_username($ciUserId)
     {
-        try {
-            $model = model(UsersModel::class);
-            $userName = $model->select('ci_user.username')->from('ci_user')
-            ->where('ci_user.id', $ciUserId)->findAll()[0]['username'];
-        } catch (\Exception $e) {
-            $userName = '';
+        $model = model(UsersModel::class);
+        $userName = $model->select('ci_user.username')->from('ci_user')
+            ->where('ci_user.id', $ciUserId)->findAll();
+        if (isset($userName[0]['username'])) {
+            return $userName[0]['username'];
         }
-        return $userName;
+            return '';
     }
 
 
@@ -1108,7 +1111,7 @@ class PersoLogs extends BaseController
         $data['id'] = $logId;
         $data['text'] = lang('tim_lang.confirmDelete');
         $data['link'] = '../confirm_delete_modify_log';
-        $data['cancel_link'] = '../detail_modify/' . $logId;
+        $data['cancel_link'] = '../edit_log/' . $logId;
         $data['label_button'] = ucfirst(lang('tim_lang.delete')); 
         $data['ciUserId'] = $this->session->get('user_id');
 

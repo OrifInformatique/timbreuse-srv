@@ -141,11 +141,10 @@ class LogsModel extends Model
             $this->where('inside =', 1);
         }
         $this->limit(1);
-        try {
+        if (isset($this->findAll()[0])) {
             return $this->findAll()[0];
-        } catch (\Exception $e) {
-            return array();
-        }
+        } 
+        return array();
     }
 
     public function is_replicate($date, $badgeId, $inside)

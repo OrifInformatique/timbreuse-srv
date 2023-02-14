@@ -20,9 +20,8 @@ class UserModel extends Model {
     public function get_users($userId=null) {
         if ($userId === null) {
             return $this->findAll();
-        } else {
-            return $this->find($userId);
-        }
+        } 
+        return $this->find($userId);
     }
 
     public function is_replicate(string $name, string $surname): bool

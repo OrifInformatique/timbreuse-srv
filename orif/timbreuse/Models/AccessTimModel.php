@@ -12,35 +12,20 @@ class AccessTimModel extends Model
 
     public function get_access_users($ciUserId)
     {
-        try {
-
-            return $this->select('id_user')
-                ->where('id_ci_user', $ciUserId)
-                ->findall();
-        } catch (\Exception $e) {
-            #    echo $e->getMessage();
-            return null;
-        }
-    }
-
-    /**
-     * @deprecated
-     */
-    public function get_access_users_timb_to_ci($userId)
-    {
-        trigger_error('Deprecated function called.', E_USER_DEPRECATED);
-        try {
-
-            return $this->select('id_ci_user')
-                ->where('id_user', $userId)
-                ->findall()[0]['id_ci_user'];
-        } catch (\Exception $e) {
-            #    echo $e->getMessage();
-            return null;
-        }
+        return $this->select('id_user')
+            ->where('id_ci_user', $ciUserId)->findall();
     }
 
     public function get_access_users_with_info($ciUserId)
+    {
+        return $this->select('access_tim_user.id_user, name, surname')
+        ->join('user_sync', 'user_sync.id_user = access_tim_user.id_user')
+        ->where('id_ci_user =', $ciUserId)
+            ->findall();
+    }
+
+    #old
+    public function __get_access_users_with_info($ciUserId)
     {
         return $this->select('access_tim_user.id_user, name, surname')
         ->from('user')
