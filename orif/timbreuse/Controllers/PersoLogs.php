@@ -303,7 +303,7 @@ class PersoLogs extends BaseController
         if (isset($entry['date'])){
             $entryStr = Time::parse($entry['date'])->toTimeString();
         } else {
-            $entryStr = '';
+            return '';
         }
 
         if ($this->is_not_tim_log($entry)) {
@@ -311,6 +311,24 @@ class PersoLogs extends BaseController
         }
         return $entryStr;
     }
+
+    # protected function get_string_time_for_day_time_table(int $userId, $date,
+    #     $halfDay, bool $isLast): string
+    # {
+    #     try {
+    #         $model = model(LogsModel::class);
+    #         $entry = $model->get_border_log_by_period($userId, $date, $halfDay,
+    #                                                     $isLast);
+    #         $entryStr = Time::parse($entry['date'])->toTimeString();
+
+    #         if ($this->is_not_tim_log($entry)) {
+    #             $entryStr .= '✱';
+    #         }
+    #         return $entryStr;
+    #     } catch (\Exception $e) {
+    #         return '';
+    #     }
+    # }
 
     /**
      * @deprecated
@@ -341,7 +359,7 @@ class PersoLogs extends BaseController
         return false;
     }
 
-    protected function is_not_tim_logs(array $logs): bool
+    protected function is_not_tim_logs(array $logs):bool
     {
         foreach ($logs as $log) {
             if ($this->is_not_tim_log($log)){
@@ -354,12 +372,12 @@ class PersoLogs extends BaseController
     /**
      * log is created on site or modifyed
      */
-    protected function is_not_tim_log(array $log): bool
+    protected function is_not_tim_log(array $log):bool
     {
         if (isset($log['date'])) {
             return $log['date'] != $log['date_badge'];
         }
-        return true;
+        return false;
     }
 
     /**
@@ -1051,7 +1069,11 @@ class PersoLogs extends BaseController
     {
         $data['id'] = $logId;
         $data['text'] = lang('tim_lang.confirmRestore');
-        $data['link'] = '../approve_restore_log/';
+
+        # do not put a "/" in the end because the remote serveur change 
+        # post in get if put "/"
+        $data['link'] = '../approve_restore_log';
+
         $data['cancel_link'] = '../edit_log/' . $logId;
         $data['label_button'] = ucfirst(lang('tim_lang.restore')); 
         $this->display_view('Timbreuse\Views\logs\approve_restore_log', $data);

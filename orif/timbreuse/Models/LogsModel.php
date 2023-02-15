@@ -141,8 +141,9 @@ class LogsModel extends Model
             $this->where('inside =', 1);
         }
         $this->limit(1);
-        if (isset($this->findAll()[0])) {
-            return $this->findAll()[0];
+        $items = $this->findAll();
+        if (isset($items[0])) {
+            return $items[0];
         } 
         return array();
     }
