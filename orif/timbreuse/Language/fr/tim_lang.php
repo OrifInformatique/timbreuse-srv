@@ -62,7 +62,7 @@ return [
     'details' => 'détails',
     'deleted' => 'supprimé',
     'timUserEdit' => 'Édition utilisateur de la pointeuse',
-    'siteAccountLabel' => 'modifier l’accès compte timbreuse',
+    'siteAccountLabel' => 'modifier le lien compte site web ⇋ compte pointeuse',
     'allocationBadgeLabel' => 'modifier l’attribution des badges',
     'siteStatus' => 'site',
     'confirmDeleteTimUser' => 'Êtes-vous sûr·e de vouloir supprimer l’utilisateur pointeuse « %s %s ».',
