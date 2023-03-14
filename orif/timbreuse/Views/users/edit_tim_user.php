@@ -14,8 +14,25 @@
                 <input class="form-control" id='surname' value='<?=$surname?>' name='surname'>
             </div>
         </div>
+
+
+        <label for='badgeId'><?=$badgeIdLabel?></label>
+
+        <div class="input-group">
+            <div class="input-group-prepend">
+            <button type='button' id='delete_badge_id_text' class="btn input-group-text" ><?=$eraseLabel?></button>
+            </div>
+
+
+            <input id='badgeId'  class="form-control" name ='badgeId' list='badgeId_list' disabled autocomplete="off" value='<?=$badgeId?>'>
+                <datalist id='badgeId_list'>
+                    <?php foreach ($availableBadges as $badge):?>
+                        <option value='<?=$badge?>'>
+                    <?php endforeach?>
+                </datalist>
+        </div>
+        <br>
         <p><a href='<?=$siteAccountUrl?>'><?=$siteAccountLabel?></a></p>
-        <p><a href='<?=$allocationBadgeUrl?>'><?=$allocationBadgeLabel?></a></p>
         <div class="form-group text-right">
             <a href='<?=$returnUrl?>' class="btn btn-link"><?=$backLabel?></a>
             <input type='submit' value='<?=$modifyLabel?>' class="btn btn-primary">
@@ -25,3 +42,12 @@
     </form>
     
 </section>
+<script>
+    let input = document.getElementById("badgeId");
+    let button = document.getElementById("delete_badge_id_text");
+    button.onclick = function() {
+        input.disabled = false;
+        input.value = '';
+        input.focus();
+    }
+</script>

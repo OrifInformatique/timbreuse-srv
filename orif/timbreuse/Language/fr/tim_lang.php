@@ -67,4 +67,6 @@ return [
     'siteStatus' => 'site',
     'confirmDeleteTimUser' => 'Êtes-vous sûr·e de vouloir supprimer l’utilisateur pointeuse « %s %s ».',
     'confirmRestoreTimUser' => 'Êtes-vous sûr·e de vouloir restorer l’utilisateur pointeuse « %s %s ».',
+    'badges' => 'badges',
+    'erase' => 'effacer',
 ];

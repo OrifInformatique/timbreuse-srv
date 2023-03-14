@@ -9,6 +9,7 @@ use Psr\Log\LoggerInterface;
 use Timbreuse\Models\UsersModel;
 use Timbreuse\Models\AccessTimModel;
 use User\Models\User_model;
+use Timbreuse\Models\BadgesModel;
 
 class Users extends BaseController
 {
@@ -181,32 +182,94 @@ class Users extends BaseController
                 $this->request ->getPostGet('ciUserId'));
     }
 
+    protected function get_label_for_edit_tim_user()
+    {
+        $labels['nameLabel'] = ucfirst(lang('tim_lang.name'));
+        $labels['surnameLabel'] = ucfirst(lang('tim_lang.surname'));
+        $labels['siteAccountLabel'] = ucfirst(lang(
+                'tim_lang.siteAccountLabel'));
+        $labels['backLabel'] = ucfirst(lang('tim_lang.back'));
+        $labels['modifyLabel'] = ucfirst(lang('tim_lang.modify'));
+        $labels['deleteLabel'] = ucfirst(lang('tim_lang.delete'));
+        $labels['badgeIdLabel'] = ucfirst(lang('tim_lang.badgeId'));
+        $labels['eraseLabel'] = ucfirst(lang('tim_lang.erase'));
+        return $labels;
+    }
+
+    protected function get_url_for_edit_tim_user($timUserId)
+    {
+        $userModel = model(UsersModel::class);
+        $urls = $userModel->select('id_user, name, surname')->find($timUserId);
+        $urls['editUrl'] = '../edit_tim_user/' . $timUserId;
+        $urls['siteAccountUrl'] = '../ci_users_list/'. $timUserId;
+        $urls['returnUrl'] = '..';
+        $urls['deleteUrl'] = '../delete_tim_user/' . $timUserId;
+        return $urls;
+    }
+    
+    protected function get_badge_id_for_edit_tim_user($timUserId)
+    {
+        $badgesModel = model(BadgesModel::class);
+        $badgeIds['badgeId'] = $badgesModel->get_badges($timUserId);
+        if (isset($badgeIds['badgeId'][0]) and is_array($badgeIds['badgeId']))
+        {
+            $badgeIds['badgeId'] = $badgeIds['badgeId'][0];
+            $badgeIds['availableBadges'][1] = '';
+        }
+        else {
+            $badgeIds['badgeId'] = '';
+        }
+        $badgeIds['availableBadges'][0] = $badgeIds['badgeId'];
+        $availableBadges = $badgesModel->get_available_badges();
+        if (isset($availableBadges[0]) and is_array($availableBadges)) {
+            $badgeIds['availableBadges'] = array_merge(
+                    $badgeIds['availableBadges'], $availableBadges);
+        }
+        return $badgeIds;
+    }
+
+    protected function get_data_for_edit_tim_user($timUserId)
+    {
+        $data['h3title'] = lang('tim_lang.timUserEdit');
+        $labels = $this->get_label_for_edit_tim_user();
+        $urls = $this->get_url_for_edit_tim_user($timUserId);
+        $badgeIds = $this->get_badge_id_for_edit_tim_user($timUserId);
+        $data = array_merge($data, $urls, $labels, $badgeIds);
+        return $data;
+    }
+
     public function edit_tim_user($timUserId)
     {
         if (($this->request->getMethod() === 'post') and $this->validate([
             'name' => 'required',
             'surname' => 'required',
             'timUserId' => 'required',
+            'badgeId' => 'regex_match[/^\d*$/]'
         ])) {
             return $this->post_edit_tim_user();
         }
-        $model = model(UsersModel::class);
-        $data = $model->select('id_user, name, surname')->find($timUserId);
-        $data['editUrl'] = '../edit_tim_user/' . $timUserId;
-        $data['siteAccountUrl'] = '../ci_users_list/'. $timUserId;
-        $data['allocationBadgeUrl'] = '#';
-        $data['returnUrl'] = '..';
-        $data['deleteUrl'] = '../delete_tim_user/' . $timUserId;
-        $data['h3title'] = lang('tim_lang.timUserEdit');
-        $data['nameLabel'] = ucfirst(lang('tim_lang.name'));
-        $data['surnameLabel'] = ucfirst(lang('tim_lang.surname'));
-        $data['siteAccountLabel'] = ucfirst(lang('tim_lang.siteAccountLabel'));
-        $data['allocationBadgeLabel'] = ucfirst(lang(
-                'tim_lang.allocationBadgeLabel'));
-        $data['backLabel'] = ucfirst(lang('tim_lang.back'));
-        $data['modifyLabel'] = ucfirst(lang('tim_lang.modify'));
-        $data['deleteLabel'] = ucfirst(lang('tim_lang.delete'));
+        $data = $this->get_data_for_edit_tim_user($timUserId);
         $this->display_view('Timbreuse\Views\users\edit_tim_user', $data);
+    }
+
+    protected function update_user_and_badge($timUserId, $newBadgeId, $name, 
+            $surname)
+    {
+        $userData['name'] = $name;
+        $userData['surname'] = $surname;
+        $userModel = model(UsersModel::class);
+        $badgeModel = model(BadgesModel::class);
+        $userModel->db->transBegin();
+        $userModel->update($timUserId, $userData);
+        
+        if ($badgeModel->deallocate_and_reallocate_badge($timUserId,
+                $newBadgeId)) {
+            $userModel->db->transCommit();
+            return true;
+        } else {
+            $userModel->db->transRollback();
+            return false;
+        }
     }
 
     protected function post_edit_tim_user()
@@ -214,12 +277,16 @@ class Users extends BaseController
         if ($this->request->getMethod() !== 'post') {
             return $this->display_view('\User\errors\403error');
         }
-        $data['name'] = $this->request->getPost('name');
-        $data['surname'] = $this->request->getPost('surname');
+        $name = $this->request->getPost('name');
+        $surname = $this->request->getPost('surname');
         $timUserId = $this->request->getPost('timUserId');
-        $model = model(UsersModel::class);
-        $model->update($timUserId, $data);
-        return redirect()->to('../..');
+        $newBadgeId = $this->request->getPost('badgeId');
+        if($this->update_user_and_badge($timUserId, $newBadgeId, $name, 
+                $surname)){
+            return redirect()->to('../..');
+        } else {
+            return redirect()->to('..');
+        }
     }
 
     public function delete_tim_user($timUserId)
