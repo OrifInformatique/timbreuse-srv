@@ -34,7 +34,8 @@ class AccessTimModel extends Model
             ->findall();
     }
 
-    public function is_access($ciIdUser, $userId){
+    public function is_access($ciIdUser, $userId)
+    {
         $access = $this->select('id_user')
         ->where('id_ci_user', $ciIdUser)
             ->where('id_user', $userId)

@@ -69,4 +69,6 @@ return [
     'confirmRestoreTimUser' => 'Êtes-vous sûr·e de vouloir restorer l’utilisateur pointeuse « %s %s ».',
     'badges' => 'badges',
     'erase' => 'effacer',
+    'edit_badge' => 'modifier attribution du badge ID %s.',
+    'dealloc' => 'désattribuer',
 ];

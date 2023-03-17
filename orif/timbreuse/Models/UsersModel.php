@@ -3,7 +3,8 @@ namespace Timbreuse\Models;
 
 use CodeIgniter\Model;
 
-class UserModel extends Model {
+class UserModel extends Model 
+{
     protected $table = 'user_sync';
     protected $primaryKey ='id_user';
     protected $allowedFields = ['name', 'surname', 'date_delete'];
@@ -17,7 +18,8 @@ class UserModel extends Model {
     protected $deletedField  = 'date_delete';
     protected $dateFormat = 'datetime';
 
-    public function get_users($userId=null) {
+    public function get_users($userId=null)
+    {
         if ($userId === null) {
             return $this->findAll();
         } 

@@ -16,13 +16,10 @@ class AdminLogs extends PersoLogs
 {
     const RETURN_METHOD_NAME = 'time_list';
 
-    public function initController(
-        RequestInterface $request,
-        ResponseInterface $response,
-        LoggerInterface $logger
-    ) {
-        $this->access_level = config(
-            '\User\Config\UserConfig'
+    public function initController( RequestInterface $request,
+        ResponseInterface $response, LoggerInterface $logger)
+    {
+        $this->access_level = config( '\User\Config\UserConfig'
         )->access_lvl_admin;
         # parent::initController($request, $response, $logger);
         # otherwise is take acces of PersoLogs
@@ -47,7 +44,8 @@ class AdminLogs extends PersoLogs
 
         $data['title'] = "Welcome";
 
-        # Display a test of the generic "items_list" view (defined in common module)
+        # Display a test of the generic "items_list" view (defined in common
+        # module)
         $data['columns'] = [
             'date' => 'Date',
             'id_badge' => 'Numéro du badge',
@@ -117,12 +115,14 @@ class AdminLogs extends PersoLogs
             return '../../../edit_log/' .  $log['id_log'];
     }
 
-    protected function get_url_for_get_day_view_day_array(array $log){
+    protected function get_url_for_get_day_view_day_array(array $log)
+    {
             return $this->is_not_tim_log($log) ?  '../../../detail_modify/' .
                 $log['id_log'] : null;
     }
 
-    protected function redirect_log(array $log) {
+    protected function redirect_log(array $log)
+    {
         $link = explode(' ', $log['date'])[0];
         $link .= '/day';
         $link = self::RETURN_METHOD_NAME . '/' . $log['id_user'] . '/' . $link;

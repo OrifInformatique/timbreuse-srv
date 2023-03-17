@@ -10,15 +10,11 @@ use Timbreuse\Models\LogsModel;
 
 class Test extends BaseController
 {
-    public function initController(
-        RequestInterface $request,
-        ResponseInterface $response,
-        LoggerInterface $logger
-    )
+    public function initController(RequestInterface $request,
+        ResponseInterface $response, LoggerInterface $logger)
     {
-        $this->access_level = config(
-            '\User\Config\UserConfig'
-        )->access_lvl_admin;
+        $this->access_level = config('\User\Config\UserConfig')
+             ->access_lvl_admin;
         parent::initController($request, $response, $logger);
         $this->session = \Config\Services::session();
     }

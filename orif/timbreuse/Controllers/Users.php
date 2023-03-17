@@ -13,9 +13,11 @@ use Timbreuse\Models\BadgesModel;
 
 class Users extends BaseController
 {
-    public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
+    public function initController(RequestInterface $request,
+        ResponseInterface $response, LoggerInterface $logger)
     {
-        $this->access_level = config('\User\Config\UserConfig')->access_lvl_admin;
+        $this->access_level = config('\User\Config\UserConfig')
+             ->access_lvl_admin;
         parent::initController($request, $response, $logger);
         $this->session = \Config\Services::session();
     }
@@ -30,9 +32,8 @@ class Users extends BaseController
         $model = model(UsersModel::class);
         $data['title'] = lang('tim_lang.users');
 
-        /**
-         * Display a test of the generic "items_list" view (defined in common module)
-         */
+        # Display a test of the generic "items_list" view (defined in common
+        # module)
         $data['list_title'] = ucfirst(lang('tim_lang.timUsers'));
 
         $data['columns'] = [
@@ -45,10 +46,8 @@ class Users extends BaseController
 
         $data['primary_key_field']  = 'id_user';
         // $data['btn_create_label']   = 'Add an item';
-        #$data['url_detail'] = "PersoLogs/perso_logs_list/";
         #$data['url_detail'] = "PersoLogs/time_list/";
         $data['url_detail'] = "AdminLogs/time_list/";
-        #$data['url_update'] = 'Users/ci_users_list/';
         $data['url_update'] = 'Users/edit_tim_user/';
         // $data['url_delete'] = "items_list/delete/";
         // $data['url_create'] = "items_list/create/";
@@ -92,7 +91,8 @@ class Users extends BaseController
         $this->display_view('Common\Views\items_list', $data);
     }
     
-    protected function get_usernames($userId, $ciUserId){
+    protected function get_usernames($userId, $ciUserId)
+    {
         $userName = $this->get_username($userId);
 
         $ciUserName = $this->get_ci_username($ciUserId);
@@ -102,14 +102,16 @@ class Users extends BaseController
         return $data;
     }
 
-    protected function get_username($userId){
+    protected function get_username($userId)
+    {
         $model = model(UsersModel::class);
         $userName = $model->select('name, surname')->find($userId);
         $userName = $userName['name'].' '.$userName['surname'];
         return $userName;
     }
 
-    protected function get_ci_username($ciUserId){
+    protected function get_ci_username($ciUserId)
+    {
         $ciModel = model(User_model::class);
         return $ciModel->select('username')->find($ciUserId)['username'];
     }
@@ -240,10 +242,13 @@ class Users extends BaseController
 
     public function edit_tim_user($timUserId)
     {
+        /**
+        * show the edit formulaire, when is valited go to post_edit… method
+        */
         if (($this->request->getMethod() === 'post') and $this->validate([
             'name' => 'required',
             'surname' => 'required',
-            'timUserId' => 'required',
+            'timUserId' => 'required|integer',
             'badgeId' => 'regex_match[/^\d*$/]'
         ])) {
             return $this->post_edit_tim_user();

@@ -18,11 +18,8 @@ class PersoLogs extends BaseController
 {
     const RETURN_METHOD_NAME = 'perso_time';
     
-    public function initController(
-        RequestInterface $request,
-        ResponseInterface $response,
-        LoggerInterface $logger
-    )
+    public function initController(RequestInterface $request,
+        ResponseInterface $response, LoggerInterface $logger)
     {
         $this->access_level = config(
             '\User\Config\UserConfig'
@@ -383,7 +380,7 @@ class PersoLogs extends BaseController
     /**
      * use for week view with time
      */
-    protected function get_upper_day_time_table( $userId, $date,
+    protected function get_upper_day_time_table($userId, $date,
         $fakeLog = true): array
     {
         $data['dayNb'] = $date->day;
@@ -400,7 +397,7 @@ class PersoLogs extends BaseController
     /**
      * use for week view with time
      */
-    protected function get_week_time_table( $userId, $date): array
+    protected function get_week_time_table($userId, $date): array
     {
         $monday = $this->get_last_monday($date);
         $weekdays = ['monday', 'tuesday', 'wednesday', 'thurday', 'friday'];

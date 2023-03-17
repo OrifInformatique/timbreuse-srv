@@ -14,15 +14,16 @@ class BadgesAPI extends BaseController
      */
     protected function is_available($badgeId): bool
     {
-        echo 'is_available';
+        # echo 'is_available';
         $model = model(BadgesModel::class);
         $data = $model->find($badgeId);
-        var_dump($data);
-        var_dump(!boolval($data) or is_null($data['id_user']));
+        # var_dump($data);
+        # var_dump(!boolval($data) or is_null($data['id_user']));
         return !boolval($data) or is_null($data['id_user']);
     }
 
-    public function put($badgeId, $name, $surname, $token) {
+    public function put($badgeId, $name, $surname, $token)
+    {
         $model = model(BadgesModel::class);
         # when is not a test ; 
         # $token == $this->create_token($badgeId, $name, $surname)
@@ -52,7 +53,8 @@ class BadgesAPI extends BaseController
         return $token_text;
     }
 
-    public function test1() {
+    private function test1()
+    {
         #helper('Timbreuse\Helpers\UtilityFunctions');
         helper('UtilityFunctions');
         var_dump(testhelper());
@@ -82,7 +84,7 @@ class BadgesAPI extends BaseController
     /**
      * @deprecated
      */
-    public function get_old($startUserId)
+    private function get_old($startUserId)
     {
         trigger_error('Deprecated function called.', E_USER_DEPRECATED);
         $model = model(BadgesModel::class);
