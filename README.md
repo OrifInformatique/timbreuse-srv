@@ -20,3 +20,8 @@ d’indication de modification
 même datetime. Le serveur ne prendra pas le log et le log ne sera pas effacer
 de la table log_write
 * [ ] l’astérisque s’affiche pas pour les suppretion de log
+
+## chose à modifier pour upgrade codeIgniter
+* poste et validation, utiliser validateData et is('post')
+* route et les liens relatifs différent
+* ~ time dif retour des valeurs négativee

@@ -55,29 +55,65 @@ class Badges extends BaseController
         $this->display_view('Common\Views\items_list', $data);
     }
 
-    public function edit_badge_relation($badgeId)
+    public function edit_badge_relation($badgeId=null)
     {
+        helper('form');
+        $post = $this->request->getPost(['timUserId', 'badgeId']);
+        $badgeId = is_null($badgeId) ? $post['badgeId'] : $badgeId;
+        if (is_null($badgeId)) {
+            return $this->display_view('\User\errors\403error');
+        }
         if (($this->request->getMethod() === 'post') and $this->validate([
-            'timUserId' => 'required|integer',
+            'timUserId' => 'regex_match[/^\d*$/]',
             'badgeId' => 'required|integer'
         ])) {
-            return $this->post_edit_badge_relation();
+            return $this->post_edit_badge_relation($post);
         }
         $data = $this->get_data_for_edit_badge_relation($badgeId);
         $this->display_view('Timbreuse\Views\Badges\edit_badges', $data);
     }
 
+    protected function get_empty_user_info()
+    {
+        $emptyUser['id_user'] = '';
+        $emptyUser['name'] = '';
+        $emptyUser['surname'] = '';
+        return $emptyUser;
+    }
+
+    private function post_edit_badge_relation($post)
+    {
+        if (is_null($post['badgeId'])) {
+            return redirect()->to('..');
+        }
+        $badgeData['id_user'] = $post['timUserId'] === '' ? null
+            : $post['timUserId'];
+        $model = model(badgesModel::class);
+        $model->update($post['badgeId'], $badgeData);
+
+        # relative link do not work.  why?
+        # return redirect()->to('../..');
+
+        return redirect()->to('/Badges');
+    }
+
     public function get_data_for_edit_badge_relation($badgeId)
     {
         $data['badgeId'] = $badgeId;
-        $data['postUrl'] = '../post_edit_badge_relation/' . $badgeId;
-        $data['returnUrl'] = '..' . $badgeId;
+        # $data['postUrl'] = '../post_edit_badge_relation/' . $badgeId;
+        $data['postUrl'] = '.';
+        $data['returnUrl'] = '..';
         $model = model(badgesModel::class);
-        $data['availableUsers'] = $model->get_badge_and_user_info($badgeId);
-        # ici reprendre lundi !!!!!!!!!!!!!!!!!!!!!!
+        $currentUser = $model->get_user_info($badgeId);
+        $data['availableUsers'] = array();
+        if (is_array($currentUser)) {
+            $data['availableUsers'][0] = $currentUser;
+        }
+        array_push($data['availableUsers'], $this->get_empty_user_info());
 
-        # $model = model(usersModel::class);
-        # $data['availableUsers'] = $model->get_badges_and_user_info($badgeId);
+        $data['availableUsers'] = array_merge($data['availableUsers'],
+            $model->get_available_users_info());
+
         $data['labels']['user'] = ucfirst(lang('tim_lang.timUsers'));
         $data['labels']['back'] = ucfirst(lang('tim_lang.back'));
         $data['labels']['modify'] = ucfirst(lang('tim_lang.modify'));

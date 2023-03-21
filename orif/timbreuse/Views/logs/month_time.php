@@ -10,14 +10,14 @@
             <thead>
                 <tr>
                     <?php foreach ($columns as $column) : ?>
-                        <th><?= ucfirst($column) ?></th>
+                        <th><?= esc(ucfirst($column)) ?></th>
                     <?php endforeach ?>
                 </tr>
             </thead>
             <?php foreach ($items as $item) : ?>
                 <tr>
-                    <th><a href="<?= $item['url'] ?>"><?= $item['label_week'] ?></a></th>
-                    <td><?= $item['time'] ?></td>
+                    <th><a href="<?= esc($item['url']) ?>"><?= esc($item['label_week']) ?></a></th>
+                    <td><?= esc($item['time']) ?></td>
                 </tr>
             <?php endforeach ?>
         </table>

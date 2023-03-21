@@ -488,7 +488,7 @@ class PersoLogs extends BaseController
     public function perso_time($day = null, $period = null)
     {
         if ($this->is_admin()) {
-            return redirect()->to('./users');
+            return redirect()->to('./Users');
         } elseif (
             session()->get('user_access') == config('\User\Config\UserConfig')
             ->access_lvl_registered

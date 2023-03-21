@@ -90,21 +90,29 @@ class BadgesModel extends Model
         }
     }
 
+
     public function get_badges_and_user_info()
     {
         return $this->select('id_badge, name, surname')
             ->join('user_sync', 'user_sync.id_user = badge_sync.id_user',
-                'right')
+                'left')
             ->findAll();
     }
 
-    public function get_badge_and_user_info($badgeId)
+    public function get_user_info($badgeId)
     {
-        return $this->select('id_badge, name, surname')
-            ->join('user_sync', 'user_sync.id_user = badge_sync.id_user',
-                'left')
+        return $this->select('user_sync.id_user, name, surname')
+            ->join('user_sync', 'user_sync.id_user = badge_sync.id_user')
             ->find($badgeId);
     }
 
+    public function get_available_users_info()
+    {
+        return $this->select('user_sync.id_user, name, surname')
+            ->join('user_sync', 'user_sync.id_user = badge_sync.id_user',
+                'right')
+            ->where('id_badge', null)
+            ->findall();
+    }
 
 }

@@ -10,7 +10,7 @@
             <thead>
                 <tr>
                     <?php foreach ($columns as $column) : ?>
-                        <th><?= ucfirst($column) ?></th>
+                        <th><?= esc(ucfirst($column)) ?></th>
                     <?php endforeach ?>
                         <th></th>
                 </tr>
@@ -19,36 +19,36 @@
                 <tr>
                     <?php if (isset($item['status']) and ($item['status'] == 'deleted')) : ?>
                         <td>
-                            <del><?= $item['date'] ?></del>
+                            <del><?= esc($item['date']) ?></del>
                             <span class="badge badge-secondary">
-                                <?= lang('tim_lang.deleted') ?>
+                                <?= esc(lang('tim_lang.deleted')) ?>
                             </span>
                         </td>
                     <?php elseif (isset($item['url'])) : ?>
                         <td>
-                            <a href="<?= $item['url'] ?>">
-                                <?= $item['date'] ?>
+                            <a href="<?= esc($item['url']) ?>">
+                                <?= esc($item['date']) ?>
                             </a>
                             <span class="badge badge-primary">
                                 <?php if ($item['status'] == 'site') : ?>
-                                    <?= lang('tim_lang.siteStatus') ?>
+                                    <?= esc(lang('tim_lang.siteStatus')) ?>
                                 <?php elseif ($item['status'] == 'modified') : ?>
-                                    <?= lang('tim_lang.modified') ?>
+                                    <?= esc(lang('tim_lang.modified')) ?>
                                 <?php endif; ?>
                             </span>
                         </td>
                     <?php else : ?>
-                        <td><?= $item['date'] ?></td>
+                        <td><?= esc($item['date']) ?></td>
                     <?php endif; ?>
                     <?php if (isset($item['status']) and ($item['status'] == 'deleted')) : ?>
-                        <td><del><?= $item['time'] ?></del></td>
+                        <td><del><?= esc($item['time']) ?></del></td>
                     <?php else : ?>
                     <!-- enter exit and time in last row -->
-                        <td><?= $item['time'] ?></td>
+                        <td><?= esc($item['time']) ?></td>
                     <?php endif; ?>
                     <?php if (isset($item['edit_url'])) : ?>
                         <td>
-                            <a href='<?= $item['edit_url'] ?>'>
+                            <a href='<?= esc($item['edit_url']) ?>'>
                                 <i class="bi-pencil" style="font-size: 20px;"></i>
                             </a>
                         </td>
@@ -60,39 +60,39 @@
         </table>
     </div>
     <button class="btn btn-primary" <?= is_null(old('time')) && is_null(old('inside')) ? '' : 'hidden' ?>>
-        <?= ucfirst(lang('tim_lang.new_record')) ?> 
+        <?= esc(ucfirst(lang('tim_lang.new_record'))) ?> 
     </button>
 </div>
 <div class="container mt-5" id='form' <?= is_null(old('time')) && is_null(old('inside')) ? 'hidden' : '' ?>>
     <h4>
-        <?= ucfirst(lang('tim_lang.new_record')) ?>
+        <?= esc(ucfirst(lang('tim_lang.new_record'))) ?>
     </h4>
     <?= service('validation')->listErrors() ?>
-    <form action='<?=base_url() ?>/PersoLogs/create_modify_log' method='post'>
+    <form action='<?=esc(base_url()) ?>/PersoLogs/create_modify_log' method='post'>
         <?= csrf_field() ?>
         <div class="form-group">
-            <label for="time" class='form-label'><?= ucfirst(lang('tim_lang.hour')) ?></label>
-            <input type="time" id='time' class='form-control' name='time' step='1' value='<?= old('time') ?>'>
+            <label for="time" class='form-label'><?= esc(ucfirst(lang('tim_lang.hour'))) ?></label>
+            <input type="time" id='time' class='form-control' name='time' step='1' value='<?= esc(old('time')) ?>'>
         </div>
         <div class="form-group">
             <div class="form-check">
-                <input type="radio" id='in' class='form-check-input' name='inside' value='true' <?= old('inside') == 'true' ? 'checked' : '' ?>>
+                <input type="radio" id='in' class='form-check-input' name='inside' value='true' <?= esc(old('inside')) == 'true' ? 'checked' : '' ?>>
                 <label for="in" class='form-check-label'>
-                    <?= ucfirst(lang('tim_lang.enter')) ?>
+                    <?= esc(ucfirst(lang('tim_lang.enter'))) ?>
                 </label>
             </div>
             <div class="form-check">
-                <input type="radio" id='out' class='form-check-input' name='inside' value='false' <?= old('inside') == 'false' ? 'checked' : '' ?>>
+                <input type="radio" id='out' class='form-check-input' name='inside' value='false' <?= esc(old('inside')) == 'false' ? 'checked' : '' ?>>
                 <label for="out" class='form-check-label'>
-                    <?= ucfirst(lang('tim_lang.exit')) ?>
+                    <?= esc(ucfirst(lang('tim_lang.exit'))) ?>
                 </label>
             </div>
         </div>
         <div class="form-group">
-            <input type="submit" class="btn btn-primary" value=<?= ucfirst(lang('tim_lang.record')) ?>>
+            <input type="submit" class="btn btn-primary" value=<?= esc(ucfirst(lang('tim_lang.record'))) ?>>
         </div>
-        <input type="date" hidden value='<?= $date ?>' name='date'>
-        <input type="number" hidden value='<?= $userId ?>' name='userId'>
+        <input type="date" hidden value='<?= esc($date) ?>' name='date'>
+        <input type="number" hidden value='<?= esc($userId) ?>' name='userId'>
     </form>
 </div>
 <script>
