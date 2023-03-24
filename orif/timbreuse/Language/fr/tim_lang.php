@@ -74,4 +74,5 @@ return [
     'badgesList' => 'Liste des badges',
     'timUsersList' => 'Liste des utilisateurs de la pointeuse',
     'webUsersList' => 'Liste des utilisateurs du site web',
+    'timUserRelation' => 'utilisateur lié à ce badge'
 ];

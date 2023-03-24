@@ -64,7 +64,7 @@ class Badges extends BaseController
             return $this->display_view('\User\errors\403error');
         }
         if (($this->request->getMethod() === 'post') and $this->validate([
-            'timUserId' => 'regex_match[/^\d*$/]',
+            'timUserId' => 'regex_match[/^\d*$/]|cb_available_user',
             'badgeId' => 'required|integer'
         ])) {
             return $this->post_edit_badge_relation($post);
@@ -114,13 +114,13 @@ class Badges extends BaseController
         $data['availableUsers'] = array_merge($data['availableUsers'],
             $model->get_available_users_info());
 
-        $data['labels']['user'] = ucfirst(lang('tim_lang.timUsers'));
+        $data['labels']['user'] = ucfirst(lang('tim_lang.timUserRelation'));
         $data['labels']['back'] = ucfirst(lang('tim_lang.back'));
-        $data['labels']['modify'] = ucfirst(lang('tim_lang.modify'));
+        $data['labels']['modify'] = ucfirst(lang('common_lang.btn_save'));
         $data['labels']['dealloc'] = ucfirst(lang('tim_lang.dealloc'));
+        $data['labels']['erase'] = ucfirst(lang('tim_lang.erase'));
         $data['h3title'] = ucfirst(sprintf(lang('tim_lang.edit_badge'),
             $badgeId));
-        $data['deallocUrl'] = '#';
         return $data;
     }
 }

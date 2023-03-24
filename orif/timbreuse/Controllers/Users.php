@@ -191,7 +191,7 @@ class Users extends BaseController
         $labels['siteAccountLabel'] = ucfirst(lang(
                 'tim_lang.siteAccountLabel'));
         $labels['backLabel'] = ucfirst(lang('tim_lang.back'));
-        $labels['modifyLabel'] = ucfirst(lang('tim_lang.modify'));
+        $labels['modifyLabel'] = ucfirst(lang('common_lang.btn_save'));
         $labels['deleteLabel'] = ucfirst(lang('tim_lang.delete'));
         $labels['badgeIdLabel'] = ucfirst(lang('tim_lang.badgeId'));
         $labels['eraseLabel'] = ucfirst(lang('tim_lang.erase'));
@@ -249,7 +249,7 @@ class Users extends BaseController
             'name' => 'required',
             'surname' => 'required',
             'timUserId' => 'required|integer',
-            'badgeId' => 'regex_match[/^\d*$/]'
+            'badgeId' => 'regex_match[/^\d*$/]|cb_available_badge'
         ])) {
             return $this->post_edit_tim_user();
         }

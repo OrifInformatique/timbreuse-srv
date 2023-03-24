@@ -112,6 +112,7 @@ class BadgesModel extends Model
             ->join('user_sync', 'user_sync.id_user = badge_sync.id_user',
                 'right')
             ->where('id_badge', null)
+            ->orderBy('name')
             ->findall();
     }
 

@@ -20,7 +20,7 @@
 
         <div class="input-group">
             <div class="input-group-prepend">
-            <button type='button' id='delete_badge_id_text' class="btn input-group-text" ><?=esc($eraseLabel)?></button>
+                <button type='button' id='delete_badge_id_text' class="btn input-group-text" ><?=esc($eraseLabel)?></button>
             </div>
 
 
