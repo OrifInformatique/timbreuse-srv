@@ -10,12 +10,11 @@ class TimbreuseRules
     {
         $badgesModel = model(BadgesModel::class);
         $availableBadges = $badgesModel->get_available_badges();
-        $empty_badge['id_badge'] = '';
-        array_push($availableBadges, $empty_badge);
+        var_dump($availableBadges);
+        array_push($availableBadges, '');
 
         foreach ($availableBadges as $availableBadge) {
-            # reprendre ici lundi 27!!!!
-            if ($badgeId == $availableBadge['id_badge']){
+            if ($badgeId == $availableBadge){
                 return true;
             }
         }
