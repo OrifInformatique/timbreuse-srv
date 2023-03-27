@@ -21,6 +21,7 @@ class UserModel extends Model
     public function get_users($userId=null)
     {
         if ($userId === null) {
+            $this->orderBy('surname');
             return $this->findAll();
         } 
         return $this->find($userId);
