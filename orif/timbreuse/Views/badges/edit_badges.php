@@ -1,7 +1,11 @@
 <section class="container">
     <h3><?= esc($h3title) ?></h3>
-    <?= session()->getFlashdata('error') ?>
-    <?= service('validation')->listErrors() ?>
+    <!-- <?= session()->getFlashdata('error') ?> -->
+    <?php if (! empty(service('validation')->getErrors())) : ?>
+        <div class="alert alert-danger" role="alert">
+            <?= service('validation')->listErrors() ?>
+        </div>
+    <?php endif ?>
     <form method='post' action="<?=esc($postUrl)?>">
         <?= csrf_field() ?>
         <p class="form-row">

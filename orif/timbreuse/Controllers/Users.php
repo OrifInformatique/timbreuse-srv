@@ -249,7 +249,8 @@ class Users extends BaseController
             'name' => 'required',
             'surname' => 'required',
             'timUserId' => 'required|integer',
-            'badgeId' => 'regex_match[/^\d*$/]|cb_available_badge'
+            'badgeId' =>
+                "regex_match[/^\d*$/]|cb_available_badge[$timUserId]"
         ])) {
             return $this->post_edit_tim_user();
         }

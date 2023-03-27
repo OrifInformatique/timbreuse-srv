@@ -99,6 +99,13 @@ class BadgesModel extends Model
             ->findAll();
     }
 
+    public function get_user_id($badgeId)
+    {
+        return $this->select('user_sync.id_user')
+            ->join('user_sync', 'user_sync.id_user = badge_sync.id_user')
+            ->find($badgeId);
+    }
+
     public function get_user_info($badgeId)
     {
         return $this->select('user_sync.id_user, name, surname')

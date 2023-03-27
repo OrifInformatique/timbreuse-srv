@@ -64,7 +64,8 @@ class Badges extends BaseController
             return $this->display_view('\User\errors\403error');
         }
         if (($this->request->getMethod() === 'post') and $this->validate([
-            'timUserId' => 'regex_match[/^\d*$/]|cb_available_user',
+            'timUserId' =>
+                "regex_match[/^\d*$/]|cb_available_user[$badgeId]",
             'badgeId' => 'required|integer'
         ])) {
             return $this->post_edit_badge_relation($post);

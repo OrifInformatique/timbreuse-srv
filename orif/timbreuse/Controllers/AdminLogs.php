@@ -37,7 +37,7 @@ class AdminLogs extends PersoLogs
         if ($period === null) {
             return redirect()->to($day . '/day');
         }
-        var_dump($this->access_level);
+        # var_dump($this->access_level);
         
         $usersModel = model(UsersModel::class);
         $user = $usersModel->get_users($userId);

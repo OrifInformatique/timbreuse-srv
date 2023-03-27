@@ -74,5 +74,7 @@ return [
     'badgesList' => 'Liste des badges',
     'timUsersList' => 'Liste des utilisateurs de la pointeuse',
     'webUsersList' => 'Liste des utilisateurs du site web',
-    'timUserRelation' => 'utilisateur lié à ce badge'
+    'timUserRelation' => 'utilisateur lié à ce badge',
+    'badge_not_available' => 'Ce numéro de badge n’est pas disponible, merci de choisir dans la liste.',
+    'user_not_available' => 'Cet utilisateur n’est pas disponible, merci de choisir dans la liste.',
 ];
