@@ -50,9 +50,36 @@ class Badges extends BaseController
         # $data['btn_create_label']   = 'Add an item';
         # $data['url_detail'] = "AdminLogs/time_list/";
         $data['url_update'] = 'Badges/edit_badge_relation/';
-        # $data['url_delete'] = "items_list/delete/";
+        $data['url_delete'] = 'Badges/delete_badge/';
         # $data['url_create'] = "items_list/create/";
+
         $this->display_view('Common\Views\items_list', $data);
+    }
+
+    public function delete_badge($badgeId=null)
+    {
+        if ($this->request->getMethod() === 'post' and $badgeId === null) {
+            $badgeId = $this->request->getPost('id');
+            return $this->delete_badge_post($badgeId);
+        } elseif ($badgeId === null) {
+            return $this->display_view('\User\errors\403error');
+        }
+
+        $data['text'] = lang('tim_lang.placeholder');
+        $data['link'] = '.';
+        $data['cancel_link'] = '..';
+        $data['id'] = $badgeId;
+
+        $this->display_view('Timbreuse\Views\confirm_delete_form', $data);
+    }
+
+    private function delete_badge_post($badgeId)
+    {
+        $badgeModel = model(badgesModel::class);
+        if (!is_null($badgeId)) {
+            $badgeModel->delete($badgeId);
+        }
+        return redirect()->to(current_url() . '/..');
     }
 
     public function edit_badge_relation($badgeId=null)
@@ -85,17 +112,14 @@ class Badges extends BaseController
     private function post_edit_badge_relation($post)
     {
         if (is_null($post['badgeId'])) {
-            return redirect()->to('..');
+            return redirect()->to(current_url() . '/..');
         }
         $badgeData['id_user'] = $post['timUserId'] === '' ? null
             : $post['timUserId'];
         $model = model(badgesModel::class);
         $model->update($post['badgeId'], $badgeData);
 
-        # relative link do not work.  why?
-        # return redirect()->to('../..');
-
-        return redirect()->to('/Badges');
+        return redirect()->to(current_url() . '/..');
     }
 
     public function get_data_for_edit_badge_relation($badgeId)

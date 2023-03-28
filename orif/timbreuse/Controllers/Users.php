@@ -49,9 +49,34 @@ class Users extends BaseController
         #$data['url_detail'] = "PersoLogs/time_list/";
         $data['url_detail'] = "AdminLogs/time_list/";
         $data['url_update'] = 'Users/edit_tim_user/';
-        // $data['url_delete'] = "items_list/delete/";
+        $data['url_delete'] = 'Users/delete_tim_user/';
         // $data['url_create'] = "items_list/create/";
         $this->display_view('Common\Views\items_list', $data);
+    }
+
+    public function delete_tim_user($timUserId=null){
+        if ($this->request->getMethod() === 'post' and $timUserId === null) {
+            $timUserId = $this->request->getPost('id');
+            return $this->delete_timUser_post($timUserId);
+        } elseif ($timUserId === null) {
+            return $this->display_view('\User\errors\403error');
+        }
+
+        $data['text'] = lang('tim_lang.placeholder');
+        $data['link'] = '.';
+        $data['cancel_link'] = '..';
+        $data['id'] = $timUserId;
+
+        $this->display_view('Timbreuse\Views\confirm_delete_form', $data);
+    }
+
+    private function delete_timUser_post($timUserId)
+    {
+        $timUserModel = model(UsersModel::class);
+        if (!is_null($timUserId)) {
+            $timUserModel->delete($timUserId);
+        }
+        return redirect()->to(current_url() . '/..');
     }
 
     public function ci_users_list($userId = 92)
@@ -141,7 +166,7 @@ class Users extends BaseController
         $data['id_user'] = $userId;
         $data['id_ci_user'] = $ciUserId;
         $model->save($data);
-        return redirect()->to('ci_users_list/' . $userId);
+        return redirect()->to(current_url() . '/../ci_users_list/' . $userId);
     }
 
     public function post_add_access()
@@ -158,7 +183,7 @@ class Users extends BaseController
         $data['id_ci_user'] = $ciUserId;
         $model->where('id_user=', $userId)->where('id_ci_user=', $ciUserId)
             ->delete();
-        return redirect()->to('ci_users_list/' . $userId);
+        return redirect()->to(current_url() . '/../ci_users_list/' . $userId);
     }
 
     public function form_delete_access($userId, $ciUserId)
@@ -295,8 +320,13 @@ class Users extends BaseController
         }
     }
 
-    public function delete_tim_user($timUserId)
+    /**
+     * @deprecated
+     */
+    public function old_delete_tim_user($timUserId)
     {
+        trigger_error('Method ' . __METHOD__ . ' is deprecated',
+            E_USER_DEPRECATED);
         $model = model(UsersModel::class);
         $names = $model->select('name, surname')->find($timUserId);
         $data['text'] = sprintf(lang('tim_lang.confirmDeleteTimUser'),
@@ -310,8 +340,13 @@ class Users extends BaseController
         $this->display_view('Timbreuse\Views\confirm_form', $data);
     }
 
-    public function confirm_delete_tim_user()
+    /**
+     * @deprecated
+     */
+    public function old_confirm_delete_tim_user()
     {
+        trigger_error('Method ' . __METHOD__ . ' is deprecated',
+            E_USER_DEPRECATED);
         if ($this->request->getMethod() !== 'post') {
             return $this->display_view('\User\errors\403error');
         }

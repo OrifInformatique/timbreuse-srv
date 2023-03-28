@@ -28,7 +28,7 @@
             </div>
 
 
-            <input id='badgeId'  class="form-control" name ='badgeId' list='badgeId_list' disabled autocomplete="off" value='<?=esc($badgeId)?>'>
+            <input id='badgeId'  class="form-control"  list='badgeId_list' disabled autocomplete="off" value='<?=esc($badgeId)?>'>
                 <datalist id='badgeId_list'>
                     <?php foreach ($availableBadges as $badge):?>
                         <option value='<?=esc($badge)?>'>
@@ -43,15 +43,24 @@
         </div>
         <a href='<?=esc($deleteUrl)?>' class="btn btn-danger"><?=esc($deleteLabel)?></a>
         <input type="hidden" name="timUserId" value="<?=esc($id_user)?>"/>
+        <input id='hiddenBadgeId' type="hidden" name="badgeId" value="<?=esc($badgeId)?>"/>
     </form>
     
 </section>
 <script>
-    let input = document.getElementById("badgeId");
-    let button = document.getElementById("delete_badge_id_text");
-    button.onclick = function() {
-        input.disabled = false;
-        input.value = '';
-        input.focus();
-    }
+let input = document.getElementById("badgeId");
+let button = document.getElementById("delete_badge_id_text");
+let hiddenInput = document.getElementById("hiddenBadgeId");
+
+button.onclick = function() {
+    input.disabled = false;
+    input.value = '';
+    hiddenInput.value = '';
+    input.focus();
+};
+
+input.onchange = function() {
+    hiddenInput.value = input.value;
+};
+
 </script>

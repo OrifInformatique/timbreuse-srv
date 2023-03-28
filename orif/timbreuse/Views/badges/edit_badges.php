@@ -47,6 +47,7 @@ button.onclick = function() {
 };
 
 input.onchange = function() {
+    // add hidden like user
     let isFind = false;
     for (i = 0; i < userList.options.length; i++)
     {

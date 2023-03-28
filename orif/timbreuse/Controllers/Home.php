@@ -17,7 +17,7 @@ class Home extends BaseController
 
 	public function index()
 	{
-        return redirect()->to('PersoLogs/perso_time');
+        return redirect()->to(current_url() . '/PersoLogs/perso_time');
 		$data['title'] = "Welcome";
 
 		/**

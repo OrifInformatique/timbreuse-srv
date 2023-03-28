@@ -29,6 +29,7 @@ class AdminLogs extends PersoLogs
 
     public function perso_logs_list($userId, $day = null, $period = null)
     {
+        trigger_error('Deprecated function called.', E_USER_DEPRECATED);
         if (($day === null) or ($day == 'all')) {
             return redirect()->to(
                 $userId . '/' . Time::today()->toDateString() . '/all'
