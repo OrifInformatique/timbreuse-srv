@@ -17,7 +17,7 @@
                     <button type='button' id='delete_user_id_text' class="btn input-group-text" ><?=esc($labels['erase'])?></button>
                     <input type="text" id="namesUser" disabled class="input-group-text" value="<?=esc($availableUsers[0]["name"])?> <?=esc($availableUsers[0]["surname"])?>">
                 </div>
-                <input id='timUserId'  class="form-control" name ='timUserId' list='userId_list' disabled autocomplete="off" value='<?=esc($availableUsers[0]['id_user'])?>'>
+                <input id='timUserId'  class="form-control" list='userId_list' disabled autocomplete="off" value='<?=esc($availableUsers[0]['id_user'])?>'>
                 <datalist id='userId_list'>
                     <?php foreach ($availableUsers as $user):?>
                         <option value="<?=esc($user["id_user"])?>" label="<?=esc($user["name"])?> <?=esc($user["surname"])?>">
@@ -32,22 +32,24 @@
             <input type='submit' value='<?=esc($labels['modify'])?>' class="btn btn-primary">
         </div>
         <input type="hidden" name="badgeId" value="<?=esc($badgeId)?>"/>
+        <input id="hiddenUserId" type="hidden" name="timUserId" value="<?=esc($availableUsers[0]['id_user'])?>"/>
     </form>
 <script>
 let input = document.getElementById("timUserId");
 let button = document.getElementById("delete_user_id_text");
 let namesbutton = document.getElementById("namesUser");
 let userList = document.getElementById("userId_list");
+let hiddenInput = document.getElementById("hiddenUserId");
 
 button.onclick = function() {
     input.disabled = false;
     namesbutton.value = "";
     input.value = '';
+    hiddenInput.value = '';
     input.focus();
 };
 
 input.onchange = function() {
-    // add hidden like user
     let isFind = false;
     for (i = 0; i < userList.options.length; i++)
     {
@@ -64,6 +66,7 @@ input.onchange = function() {
         namesbutton.value = "";
         // input.value = "";
     }
+    hiddenInput.value = input.value;
 };
 
 </script>
