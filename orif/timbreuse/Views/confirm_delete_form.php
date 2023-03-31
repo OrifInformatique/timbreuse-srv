@@ -1,5 +1,6 @@
 <div class="container">
 
+    <h3><?= esc($h3title) ?></h3>
     <p><?= esc($text) ?></p>
     <form action=<?= esc($link) ?> method="post">
         <?= csrf_field() ?>

@@ -62,6 +62,7 @@ class Users extends BaseController
             return $this->display_view('\User\errors\403error');
         }
 
+        $data['h3title'] = lang('tim_lang.placeholder');
         $data['text'] = lang('tim_lang.placeholder');
         $data['link'] = '.';
         $data['cancel_link'] = '..';
@@ -73,9 +74,13 @@ class Users extends BaseController
     private function delete_timUser_post($timUserId)
     {
         $timUserModel = model(UsersModel::class);
+        $badgeModel = model(BadgesModel::class);
+        $timUserModel->db->transStart();
         if (!is_null($timUserId)) {
+            $badgeModel->set_user_id_to_null($timUserId);
             $timUserModel->delete($timUserId);
         }
+        $timUserModel->db->transComplete();
         return redirect()->to(current_url() . '/..');
     }
 
@@ -215,7 +220,7 @@ class Users extends BaseController
         $labels['surnameLabel'] = ucfirst(lang('tim_lang.surname'));
         $labels['siteAccountLabel'] = ucfirst(lang(
                 'tim_lang.siteAccountLabel'));
-        $labels['backLabel'] = ucfirst(lang('tim_lang.back'));
+        $labels['backLabel'] = ucfirst(lang('tim_lang.cancel'));
         $labels['modifyLabel'] = ucfirst(lang('common_lang.btn_save'));
         $labels['deleteLabel'] = ucfirst(lang('tim_lang.delete'));
         $labels['badgeIdLabel'] = ucfirst(lang('tim_lang.badgeId'));

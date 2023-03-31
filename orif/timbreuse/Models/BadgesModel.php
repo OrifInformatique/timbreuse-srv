@@ -101,8 +101,7 @@ class BadgesModel extends Model
 
     public function get_user_id($badgeId)
     {
-        return $this->select('user_sync.id_user')
-            ->join('user_sync', 'user_sync.id_user = badge_sync.id_user')
+        return $this->select('id_user')
             ->find($badgeId);
     }
 
@@ -121,6 +120,14 @@ class BadgesModel extends Model
             ->where('id_badge', null)
             ->orderBy('name')
             ->findall();
+    }
+
+    public function is_allocate_user(string $badgeId): bool
+    {
+        $sql = "SELECT coalesce((id_user=0) or (id_user or null), false) b " . 
+                'FROM badge_sync WHERE id_badge=?';
+        $result =  $this->db->query($sql, $badgeId)->getResultArray()[0]['b'];
+        return boolval($result);
     }
 
 }

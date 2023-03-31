@@ -65,7 +65,18 @@ class Badges extends BaseController
             return $this->display_view('\User\errors\403error');
         }
 
-        $data['text'] = lang('tim_lang.placeholder');
+        $badgesModel = model(badgesModel::class);
+        $userInfo = $badgesModel->get_user_info($badgeId);
+        $data['h3title'] = sprintf(lang('tim_lang.titleConfirmDeleteBadge')
+            , $badgeId);
+        if (isset($userInfo['name']) and isset($userInfo['surname'])) {
+            $data['text'] = sprintf(lang('tim_lang.confirmDeleteBadge'),
+                $userInfo['name'], $userInfo['surname']);
+        } else {
+            $data['text'] = sprintf(lang('tim_lang.confirmDeleteBadge'),
+                '', '');
+        }
+
         $data['link'] = '.';
         $data['cancel_link'] = '..';
         $data['id'] = $badgeId;
@@ -76,9 +87,13 @@ class Badges extends BaseController
     private function delete_badge_post($badgeId)
     {
         $badgeModel = model(badgesModel::class);
+        $badgeData['id_user'] = NULL;
+        $badgeModel->transStart();
         if (!is_null($badgeId)) {
+            $badgeModel->update($badgeId, $badgeData);
             $badgeModel->delete($badgeId);
         }
+        $badgeModel->transComplete();
         return redirect()->to(current_url() . '/..');
     }
 
@@ -128,6 +143,7 @@ class Badges extends BaseController
         # $data['postUrl'] = '../post_edit_badge_relation/' . $badgeId;
         $data['postUrl'] = '.';
         $data['returnUrl'] = '..';
+        $data['deleteUrl'] = '../delete_badge/' . $badgeId;
         $model = model(badgesModel::class);
         $currentUser = $model->get_user_info($badgeId);
         $data['availableUsers'] = array();
@@ -140,9 +156,10 @@ class Badges extends BaseController
             $model->get_available_users_info());
 
         $data['labels']['user'] = ucfirst(lang('tim_lang.timUserRelation'));
-        $data['labels']['back'] = ucfirst(lang('tim_lang.back'));
+        $data['labels']['back'] = ucfirst(lang('tim_lang.cancel'));
         $data['labels']['modify'] = ucfirst(lang('common_lang.btn_save'));
         $data['labels']['dealloc'] = ucfirst(lang('tim_lang.dealloc'));
+        $data['labels']['delete'] = ucfirst(lang('tim_lang.delete'));
         $data['labels']['erase'] = ucfirst(lang('tim_lang.erase'));
         $data['h3title'] = ucfirst(sprintf(lang('tim_lang.edit_badge'),
             $badgeId));

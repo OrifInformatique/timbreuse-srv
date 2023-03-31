@@ -31,6 +31,7 @@
             <a href='<?=esc($returnUrl)?>' class="btn btn-link"><?=esc($labels['back'])?></a>
             <input type='submit' value='<?=esc($labels['modify'])?>' class="btn btn-primary">
         </div>
+        <a href='<?=esc($deleteUrl)?>' class="btn btn-danger"><?=esc($labels['delete'])?></a>
         <input type="hidden" name="badgeId" value="<?=esc($badgeId)?>"/>
         <input id="hiddenUserId" type="hidden" name="timUserId" value="<?=esc($availableUsers[0]['id_user'])?>"/>
     </form>
