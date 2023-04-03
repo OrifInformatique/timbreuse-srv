@@ -56,6 +56,25 @@ class Badges extends BaseController
         $this->display_view('Common\Views\items_list', $data);
     }
 
+    protected function get_data_for_delete_badge($badgeId)
+    {
+        $badgesModel = model(badgesModel::class);
+        $userInfo = $badgesModel->get_user_info($badgeId);
+        $data['h3title'] = sprintf(lang('tim_lang.titleConfirmDeleteBadge')
+            , $badgeId);
+        if (!isset($userInfo['name'], $userInfo['surname'])) {
+            $userInfo['name'] = '';
+            $userInfo['surname'] = '';
+        }
+        $data['text'] = sprintf(lang('tim_lang.confirmDeleteBadge'),
+            $userInfo['name'], $userInfo['surname']);
+
+        $data['link'] = '.';
+        $data['cancel_link'] = '..';
+        $data['id'] = $badgeId;
+        return $data;
+    }
+
     public function delete_badge($badgeId=null)
     {
         if ($this->request->getMethod() === 'post' and $badgeId === null) {
@@ -64,23 +83,7 @@ class Badges extends BaseController
         } elseif ($badgeId === null) {
             return $this->display_view('\User\errors\403error');
         }
-
-        $badgesModel = model(badgesModel::class);
-        $userInfo = $badgesModel->get_user_info($badgeId);
-        $data['h3title'] = sprintf(lang('tim_lang.titleConfirmDeleteBadge')
-            , $badgeId);
-        if (isset($userInfo['name']) and isset($userInfo['surname'])) {
-            $data['text'] = sprintf(lang('tim_lang.confirmDeleteBadge'),
-                $userInfo['name'], $userInfo['surname']);
-        } else {
-            $data['text'] = sprintf(lang('tim_lang.confirmDeleteBadge'),
-                '', '');
-        }
-
-        $data['link'] = '.';
-        $data['cancel_link'] = '..';
-        $data['id'] = $badgeId;
-
+        $data = $this->get_data_for_delete_badge($badgeId);
         $this->display_view('Timbreuse\Views\confirm_delete_form', $data);
     }
 

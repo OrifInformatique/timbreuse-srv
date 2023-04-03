@@ -54,20 +54,41 @@ class Users extends BaseController
         $this->display_view('Common\Views\items_list', $data);
     }
 
-    public function delete_tim_user($timUserId=null){
+    protected function get_data_for_delete_tim_user($timUserId)
+    {
+        $userModel = model(UsersModel::class);
+        $userNames = $userModel->get_names($timUserId);
+        if (!isset($userNames['name'], $userNames['surname'])){
+            $userNames['name'] = '';
+            $userNames['surname'] = '';
+        }
+        $data['h3title'] = sprintf(lang('tim_lang.titleconfirmDeleteTimUser'),
+            $userNames['name'], $userNames['surname']);
+
+        $badgeModel = model(BadgesModel::class);
+        $badgeId = $badgeModel->get_badges($timUserId);
+        if (!isset($badgeId[0])) {
+            $badgeId = '';
+        } else {
+            $badgeId = $badgeId[0];
+        }
+        $data['text'] = sprintf(lang('tim_lang.confirmDeleteTimUser'),
+            $badgeId, '');
+        $data['link'] = '.';
+        $data['cancel_link'] = '..';
+        $data['id'] = $timUserId;
+        return $data;
+    }
+
+    public function delete_tim_user($timUserId=null)
+    {
         if ($this->request->getMethod() === 'post' and $timUserId === null) {
             $timUserId = $this->request->getPost('id');
             return $this->delete_timUser_post($timUserId);
         } elseif ($timUserId === null) {
             return $this->display_view('\User\errors\403error');
         }
-
-        $data['h3title'] = lang('tim_lang.placeholder');
-        $data['text'] = lang('tim_lang.placeholder');
-        $data['link'] = '.';
-        $data['cancel_link'] = '..';
-        $data['id'] = $timUserId;
-
+        $data = $this->get_data_for_delete_tim_user($timUserId);
         $this->display_view('Timbreuse\Views\confirm_delete_form', $data);
     }
 

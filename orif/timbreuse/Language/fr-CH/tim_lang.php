@@ -13,7 +13,5 @@ return [
     'timUsers' => 'utilisateurs de la timbreuse',
     'timUserEdit' => 'Édition utilisateur de la timbreuse',
     'siteAccountLabel' => 'modifier le lien compte site web ⇋ compte timbreuse',
-    'confirmDeleteTimUser' => 'Êtes-vous sûr·e de vouloir supprimer l’utilisateur timbreuse « %s %s ».',
-    'confirmRestoreTimUser' => 'Êtes-vous sûr·e de vouloir restorer l’utilisateur timbreuse « %s %s ».',
     'timUsersList' => 'Liste des utilisateurs de la timbreuse',
 ];
