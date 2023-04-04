@@ -97,8 +97,9 @@ public function index()
                         Time::parse($date_in),
                         Time::parse($log['date'])
                     )) {
-                        $carry += Time::parse($log['date'])
-                            ->difference($date_in)->seconds;
+                        # verifier ça à la rentrée aver le reste sur le serv local
+                        $carry += abs(Time::parse($log['date'])
+                            ->difference($date_in)->seconds);
                         $date_in = null;
                     }
                 }
