@@ -14,7 +14,7 @@ class Migration extends \CodeIgniter\Controller
 
     public function init()
     {
-        if ($this->request->getPost('password') !== 'a') {
+        if ($this->request->getPost('password') !== 'JXSzY3Xk75Zp4QBR6fHa') {
             return $this->response->setStatusCode('401');
         }
         $file = fopen(WRITEPATH . 'appStatus.json', 'r+');
