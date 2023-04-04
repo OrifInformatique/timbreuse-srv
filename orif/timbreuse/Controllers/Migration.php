@@ -14,32 +14,53 @@ class Migration extends \CodeIgniter\Controller
 
     public function init()
     {
-        if ($this->request->getPost('password') !== 'JXSzY3Xk75Zp4QBR6fHa') {
+        if ($this->request->getPost('password') !== 'rFhJe3tKq4iYAYa4nv48') {
             return $this->response->setStatusCode('401');
         }
-        $file = fopen(WRITEPATH . 'appStatus.json', 'r+');
-        $initDatas = fread($file, 100);
-        if ((json_decode($initDatas, true))['initialized'] !== false) {
+        $filePath = WRITEPATH . 'appStatus.json';
+        $appStatus = $this->get_app_status($filePath);
+        if ($appStatus['initialized'] !== false) {
             return $this->response->setStatusCode('400');
         }
         $this->response->setStatusCode('201')->send();
-        $migrate = Services::migrations();
-        try {
-            $migrate->setNamespace('User');
-            $migrate->latest();
-            $migrate->setNamespace('Timbreuse');
-            $migrate->latest();
-        } catch (\Exception $e) {
-            echo $e->getMessage();
-        }
-        fclose($file);
-        fwrite(fopen(WRITEPATH . 'appStatus.json', 'w+'),
+        $this->invoke_migration('User', 'Timbreuse');
+        fwrite(fopen($filePath, 'w'),
             json_encode(['initialized' => true]));
+        $this->delete_files();
+        return $this->response->setStatusCode(200);
+    }
+
+    protected function get_app_status($filePath) {
+        if (file_exists($filePath)){
+            $file = fopen($filePath, 'r');
+            $initDatas = fread($file, 100);
+            fclose($file);
+            $appStatus = json_decode($initDatas, true);
+        } else {
+            $appStatus['initialized'] = false;
+        }
+        return $appStatus;
+    }
+
+    protected function delete_files() {
         unlink((new \ReflectionClass(
             '\Timbreuse\Controllers\Migration'))->getFileName());
         unlink(ROOTPATH . 'orif/Timbreuse/Views/migrationindex.php');
-        return $this->response->setStatusCode(200);
     }
+
+    protected function invoke_migration(...$namespaces) {
+        try {
+            $migrate = Services::migrations();
+            foreach ($namespaces as $namespace) {
+                $migrate->setNamespace($namespace);
+                $migrate->latest();
+            }
+        }
+        catch (\Exception $e) {
+            echo $e->getMessage();
+        }
+    }
+
 }
 
 
