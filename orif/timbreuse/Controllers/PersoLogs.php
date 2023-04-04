@@ -438,9 +438,8 @@ public function index()
 
         if (($day === null)) {
             return redirect()->to(
-                current_url() . '/../perso_time/' . Time::today()->toDateString()
-                . '/day'
-            );
+                current_url() . '/../perso_time/'
+                . Time::today()->toDateString() . '/day');
         }
         if ($period === null) {
             return redirect()->to(current_url() . '/../' . $day . '/day');
@@ -932,7 +931,7 @@ public function index()
         }
     }
 
-    protected function redirect_log(array $log)
+    protected function redirect_log(array $log) : string
     {
         $link = explode(' ', $log['date'])[0];
         $link .= '/day';

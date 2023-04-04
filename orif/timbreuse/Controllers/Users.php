@@ -340,9 +340,9 @@ class Users extends BaseController
         $newBadgeId = $this->request->getPost('badgeId');
         if($this->update_user_and_badge($timUserId, $newBadgeId, $name, 
                 $surname)){
-            return redirect()->to('../..');
+            return redirect()->to(current_url() . '/../../..');
         } else {
-            return redirect()->to('..');
+            return redirect()->to(current_url() . '/../..');
         }
     }
 
@@ -381,6 +381,6 @@ class Users extends BaseController
         if ($timUserId !== null) {
             $model->delete($timUserId);
         }
-        return redirect()->to('../..');
+        return redirect()->to(current_url() . '/../../..');
     }
 }

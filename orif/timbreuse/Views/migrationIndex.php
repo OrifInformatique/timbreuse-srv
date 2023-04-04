@@ -1,83 +1,84 @@
 <?php
+
 ?>
 <style>
-    .header{
-        color: white;
-        text-align: center;
-        padding-block: 5px;
-    }
-    .section-title{
-        padding-left: 20px;
-    }
-    #spinnerContainer{
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        display: flex;
-        background-color: #ae9b70;
-        width: 100px;
-        height: 100px;
-        border-radius: 10px;
-        justify-content: center;
-        align-items: center;
-        box-shadow: 5.1px 10.2px 10.2px hsl(0deg 0% 0% / 0.34);
-        box-sizing: border-box;
-        border: #897754 4px solid;
-    }
-    .background{
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        width: 80%;
-        height: 80%;
-        border-radius: 100%;
-        box-sizing: border-box;
-        padding-block-start: 10px;
-        padding: 15% 10%;
-        border: 8px #bfa78a solid;
-        animation: rotate 0.9s linear infinite;
+.header{
+    color: white;
+    text-align: center;
+    padding-block: 5px;
+}
 
-    }
-    .item{
-        position: relative;
-        align-self: start;
-        display: block;
-        border-radius: 100%;
-        width: 10px;
-        height: 10px;
-        bottom: 63%;
+.section-title{
+    padding-left: 20px;
+}
 
-    }
-    .item:nth-child(1){
-        background-color: #958259;
+#spinnerContainer{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: flex;
+    background-color: #ae9b70;
+    width: 100px;
+    height: 100px;
+    border-radius: 10px;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 5.1px 10.2px 10.2px hsl(0deg 0% 0% / 0.34);
+    box-sizing: border-box;
+    border: #897754 4px solid;
+}
 
-    }
+.background{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 80%;
+    height: 80%;
+    border-radius: 100%;
+    box-sizing: border-box;
+    padding-block-start: 10px;
+    padding: 15% 10%;
+    border: 8px #bfa78a solid;
+    animation: rotate 0.9s linear infinite;
+}
 
-    .item:nth-child(2){
-        background-color: white;
-        position: relative;
-        bottom: 73%;
-    }
-    .item:nth-child(3){
-        background-color: #958259;
+.item{
+    position: relative;
+    align-self: start;
+    display: block;
+    border-radius: 100%;
+    width: 10px;
+    height: 10px;
+    bottom: 63%;
+}
 
-    }
+.item:nth-child(1){
+    background-color: #958259;
 
-    @keyframes rotate {
+}
+
+.item:nth-child(2){
+    background-color: white;
+    position: relative;
+    bottom: 73%;
+}
+
+.item:nth-child(3){
+    background-color: #958259;
+
+}
+
+@keyframes rotate {
     0%{
         transform:rotate(0deg);
     }
     100%{
         transform:rotate(360deg);
-
     }
-
 }
-
-
-
 </style>
+
 <header class="header bg-primary"><h1 class="card-title"><?= lang('common_lang.initialization') ?>  <?=lang('common_lang.app_title')?></h1></header>
 <body>
 <span style="display: flex;flex-direction: column"><h3 class="alert-primary section-title"><?= lang('common_lang.initialization') ?> <?=lang('common_lang.app_title')?></h3>
@@ -94,51 +95,48 @@
 </div>
 </body>
 <link rel="stylesheet" href="<?= base_url("css/bootstrap.min.css"); ?>" />
+
 <script type="text/javascript">
-    function displaySpinner(){
-        let spinner=document.createElement('div');
-        spinner.id='spinnerContainer';
-        let background=document.createElement('div');
-        background.className='background';
-        for (let i=0;i<3;i++){
-            let element=document.createElement('div');
-            element.className='item';
-            background.appendChild(element);
-        }
-        spinner.appendChild(background);
-        document.body.appendChild(spinner);
+function displaySpinner() {
+    let spinner=document.createElement('div');
+    spinner.id='spinnerContainer';
+    let background=document.createElement('div');
+    background.className='background';
+    for (let i=0;i<3;i++){
+        let element=document.createElement('div');
+        element.className='item';
+        background.appendChild(element);
     }
+    spinner.appendChild(background);
+    document.body.appendChild(spinner);
+}
 
-        function removeSpinner(){
-            document.getElementById('spinnerContainer')!==null?document.getElementById('spinnerContainer').remove():null;
-        }
+function removeSpinner() {
+    document.getElementById('spinnerContainer') !== null
+        ? document.getElementById('spinnerContainer').remove() : null;
+}
 
-        function executeMigration(){
-        let formdata=new FormData();
-        formdata.append('password',document.getElementById('migpassword').value);
-        displaySpinner();
-        fetch("<?= base_url('migration/init')?>",{
-            method:'POST',
-            body:formdata,
-        }).then((response)=>{
-            if (response.ok){
-
+function executeMigration() {
+    let formdata = new FormData();
+    formdata.append('password', document.getElementById('migpassword').value);
+    displaySpinner();
+    fetch("<?= base_url('migration/init')?>", { method:'POST', body:formdata,})
+        .then((response)=>{
+            if (response.ok) {
                 window.location.href='<?=base_url()?>';
-
             }
-            else{
+            else {
                 removeSpinner();
-                let error=document.createElement('p');
-                error.style.paddingLeft='20px';
-                if (response.status===401){
-                    error.innerText="le mot de passe n\'est pas valide";
+                let error = document.createElement('p');
+                error.style.paddingLeft = '20px';
+                if (response.status === 401) {
+                    error.innerText = "le mot de passe n’est pas valide";
                 }
-                else if (response.status===400){
-                    error.innerText="Une erreur est survenue";
-
+                else if (response.status === 400) {
+                    error.innerText = "Une erreur est survenue";
                 }
-                document.getElementById('message').innerHTML=error.innerHTML;
+                document.getElementById('message').innerHTML = error.innerHTML;
             }
         });
-    }
+}
 </script>

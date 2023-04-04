@@ -88,11 +88,12 @@ class AdminLogs extends PersoLogs
     {
         if (($day === null) or ($day == 'all')) {
             return redirect()->to(
+                current_url() . '/../' . 
                 $userId . '/' . Time::today()->toDateString() . '/month'
             );
         }
         if ($period === null) {
-            return redirect()->to($day . '/day');
+            return redirect()->to(current_url() . '/../' . $day . '/day');
         }
 
         switch ($period) {
@@ -122,7 +123,7 @@ class AdminLogs extends PersoLogs
                 $log['id_log'] : null;
     }
 
-    protected function redirect_log(array $log)
+    protected function redirect_log(array $log) : string
     {
         $link = explode(' ', $log['date'])[0];
         $link .= '/day';
