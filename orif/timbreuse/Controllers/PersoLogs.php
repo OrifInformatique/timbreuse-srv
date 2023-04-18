@@ -28,10 +28,10 @@ class PersoLogs extends BaseController
         $this->session = \Config\Services::session();
     }
 
-public function index()
-    {
-        return redirect()->to(current_url() . '/perso_time');
-    }
+    public function index()
+        {
+            return redirect()->to(current_url() . '/perso_time');
+        }
 
 
     protected function get_last_monday(Time $day)
@@ -97,7 +97,6 @@ public function index()
                         Time::parse($date_in),
                         Time::parse($log['date'])
                     )) {
-                        # verifier ça à la rentrée aver le reste sur le serv local
                         $carry += abs(Time::parse($log['date'])
                             ->difference($date_in)->seconds);
                         $date_in = null;
@@ -401,10 +400,23 @@ public function index()
     }
 
 
+    protected function redirect_admin()
+    {
+        $ci_id_user = $this->session->get('user_id');
+        $accessModel = model(AccessTimModel::class);
+        if ($accessModel->have_one_access($ci_id_user)) {
+            $timUserId = $accessModel->get_tim_user($ci_id_user);
+            return redirect()->to(current_url() . '/../../AdminLogs/time_list/'
+                .$timUserId);
+        } else {
+            return redirect()->to(current_url() . '/../../Users');
+        }
+    }
+
     public function perso_time($day = null, $period = null)
     {
         if ($this->is_admin()) {
-            return redirect()->to(current_url() . '/../../Users');
+            return $this->redirect_admin();
         } elseif (
             session()->get('user_access') == config('\User\Config\UserConfig')
             ->access_lvl_registered
@@ -1144,14 +1156,14 @@ public function index()
         var_dump($model->is_access(8, 92));
     }
 
-    public function test17()
+    private function test17()
     {
         $model = model(LogsFakeLogsModel::class);
         $day = Time::parse('2022-05-31');
         var_dump($model->get_border_log_by_period(92, $day, 'morning', true));
     }
 
-    public function test18()
+    private function test18()
     {
         $data['items'] = array();
         $data['items'][0]['label'] = 'test';
@@ -1164,26 +1176,26 @@ public function index()
         $this->display_view('Timbreuse\Views\logs\modify_log', $data);
     }
 
-    public function test19()
+    private function test19()
     {
         $day = Time::parse('2022-05-30');
         var_dump($this->get_day_view_day_array(92, $day));
         var_dump($this->get_day_view_day_array(92, $day, true));
     }
 
-    public function test20()
+    private function test20()
     {
         $model = model(LogsModel::class);
         $model->delete(362);
     }
 
-    public function test21()
+    private function test21()
     {
         $model = model(LogsModel::class);
         var_dump($model->select('id_log')->findAll());
     }
 
-    public function test22()
+    private function test22()
     {
         $data['date'] = Time::parse('2022-05-30');
         $data['time'] = '18:33';
@@ -1191,6 +1203,19 @@ public function index()
         $data['inside'] = 'false';
 
         $this->display_view('Timbreuse\Views\logs\edit_log', $data);
+    }
+
+    private function test23()
+    {
+        $model = model(AccessTimModel::class);
+        return $model->have_one_access(10);
+    }
+
+    private function test24()
+    {
+        $model = model(AccessTimModel::class);
+        var_dump($model->get_tim_user(10));
+        return $model->get_tim_user(10);
     }
     
 

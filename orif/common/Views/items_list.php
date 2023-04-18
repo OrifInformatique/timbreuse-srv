@@ -102,25 +102,25 @@
                     <!-- Add the "action" column (for detail/update/delete links) -->
                     <td class="text-right">                        
                         <!-- Bootstrap details icon ("Card text"), redirect to url_detail, adding /primary_key as parameter -->
-                        <?php if(isset($url_detail)) { ?>
+                        <?php if(isset($url_detail)): ?>
                             <a href="<?= site_url(esc($url_detail.$itemEntity[$primary_key_field])) ?>">
                                 <i class="bi-card-text" style="font-size: 20px;"></i>
-                            </a>
-                        <?php } ?>
+                            </a> 
+                        <?php endif ?>
 
                         <!-- Bootstrap edit icon ("Pencil"), redirect to url_update, adding /primary_key as parameter -->
-                        <?php if(isset($url_update)) { ?>
+                        <?php if(isset($url_update)): ?>
                             <a href="<?= site_url(esc($url_update.$itemEntity[$primary_key_field])) ?>">
                                 <i class="bi-pencil" style="font-size: 20px;"></i>
                             </a>
-                        <?php } ?>
+                        <?php endif ?>
                         
                         <!-- Bootstrap delete icon ("Trash"), redirect to url_delete, adding /primary_key as parameter -->
-                        <?php if(isset($url_delete)) { ?>
+                        <?php if(isset($url_delete)): ?>
                             <a href="<?= site_url(esc($url_delete.$itemEntity[$primary_key_field])) ?>">
                                 <i class="bi-trash" style="font-size: 20px;"></i>
                             </a>
-                        <?php } ?>
+                        <?php endif ?>
                     </td>
                 </tr>
                 <?php endforeach ?>
