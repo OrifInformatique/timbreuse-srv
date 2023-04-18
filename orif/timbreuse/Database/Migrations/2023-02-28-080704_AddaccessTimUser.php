@@ -23,11 +23,11 @@ class AddaccessTimUser extends Migration
 		$this->forge->addPrimaryKey('id_access');
 		$this->forge->addForeignKey('id_user', 'user_sync', 'id_user');
 		$this->forge->addForeignKey('id_ci_user', 'ci_user', 'id');
-        $this->forge->createTable('access_tim_sync');
+        $this->forge->createTable('access_tim_user');
 	}
 
 	public function down()
 	{
-		$this->forge->dropTable('access_tim_sync');
+		$this->forge->dropTable('access_tim_user');
 	}
 }
