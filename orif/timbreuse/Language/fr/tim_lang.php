@@ -3,7 +3,7 @@ return [
     'monday' => 'lundi',
     'tuesday' => 'mardi',
     'wednesday' => 'mercredi',
-    'thurday' => 'jeudi',
+    'thursday' => 'jeudi',
     'friday' => 'vendredi',
     'rowMorning' =>  '07:00 à 12:30',
     'rowAfternoon' =>  '12:30 à 17:45',
@@ -79,4 +79,7 @@ return [
     'confirmDeleteTimUser' => ' Cet utilisateur est attribué au badge ID « %s ».',
     'titleConfirmDeleteBadge' => 'Supprimer le badge ID %s',
     'titleconfirmDeleteTimUser' => 'Supprimer l’utilisateur « %s %s »',
+    'titlePlanning' => 'emploi du temps',
+    'dueTime' => 'temps exigé',
+    'offeredTime' => 'Temps non pointé',
 ];

@@ -27,7 +27,17 @@ class Planning extends BaseController
     public function index()
     {
 
-        $data['nothing'] = 'nothing';
+        $data['title'] = ucfirst(lang('tim_lang.titlePlanning'));
+        $data['h3title'] = ucfirst(lang('tim_lang.titlePlanning'));
+        $data['labels']['monday'] = ucfirst(lang('tim_lang.monday'));
+        $data['labels']['tuesday'] = ucfirst(lang('tim_lang.tuesday'));
+        $data['labels']['wednesday'] = ucfirst(lang('tim_lang.wednesday'));
+        $data['labels']['thursday'] = ucfirst(lang('tim_lang.thursday'));
+        $data['labels']['friday'] = ucfirst(lang('tim_lang.friday'));
+        $data['labels']['dueTime'] = ucfirst(lang('tim_lang.dueTime'));
+        $data['labels']['offeredTime'] = ucfirst(lang('tim_lang.offeredTime'));
+        $data['labels']['cancel'] = ucfirst(lang('tim_lang.cancel'));
+        $data['labels']['save'] = ucfirst(lang('common_lang.btn_save'));
 
         $this->display_view(
             [

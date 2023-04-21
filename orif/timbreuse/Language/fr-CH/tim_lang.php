@@ -14,4 +14,5 @@ return [
     'timUserEdit' => 'Édition utilisateur de la timbreuse',
     'siteAccountLabel' => 'modifier le lien compte site web ⇋ compte timbreuse',
     'timUsersList' => 'Liste des utilisateurs de la timbreuse',
+    'offeredTime' => 'Temps non timbré',
 ];

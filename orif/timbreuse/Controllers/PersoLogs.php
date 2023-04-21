@@ -345,7 +345,7 @@ class PersoLogs extends BaseController
     protected function get_week_time_table($userId, $date): array
     {
         $monday = $this->get_last_monday($date);
-        $weekdays = ['monday', 'tuesday', 'wednesday', 'thurday', 'friday'];
+        $weekdays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
         $data = array();
         foreach ($weekdays as $i => $weekday) {
             $data[$weekday] = $this->get_upper_day_time_table($userId,
