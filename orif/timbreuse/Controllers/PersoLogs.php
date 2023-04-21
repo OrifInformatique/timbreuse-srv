@@ -21,9 +21,8 @@ class PersoLogs extends BaseController
     public function initController(RequestInterface $request,
         ResponseInterface $response, LoggerInterface $logger)
     {
-        $this->access_level = config(
-            '\User\Config\UserConfig'
-        )->access_lvl_registered;
+        $this->access_level = config('\User\Config\UserConfig')
+             ->access_lvl_registered;
         parent::initController($request, $response, $logger);
         $this->session = \Config\Services::session();
     }
