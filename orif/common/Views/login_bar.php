@@ -27,7 +27,7 @@
           <!-- ADMIN ACCESS ONLY -->
           <?php if ($_SESSION['user_access'] >= config('\User\Config\UserConfig')->access_lvl_admin) { ?>
               <!-- Link to the first administration tab defined in Common\Config\AdminPanelConfig -->
-              <a href="<?php echo base_url(config('\Common\Config\AdminPanelConfig')->tabs[0]['pageLink']); ?>" ><?php echo lang('common_lang.btn_admin'); ?></a><br />
+              <a href="<?php echo base_url(config('\Common\Config\AdminPanelConfig')->tabs[1]['pageLink']); ?>" ><?php echo lang('common_lang.btn_admin'); ?></a><br />
           <?php } ?>
           <!-- END OF ADMIN ACCESS -->
 

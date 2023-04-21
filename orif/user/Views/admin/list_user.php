@@ -30,7 +30,7 @@ helper("form");
         </div>
     </div>
     <div class="row mt-2">
-        <table class="table table-hover">
+        <table class="table table-hover table-striped ">
         <thead>
             <tr>
                 <th><?= lang('user_lang.field_username'); ?></th>
@@ -47,7 +47,8 @@ helper("form");
                     <td><?= esc($user['email']); ?></td>
                     <td><?= $user_types[$user['fk_user_type']]; ?></td>
                     <td><?= lang($user['archive'] ? 'common_lang.no' : 'common_lang.yes'); ?></td>
-                    <td><a href="<?= base_url('user/admin/delete_user/'.$user['id']); ?>" class="close">×</td>
+                    <td><a href="<?= base_url('user/admin/delete_user/'.$user['id']); ?>" class=""><i class="bi-trash" style="font-size: 20px;"></i>
+</td>
                 </tr>
             <?php } ?>
         </tbody>
