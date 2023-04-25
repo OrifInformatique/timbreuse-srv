@@ -25,7 +25,8 @@ class Validation
 		FormatRules::class,
 		FileRules::class,
 		CreditCardRules::class,
-        \User\Validation\CustomRules::class
+        \User\Validation\CustomRules::class,
+        \Timbreuse\Validation\TimbreuseRules::class
 	];
 
 	/**

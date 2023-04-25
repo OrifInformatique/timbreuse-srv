@@ -60,7 +60,8 @@ class LogsAPI extends BaseController
     }
 
 
-    private function get_logs_test() {
+    private function get_logs_test()
+    {
         $data = array();
         $data['a'] = 0;
         $data['b'] = 'c';
@@ -75,7 +76,8 @@ class LogsAPI extends BaseController
     /**
      * @deprecated
      */
-    public function _get($startLogId) {
+    public function _get($startLogId)
+    {
         trigger_error('Deprecated function called.', E_USER_DEPRECATED);
         $model = model(LogsModel::class);
         $model->where('id_log >', $startLogId);
@@ -104,7 +106,8 @@ class LogsAPI extends BaseController
         return $this->respond(json_encode($model->findAll()));
     }
 
-    private function test() {
+    private function test()
+    {
         $model = model(LogsModel::class);
         $date = '2022-10-10 16:33:32';
         $badgeId = '42';
@@ -115,7 +118,8 @@ class LogsAPI extends BaseController
     /**
      * http://localhost:8080/logs/test2
      */
-    private function test2() {
+    private function test2()
+    {
         $date = '2022-11-01 14:35:45';
         $id_badge = 42;
         $inside = true;

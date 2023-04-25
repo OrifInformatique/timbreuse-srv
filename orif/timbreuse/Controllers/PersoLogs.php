@@ -18,11 +18,8 @@ class PersoLogs extends BaseController
 {
     const RETURN_METHOD_NAME = 'perso_time';
     
-    public function initController(
-        RequestInterface $request,
-        ResponseInterface $response,
-        LoggerInterface $logger
-    )
+    public function initController(RequestInterface $request,
+        ResponseInterface $response, LoggerInterface $logger)
     {
         $this->access_level = config(
             '\User\Config\UserConfig'
@@ -31,65 +28,11 @@ class PersoLogs extends BaseController
         $this->session = \Config\Services::session();
     }
 
-    /**
-     * @deprecated
-     * is move in adminLogs
-     */
-    private function perso_logs_list($userId, $day = null, $period = null)
-    {
-        trigger_error('Deprecated function called.', E_USER_DEPRECATED);
-        if (($day === null) or ($day == 'all')) {
-            return redirect()->to(
-                $userId . '/' . Time::today()->toDateString() . '/all'
-            );
-        }
-        if ($period === null) {
-            return redirect()->to($day . '/day');
+    public function index()
+        {
+            return redirect()->to(current_url() . '/perso_time');
         }
 
-        $usersModel = model(UsersModel::class);
-        $user = $usersModel->get_users($userId);
-
-        $data['title'] = "Welcome";
-
-        # Display a test of the generic "items_list" view (defined in common
-        # module)
-        $data['columns'] = [
-            'date' => 'Date',
-            'id_badge' => 'Numéro du badge',
-            'inside' => 'Entrée'
-        ];
-        $day = Time::parse($day);
-        $data['period'] = $period;
-        $logsModel = model(LogsModel::class);
-        $data['items'] = $logsModel->get_filtered_logs($userId, $day, $period);
-        $sumTime = [
-            'date' => 'Total temps',
-            'id_badge' => $this->get_hours_by_seconds(
-                $this->get_time_array($data['items'])
-            ),
-            'inside' => ''
-        ];
-        array_push($data['items'], $sumTime);
-
-
-        $data['list_title'] = $this->create_title($user, $day, $period);
-        $data['buttons'] = $this->create_buttons($period);
-        if ($period != 'all') {
-            $data['buttons'] = array_merge(
-                $this->create_time_links($day, $period),
-                $data['buttons']
-            );
-            $data['date'] = $day->toDateString();
-        }
-        $this->display_view(
-            [
-                'Timbreuse\Views\period_menu',
-                'Timbreuse\Views\date', 'Common\Views\items_list'
-            ],
-            $data
-        );
-    }
 
     protected function get_last_monday(Time $day)
     {
@@ -154,8 +97,8 @@ class PersoLogs extends BaseController
                         Time::parse($date_in),
                         Time::parse($log['date'])
                     )) {
-                        $carry += Time::parse($log['date'])
-                            ->difference($date_in)->seconds;
+                        $carry += abs(Time::parse($log['date'])
+                            ->difference($date_in)->seconds);
                         $date_in = null;
                     }
                 }
@@ -383,7 +326,7 @@ class PersoLogs extends BaseController
     /**
      * use for week view with time
      */
-    protected function get_upper_day_time_table( $userId, $date,
+    protected function get_upper_day_time_table($userId, $date,
         $fakeLog = true): array
     {
         $data['dayNb'] = $date->day;
@@ -400,7 +343,7 @@ class PersoLogs extends BaseController
     /**
      * use for week view with time
      */
-    protected function get_week_time_table( $userId, $date): array
+    protected function get_week_time_table($userId, $date): array
     {
         $monday = $this->get_last_monday($date);
         $weekdays = ['monday', 'tuesday', 'wednesday', 'thurday', 'friday'];
@@ -456,42 +399,24 @@ class PersoLogs extends BaseController
         return redirect()->back();
     }
 
-    /**
-     * @deprecated
-     * is move in adminLogs
-     */
-    private function time_list($userId, $day = null, $period = null)
-    {
-        trigger_error('Deprecated function called.', E_USER_DEPRECATED);
-        if (($day === null) or ($day == 'all')) {
-            return redirect()->to(
-                $userId . '/' . Time::today()->toDateString() . '/month'
-            );
-        }
-        if ($period === null) {
-            return redirect()->to($day . '/day');
-        }
 
-        switch ($period) {
-            case 'week':
-                return $this->time_list_week($userId, $day, $period);
-                break;
-            case 'month':
-                return $this->time_list_month($userId, $day, $period);
-                break;
-            case 'day':
-                return $this->time_list_day($userId, $day, $period);
-                break;
-            default:
-                return $this->time_list_week($userId, $day, $period);
-                break;
+    protected function redirect_admin()
+    {
+        $ci_id_user = $this->session->get('user_id');
+        $accessModel = model(AccessTimModel::class);
+        if ($accessModel->have_one_access($ci_id_user)) {
+            $timUserId = $accessModel->get_tim_user($ci_id_user);
+            return redirect()->to(current_url() . '/../../AdminLogs/time_list/'
+                .$timUserId);
+        } else {
+            return redirect()->to(current_url() . '/../../Users');
         }
     }
 
     public function perso_time($day = null, $period = null)
     {
         if ($this->is_admin()) {
-            return redirect()->to('./users');
+            return $this->redirect_admin();
         } elseif (
             session()->get('user_access') == config('\User\Config\UserConfig')
             ->access_lvl_registered
@@ -526,11 +451,11 @@ class PersoLogs extends BaseController
 
         if (($day === null)) {
             return redirect()->to(
-                'perso_time/' . Time::today()->toDateString() . '/day'
-            );
+                current_url() . '/../perso_time/'
+                . Time::today()->toDateString() . '/day');
         }
         if ($period === null) {
-            return redirect()->to($day . '/day');
+            return redirect()->to(current_url() . '/../' . $day . '/day');
         }
 
         return $this->perso_time_period($userId, $day, $period);
@@ -649,60 +574,6 @@ class PersoLogs extends BaseController
         }
     }
 
-    /**
-     * @deprecated
-     */
-    private function perso_logs_list_old($userId, $day = null, $period = null)
-    {
-        trigger_error('Deprecated function called.', E_USER_DEPRECATED);
-        if (($day === null) or ($day == 'all')) {
-            return redirect()->to(
-                $userId . '/' . Time::today()->toDateString() . '/all'
-            );
-        }
-        if ($period === null) {
-            return redirect()->to($day . '/day');
-        }
-
-        $user_data = $this->get_user_data($userId);
-        $logs = $user_data['logs'];
-        $user = $user_data['user'];
-
-        $data['title'] = "Welcome";
-
-        /**
-         * Display a test of the generic "items_list" view (defined in common
-         * module)
-         */
-
-        $data['columns'] = [
-            'date' => 'Date',
-            'id_badge' => 'Numéro du badge',
-            'inside' => 'Entrée'
-        ];
-        $day = Time::parse($day);
-        $data['period'] = $period;
-
-        if ($period == 'all') {
-            $data += $this->all_view($logs, $user);
-        } elseif ($period == 'day') {
-            $data += $this->day_view($logs, $user, $day);
-        } elseif ($period == 'week') {
-            $data += $this->week_view($logs, $user, $day);
-        } elseif ($period == 'month') {
-            $data += $this->month_view($logs, $user, $day);
-        }
-        $data['buttons'] += $this->create_buttons($period);
-
-
-        $this->display_view(
-            [
-                'Timbreuse\Views\menu',
-                'Timbreuse\Views\date', 'Common\Views\items_list'
-            ],
-            $data
-        );
-    }
 
     protected function create_buttons($period)
     {
@@ -741,98 +612,6 @@ class PersoLogs extends BaseController
     }
 
 
-
-    /**
-     * @deprecated
-     */
-    protected function month_view($logs, $user, $day)
-    {
-        trigger_error('Deprecated function called.', E_USER_DEPRECATED);
-        $data['date'] = $day->toDateString();
-        $data['list_title'] = $user['surname'] . ' ' . $user['name'] . ' mois '
-            . $data['date'];
-        $filter = function ($log) use ($day) {
-            return $this->filter_log_month($log, $day);
-        };
-        $data['items'] = array_filter($logs, $filter);
-        $data['buttons'] = [
-            [
-                'link' => '../' . $day->subDays(30)->toDateString() . '/month',
-                'label' => '<'
-            ],
-            [
-                'link' => '../' . $day->addDays(30)->toDateString() . '/month',
-                'label' => '>'
-            ],
-        ];
-        return $data;
-    }
-
-    /**
-     * @deprecated
-     */
-    protected function week_view($logs, $user, $day)
-    {
-        trigger_error('Deprecated function called.', E_USER_DEPRECATED);
-        $data['date'] = $day->toDateString();
-        $data['list_title'] = $user['surname'] . ' ' . $user['name'] .
-            ' semaine ' . $data['date'];
-        $filter = function ($log) use ($day) {
-            return $this->filter_log_week($log, $day);
-        };
-        $data['items'] = array_filter($logs, $filter);
-        $data['buttons'] = [
-            [
-                'link' => '../' . $day->subDays(7)->toDateString() . '/week',
-                'label' => '<'
-            ],
-            [
-                'link' => '../' . $day->addDays(7)->toDateString() . '/week',
-                'label' => '>'
-            ],
-        ];
-        return $data;
-    }
-
-    /**
-     * @deprecated
-     */
-    protected function day_view($logs, $user, $day)
-    {
-        trigger_error('Deprecated function called.', E_USER_DEPRECATED);
-        $data['date'] = $day->toDateString();
-        $data['list_title'] = $user['surname'] . ' ' . $user['name'] . ' ' .
-            $data['date'];
-        $filter = function ($log) use ($day) {
-            return $this->filter_log_day($log, $day);
-        };
-        $data['items'] = array_filter($logs, $filter);
-        $data['buttons'] = [
-            [
-                'link' => '../' . $day->subDays(1)->toDateString(),
-                'label' => '<'
-            ],
-            [
-                'link' => '../' . $day->addDays(1)->toDateString(),
-                'label' => '>'
-            ],
-        ];
-        return $data;
-    }
-
-    /**
-     * @deprecated
-     */
-    protected function all_view($logs, $user)
-    {
-        trigger_error('Deprecated function called.', E_USER_DEPRECATED);
-        $data['items'] = $logs;
-        $data['list_title'] = "Tout les logs de" . ' ' . $user['surname'] .
-            ' ' .
-            $user['name'];
-        $data['buttons'] = array();
-        return $data;
-    }
 
     protected function filter_log_month($log, Time $day)
     {
@@ -963,7 +742,8 @@ class PersoLogs extends BaseController
             session()->set('userIdAccess', $userId);
             $today = Time::today()->toDateString();
             return redirect()->to(
-                './PersoLogs/perso_time/' . $today . '/month'
+                current_url() . 
+                '/../../perso_time/' . $today . '/month'
             );
         }
     }
@@ -1089,7 +869,8 @@ class PersoLogs extends BaseController
         $log = $model->withDeleted()->find($logId);
         $this->check_and_block_user($log['id_user']);
         $model->onlyDeleted()->update($logId, ['date_delete' => null]);
-        return redirect()->to($this->redirect_log($log));
+        return redirect()->to(current_url() . '/../' . 
+            $this->redirect_log($log));
     }
 
     protected function replace_time_in_date($date, $time)
@@ -1121,7 +902,8 @@ class PersoLogs extends BaseController
                 'id_ci_user' => $userCiId,
             ]
         );
-        return redirect()->to($this->redirect_log($log));
+        return redirect()->to(current_url() . '/../' . 
+            $this->redirect_log($log));
     }
 
     public function delete_modify_log($logId)
@@ -1145,6 +927,7 @@ class PersoLogs extends BaseController
     public function confirm_delete_modify_log()
     {
         # to do rename fakeLog
+        # to do rename the method name, now it is all log can be (soft) delete
         if ($this->request->getMethod() === 'post') {
             $id = $this->request->getPost('id');
             $model = model(LogsModel::class);
@@ -1152,7 +935,8 @@ class PersoLogs extends BaseController
             $this->check_and_block_user($fakeLog['id_user']);
             $model->delete($id);
             $this->redirect_log($fakeLog);
-            return redirect()->to($this->redirect_log($fakeLog));
+            return redirect()->to(current_url() . '/../' . 
+                $this->redirect_log($fakeLog));
         } else {
             $this->display_view('\User\errors\403error');
             exit();
@@ -1160,7 +944,7 @@ class PersoLogs extends BaseController
         }
     }
 
-    protected function redirect_log(array $log)
+    protected function redirect_log(array $log) : string
     {
         $link = explode(' ', $log['date'])[0];
         $link .= '/day';
@@ -1372,14 +1156,14 @@ class PersoLogs extends BaseController
         var_dump($model->is_access(8, 92));
     }
 
-    public function test17()
+    private function test17()
     {
         $model = model(LogsFakeLogsModel::class);
         $day = Time::parse('2022-05-31');
         var_dump($model->get_border_log_by_period(92, $day, 'morning', true));
     }
 
-    public function test18()
+    private function test18()
     {
         $data['items'] = array();
         $data['items'][0]['label'] = 'test';
@@ -1392,26 +1176,26 @@ class PersoLogs extends BaseController
         $this->display_view('Timbreuse\Views\logs\modify_log', $data);
     }
 
-    public function test19()
+    private function test19()
     {
         $day = Time::parse('2022-05-30');
         var_dump($this->get_day_view_day_array(92, $day));
         var_dump($this->get_day_view_day_array(92, $day, true));
     }
 
-    public function test20()
+    private function test20()
     {
         $model = model(LogsModel::class);
         $model->delete(362);
     }
 
-    public function test21()
+    private function test21()
     {
         $model = model(LogsModel::class);
         var_dump($model->select('id_log')->findAll());
     }
 
-    public function test22()
+    private function test22()
     {
         $data['date'] = Time::parse('2022-05-30');
         $data['time'] = '18:33';
@@ -1419,6 +1203,19 @@ class PersoLogs extends BaseController
         $data['inside'] = 'false';
 
         $this->display_view('Timbreuse\Views\logs\edit_log', $data);
+    }
+
+    private function test23()
+    {
+        $model = model(AccessTimModel::class);
+        return $model->have_one_access(10);
+    }
+
+    private function test24()
+    {
+        $model = model(AccessTimModel::class);
+        var_dump($model->get_tim_user(10));
+        return $model->get_tim_user(10);
     }
     
 

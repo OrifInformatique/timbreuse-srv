@@ -10,8 +10,8 @@
         <table class="table table-striped table-hover">
             <?php foreach ($items as $key => $item) : ?>
                 <tr>
-                    <td><?= $labels[$key] ?></td>
-                    <td><?= $item ?></td>
+                    <td><?= esc($labels[$key]) ?></td>
+                    <td><?= esc($item) ?></td>
                 </tr>
             <?php endforeach ?>
         </table>

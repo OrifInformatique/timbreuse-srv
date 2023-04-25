@@ -16,11 +16,9 @@ use CodeIgniter\I18n\Time;
 class Logs extends BaseController
 {
     use ResponseTrait;
-    public function initController(
-        RequestInterface $request,
-        ResponseInterface $response,
-        LoggerInterface $logger
-    )
+
+    public function initController(RequestInterface $request,
+        ResponseInterface $response, LoggerInterface $logger)
     {
         $this->access_level = config(
             '\User\Config\UserConfig'
@@ -39,9 +37,8 @@ class Logs extends BaseController
         $model = model(LogsModel::class);
 		$data['title'] = "Welcome";
 
-		/**
-         * Display a test of the generic "items_list" view (defined in common module)
-         */
+        # Display a test of the generic "items_list" view (defined in common 
+        # module)
 		$data['list_title'] = "Test tout les logs";
 
         $data['columns'] = ['date' => 'Date',
@@ -111,7 +108,8 @@ class Logs extends BaseController
     #     return json_decode($fileText, true)['key'];
     # }
 
-    private function get_logs_test() {
+    private function get_logs_test()
+    {
         $data = array();
         $data['a'] = 0;
         $data['b'] = 'c';
@@ -130,7 +128,8 @@ class Logs extends BaseController
     /**
      * @deprecated
      */
-    private function get_logs($startLogId) {
+    private function get_logs($startLogId)
+    {
         trigger_error('Deprecated function called.', E_USER_DEPRECATED);
         $model = model(LogsModel::class);
         $model->where('id_log >', $startLogId);
@@ -140,7 +139,8 @@ class Logs extends BaseController
         return $this->respondCreated(json_encode($model->findAll()));
     }
 
-    private function test() {
+    private function test()
+    {
         $model = model(LogsModel::class);
         $date = '2022-10-10 16:33:32';
         $badgeId = '42';
@@ -151,7 +151,8 @@ class Logs extends BaseController
     /**
      * http://localhost:8080/logs/test2
      */
-    private function test2() {
+    private function test2()
+    {
         $date = '2022-11-01 14:35:45';
         $id_badge = 42;
         $inside = true;

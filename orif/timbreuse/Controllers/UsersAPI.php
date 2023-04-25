@@ -12,7 +12,8 @@ class UsersAPI extends BaseController
     /**
      * api
      */
-     public function put($name, $surname, $token) {
+    public function put($name, $surname, $token)
+    {
         $model = model(UsersModel::class);
         helper('UtilityFunctions');
         if ($token == create_token($name, $surname)) {

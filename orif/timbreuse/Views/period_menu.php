@@ -2,7 +2,7 @@
     <ul class='nav nav-pills'>
         <?php foreach ($buttons as $button) : ?>
             <li class='nav-item'>
-            <a href="<?= $button['link'] ?>" class='nav-link 
+            <a href="<?= esc($button['link']) ?>" class='nav-link 
             <?php 
             if ($button['link'] == $period) {
                 echo 'active';
