@@ -116,7 +116,7 @@ class Badges extends BaseController
             return $this->post_edit_badge_relation($post);
         }
         $data = $this->get_data_for_edit_badge_relation($badgeId);
-        $this->display_view('Timbreuse\Views\Badges\edit_badges', $data);
+        $this->display_view('Timbreuse\Views\badges\edit_badges', $data);
     }
 
     protected function get_empty_user_info()
