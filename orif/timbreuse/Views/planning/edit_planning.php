@@ -185,54 +185,54 @@ input:invalid {
             <?= $labels['offeredTime'] ?>
         </div>
         <div id="mondayDueTimeInput" class="form-group grid-hour-input grid-input-center" >
-            <input id="dueHoursMonday" class="form-control " type="number" name="dueHoursMonday" list="defaultHours" step="1" min="00" max="10" required>
+        <input id="dueHoursMonday" class="form-control " type="number" name="dueHoursMonday" list="defaultHours" step="1" min="00" max="10" required value="<?=$due_time_monday['hour']?>">
             <span>:</span>
-            <input id="dueMinutesMonday" class="form-control" type="number" name="dueMinutesMonday" list="defaultMinutes" step="1" min="0" max="59" required>
+            <input id="dueMinutesMonday" class="form-control" type="number" name="dueMinutesMonday" list="defaultMinutes" step="1" min="0" max="59" required value="<?=$due_time_monday['minute']?>">
         </div>
         <div id="tuesdayDueTimeInput" class="form-group grid-hour-input grid-input-center">
-            <input id="dueHoursTuesday" class="form-control" type="number" name="dueHoursTuesday" list="defaultHours" step="1" min="00" max="10" required>
+        <input id="dueHoursTuesday" class="form-control" type="number" name="dueHoursTuesday" list="defaultHours" step="1" min="00" max="10" required value="<?=$due_time_tuesday['hour']?>">
             <span>:</span>
-            <input id="dueMinutesTuesday" class="form-control" type="number" name="dueMinutesTuesday" list="defaultMinutes" step="1" min="0" max="59" required>
+            <input id="dueMinutesTuesday" class="form-control" type="number" name="dueMinutesTuesday" list="defaultMinutes" step="1" min="0" max="59" required value="<?=$due_time_tuesday['minute']?>">
         </div>
         <div id="wednesdayDueTimeInput" class="form-group grid-hour-input grid-input-center">
-            <input id="dueHoursWednesday" class="form-control" type="number" name="dueHoursWednesday" list="defaultHours" step="1" min="00" max="10" required>
+        <input id="dueHoursWednesday" class="form-control" type="number" name="dueHoursWednesday" list="defaultHours" step="1" min="00" max="10" required value="<?=$due_time_wednesday['hour']?>">
             <span>:</span>
-            <input id="dueMinutesWednesday" class="form-control" type="number" name="dueMinutesWednesday" list="defaultMinutes" step="1" min="0" max="59" required>
+            <input id="dueMinutesWednesday" class="form-control" type="number" name="dueMinutesWednesday" list="defaultMinutes" step="1" min="0" max="59" required value="<?=$due_time_wednesday['minute']?>">
         </div>
         <div id="thursdayDueTimeInput" class="form-group grid-hour-input grid-input-center">
-            <input id="dueHoursThursday" class="form-control" type="number" name="dueHoursThursday" list="defaultHours" step="1" min="00" max="10" required>
+        <input id="dueHoursThursday" class="form-control" type="number" name="dueHoursThursday" list="defaultHours" step="1" min="00" max="10" required value="<?=$due_time_thursday['hour']?>">
             <span>:</span>
-            <input id="dueMinutesThursday" class="form-control" type="number" name="dueMinutesThursday" list="defaultMinutes" step="1" min="0" max="59" required>
+            <input id="dueMinutesThursday" class="form-control" type="number" name="dueMinutesThursday" list="defaultMinutes" step="1" min="0" max="59" required value="<?=$due_time_thursday['minute']?>">
         </div>
         <div id="fridayDueTimeInput" class="form-group grid-hour-input grid-input-center">
-            <input id="dueHoursFriday" class="form-control" type="number" name="dueHoursFriday" list="defaultHours" step="1" min="00" max="10" required>
+        <input id="dueHoursFriday" class="form-control" type="number" name="dueHoursFriday" list="defaultHours" step="1" min="00" max="10" required value="<?=$due_time_friday['hour']?>">
             <span>:</span>
-            <input id="dueMinutesFriday" class="form-control" type="number" name="dueMinutesFriday" list="defaultMinutes" step="1" min="0" max="59" required>
+            <input id="dueMinutesFriday" class="form-control" type="number" name="dueMinutesFriday" list="defaultMinutes" step="1" min="0" max="59" required value="<?=$due_time_friday['minute']?>">
         </div>
         <div id="mondayOfferedTimeInput" class="form-group grid-hour-input grid-input-center">
-            <input id="offeredHoursMonday" class="form-control" type="number" name="offeredHoursMonday" list="defaultHours" step="1" min="00" max="10" required>
+            <input id="offeredHoursMonday" class="form-control" type="number" name="offeredHoursMonday" list="defaultHours" step="1" min="00" max="10" required value="<?=$offered_time_monday['hour']?>">
             <span>:</span>
-            <input id="offeredMinutesMonday" class="form-control" type="number" name="offeredMinutesMonday" list="defaultMinutes" step="1" min="0" max="59" required>
+            <input id="offeredMinutesMonday" class="form-control" type="number" name="offeredMinutesMonday" list="defaultMinutes" step="1" min="0" max="59" required value="<?=$offered_time_monday['minute']?>">
         </div>
         <div id="tuesdayOfferedTimeInput" class="form-group grid-hour-input grid-input-center">
-            <input id="offeredHoursTuesday" class="form-control" type="number" name="offeredHoursTuesday" list="defaultHours" step="1" min="00" max="10" required>
+            <input id="offeredHoursTuesday" class="form-control" type="number" name="offeredHoursTuesday" list="defaultHours" step="1" min="00" max="10" required value="<?=$offered_time_tuesday['hour']?>">
             <span>:</span>
-            <input id="offeredMinutesTuesday" class="form-control" type="number" name="offeredMinutesTuesday" list="defaultMinutes" step="1" min="0" max="59" required>
+            <input id="offeredMinutesTuesday" class="form-control" type="number" name="offeredMinutesTuesday" list="defaultMinutes" step="1" min="0" max="59" required value="<?=$offered_time_tuesday['minute']?>">
         </div>
         <div id="wednesdayOfferedTimeInput" class="form-group grid-hour-input grid-input-center">
-            <input id="offeredHoursWednesday" class="form-control" type="number" name="offeredHoursWednesday" list="defaultHours" step="1" min="00" max="10" required>
+            <input id="offeredHoursWednesday" class="form-control" type="number" name="offeredHoursWednesday" list="defaultHours" step="1" min="00" max="10" required value="<?=$offered_time_wednesday['hour']?>">
             <span>:</span>
-            <input id="offeredMinutesWednesday" class="form-control" type="number" name="offeredMinutesWednesday" list="defaultMinutes" step="1" min="0" max="59" required>
+            <input id="offeredMinutesWednesday" class="form-control" type="number" name="offeredMinutesWednesday" list="defaultMinutes" step="1" min="0" max="59" required value="<?=$offered_time_wednesday['minute']?>">
         </div>
         <div id="thursdayOfferedTimeInput" class="form-group grid-hour-input grid-input-center">
-            <input id="offeredHoursThursday" class="form-control" type="number" name="offeredHoursThursday" list="defaultHours" step="1" min="00" max="10" required>
+            <input id="offeredHoursThursday" class="form-control" type="number" name="offeredHoursThursday" list="defaultHours" step="1" min="00" max="10" required value="<?=$offered_time_thursday['hour']?>">
             <span>:</span>
-            <input id="offeredMinutesThursday" class="form-control" type="number" name="offeredMinutesThursday" list="defaultMinutes" step="1" min="0" max="59" required>
+            <input id="offeredMinutesThursday" class="form-control" type="number" name="offeredMinutesThursday" list="defaultMinutes" step="1" min="0" max="59" required value="<?=$offered_time_thursday['minute']?>">
         </div>
         <div id="fridayOfferedTimeInput" class="form-group grid-hour-input grid-input-center">
-            <input id="offeredHoursFriday" class="form-control" type="number" name="offeredHoursFriday" list="defaultHours" step="1" min="00" max="10" required>
+            <input id="offeredHoursFriday" class="form-control" type="number" name="offeredHoursFriday" list="defaultHours" step="1" min="00" max="10" required value="<?=$offered_time_friday['hour']?>">
             <span>:</span>
-            <input id="offeredMinutesFriday" class="form-control" type="number" name="offeredMinutesFriday" list="defaultMinutes" step="1" min="0" max="59" required>
+            <input id="offeredMinutesFriday" class="form-control" type="number" name="offeredMinutesFriday" list="defaultMinutes" step="1" min="0" max="59" required value="<?=$offered_time_friday['minute']?>">
         </div>
         <div id="buttonsSpace" class="form-group">
         <a class="btn btn-link" href=""><?= $labels['cancel'] ?></a>

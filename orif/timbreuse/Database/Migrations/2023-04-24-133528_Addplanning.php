@@ -9,6 +9,7 @@ class Addplanning extends Migration
 	public function up()
 	{
 		//
+
 		$field['id_planning']['type'] = 'INT';
 		$field['id_planning']['auto_increment'] = true;
 		$field['id_planning']['null'] = false;
