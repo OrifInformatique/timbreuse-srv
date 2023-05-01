@@ -401,7 +401,7 @@ class PersoLogs extends BaseController
 
     protected function redirect_admin()
     {
-        $ci_id_user = $this->session->get('user_id');
+        $ci_id_user = $this->get_ci_user_id();
         $accessModel = model(AccessTimModel::class);
         if ($accessModel->have_one_access($ci_id_user)) {
             $timUserId = $accessModel->get_tim_user($ci_id_user);
@@ -426,7 +426,7 @@ class PersoLogs extends BaseController
 
         if (!(session()->has('userIdAccess'))) {
             $model = model(AccessTimModel::class);
-            $userId = $model->get_access_users($this->session->get('user_id'));
+            $userId = $model->get_access_users($this->get_ci_user_id());
             switch (count($userId)) {
                 case 0:
                     return $this->display_view('\User\errors\403error');
@@ -484,12 +484,12 @@ class PersoLogs extends BaseController
     {
         if (session()->has('userIdAccess')) {
             $model = model(AccessTimModel::class);
-            $ciUserId = session()->get('user_id');
+            $ciUserId = $this->get_ci_user_id();
             $userId = session()->get('userIdAccess');
             return $model->is_access($ciUserId, $userId) or $this->is_admin();
         } else if (isset($id)) {
             $model = model(AccessTimModel::class);
-            $ciUserId = session()->get('user_id');
+            $ciUserId = $this->get_ci_user_id();
             return $model->is_access($ciUserId, $id) or $this->is_admin();
         } else {
             return false or $this->is_admin();
@@ -498,9 +498,14 @@ class PersoLogs extends BaseController
 
     protected function is_admin()
     {
-        return session()->get('user_access') == config(
-            '\User\Config\UserConfig'
-        )->access_lvl_admin;
+        helper('UtilityFunctions');
+        return is_admin();
+    }
+
+    protected function get_ci_user_id()
+    {
+        helper('UtilityFunctions');
+        return get_ci_user_id();
     }
 
     protected function block_user()
@@ -719,7 +724,7 @@ class PersoLogs extends BaseController
 
     public function access_user_list()
     {
-        $ciUserId = $this->session->get('user_id');
+        $ciUserId = $this->get_ci_user_id();
         $model = model(AccessTimModel::class);
         $data['items'] = $model->get_access_users_with_info($ciUserId);
         $data['columns'] = [
@@ -735,7 +740,7 @@ class PersoLogs extends BaseController
     public function access_user($userId)
     {
         $model = model(AccessTimModel::class);
-        $ciUserId = $this->session->get('user_id');
+        $ciUserId = $this->get_ci_user_id();
 
         if ($model->is_access($ciUserId, $userId)) {
             session()->set('userIdAccess', $userId);
@@ -831,7 +836,7 @@ class PersoLogs extends BaseController
             'userId' => 'required|integer',
         ])) {
             $request_array = array();
-            $request_array['id_ci_user'] = $this->session->get('user_id');
+            $request_array['id_ci_user'] = $this->get_ci_user_id();
             $request_array['id_user'] = $this->request->getPost('userId');
             $request_array['date'] = $this->request->getPost('date') . ' ' . 
                 $this->request->getPost('time');
@@ -880,30 +885,6 @@ class PersoLogs extends BaseController
             $oldDate->day, $time->hour, $time->minute, $time->second);
     }
 
-    public function update_log()
-    {
-        if ($this->request->getMethod() !== 'post') {
-            return $this->display_view('\User\errors\403error');
-        } 
-        $model = model(LogsModel::class);
-        $logId = $this->request->getPost('logId');
-        $log = $model->find($logId);
-        $this->check_and_block_user($log['id_user']);
-        $newDate = $this->replace_time_in_date($log['date'],
-            $this->request->getPost('time'));
-        $inside = $this->request->getPost('inside');
-        $inside = $inside === 'true';
-        $userCiId = $this->session->get('user_id');
-        $model->update($logId, 
-            [
-                'date' => $newDate,
-                'inside' => $inside,
-                'id_ci_user' => $userCiId,
-            ]
-        );
-        return redirect()->to(current_url() . '/../' . 
-            $this->redirect_log($log));
-    }
 
     public function delete_modify_log($logId)
     {
@@ -916,7 +897,7 @@ class PersoLogs extends BaseController
         $data['link'] = '../confirm_delete_modify_log';
         $data['cancel_link'] = '../edit_log/' . $logId;
         $data['label_button'] = ucfirst(lang('tim_lang.delete')); 
-        $data['ciUserId'] = $this->session->get('user_id');
+        $data['ciUserId'] = $this->get_ci_user_id();
 
         $data['title'] = lang('tim_lang.delete');
         $this->display_view('Timbreuse\Views\logs\confirm_delete', $data);
@@ -951,8 +932,16 @@ class PersoLogs extends BaseController
         return $link;
     }
 
-    public function edit_log($logId)
+    public function edit_log(int $logId)
     {
+        if ($this->request->getMethod() === 'post' and $this->validate([
+            'time' => 'required|regex_match[^([0-1][0-9]|2[0-3]):[0-5][0-9]:'.
+                '[0-5][0-9]$]',
+            'inside'  => 'required|regex_match[^(true|false)$]',
+            'logId' => 'required|integer',
+        ])) {
+            return $this->post_edit_log();
+        }
         $model = model(LogsModel::class);
         $data = $model->withDeleted()->find($logId);
         $this->check_and_block_user($data['id_user']);
@@ -961,12 +950,28 @@ class PersoLogs extends BaseController
         $data['cancel_link'] = '../' . $this->redirect_log($data);
         $data['delete_link'] = '../delete_modify_log/'.$logId;
         $data['restore_link'] = '../restore_log/' .$logId;
-        $data['update_link'] = '../update_log';
+        $data['update_link'] = "./$logId";
 
         $data['title'] = lang('tim_lang.recordModification');
         $this->display_view('Timbreuse\Views\logs\edit_log', $data);
     }
 
+    protected function post_edit_log()
+    {
+        $model = model(LogsModel::class);
+        $logId = $this->request->getPost('logId');
+        $log = $model->find($logId);
+        $this->check_and_block_user($log['id_user']);
+        $newDate = $this->replace_time_in_date($log['date'],
+            $this->request->getPost('time'));
+        $inside = $this->request->getPost('inside');
+        $inside = $inside === 'true';
+        $userCiId = $this->get_ci_user_id();
+        $model->update($logId, [ 'date' => $newDate, 'inside' => $inside,
+                'id_ci_user' => $userCiId, ]);
+        return redirect()->to(current_url() . '/../../' . 
+            $this->redirect_log($log));
+    }
 
 
     private function test1()

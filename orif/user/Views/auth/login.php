@@ -52,7 +52,7 @@
                                   
                 <div class="form-group">
                     <div class="col-sm-12 text-right">
-                        <a id="btn_cancel" class="btn btn-default" href="<?= base_url(); ?>"><?= lang('common_lang.btn_cancel'); ?></a>
+                        <a id="btn_cancel" class="btn btn-link" href="<?= base_url(); ?>"><?= lang('common_lang.btn_cancel'); ?></a>
                         <input id="btn_login" name="btn_login" type="submit" class="btn btn-primary" value="<?= lang('user_lang.btn_login'); ?>" />
                     </div>
                 </div>

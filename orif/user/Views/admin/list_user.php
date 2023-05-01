@@ -21,11 +21,12 @@ helper("form");
             </a>
         </div>
         <div class="col-sm-9 text-right">
-            <label class="btn btn-default form-check-label" for="toggle_deleted">
+            <label class="form-check-label" for="toggle_deleted">
                 <?= lang('user_lang.field_deleted_users_display'); ?>
             </label>
             <?= form_checkbox('toggle_deleted', '', $with_deleted, [
-                'id' => 'toggle_deleted'
+                'id' => 'toggle_deleted',
+                'class' => 'form-check-label',
             ]); ?>
         </div>
     </div>

@@ -30,7 +30,8 @@ class Plannings extends BaseController
         return redirect()->to(current_url() . '/' . 'edit_planning/');
     }
 
-    private function get_label_for_edit_planning() {
+    private function get_label_for_edit_planning()
+    {
 
         $data['monday'] = ucfirst(lang('tim_lang.monday'));
         $data['tuesday'] = ucfirst(lang('tim_lang.tuesday'));
@@ -45,26 +46,35 @@ class Plannings extends BaseController
 
     }
 
-    public function edit_planning($planningId) {
+    protected function is_admin()
+    {
+        helper('UtilityFunctions');
+        return is_admin();
+    }
 
+    protected function get_ci_user_id()
+    {
+        helper('UtilityFunctions');
+        return get_ci_user_id();
+    }
+
+    public function edit_planning($planningId)
+    {
         $model = model(PlanningsModel::class);
-        if (!$model->is_access_ci_user(8, 2)) {
+        if ((!$model->is_access_ci_user($this->get_ci_user_id(), $planningId))
+                and (!$this->is_admin())) {
             return $this->block_ci_user();
         }
         $data = $model->get_planning_hours_minutes($planningId);
         $data['title'] = ucfirst(lang('tim_lang.titlePlanning'));
         $data['h3title'] = ucfirst(lang('tim_lang.titlePlanning'));
         $data['labels'] = $this->get_label_for_edit_planning();
-
-        $this->display_view(
-            [
-                'Timbreuse\Views\planning\edit_planning.php'
-            ],
-            $data
-        );
+        $this->display_view(['Timbreuse\Views\planning\edit_planning.php'],
+            $data);
    }
 
-    protected function block_ci_user() {
+    protected function block_ci_user()
+    {
         return $this->display_view('\User\errors\403error');
     }
 

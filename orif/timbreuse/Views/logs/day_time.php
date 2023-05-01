@@ -67,7 +67,11 @@
     <h4>
         <?= esc(ucfirst(lang('tim_lang.new_record'))) ?>
     </h4>
-    <?= service('validation')->listErrors() ?>
+    <?php if (! empty(service('validation')->getErrors())) : ?>
+        <div class="alert alert-danger" role="alert">
+            <?= service('validation')->listErrors() ?>
+        </div>
+    <?php endif ?>
     <form action='<?=esc(base_url()) ?>/PersoLogs/create_modify_log' method='post'>
         <?= csrf_field() ?>
         <div class="form-group">

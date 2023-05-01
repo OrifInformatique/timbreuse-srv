@@ -2,7 +2,11 @@
     <h1>
         <?= esc(ucfirst(lang('tim_lang.recordModification'))) ?>
     </h1>
-    <?= service('validation')->listErrors() ?>
+    <?php if (! empty(service('validation')->getErrors())) : ?>
+        <div class="alert alert-danger" role="alert">
+            <?= service('validation')->listErrors() ?>
+        </div>
+    <?php endif ?>
     <form action='<?= esc($update_link) ?>' method='post'>
         <?= csrf_field() ?>
         <div class="form-group">

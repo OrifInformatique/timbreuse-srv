@@ -52,8 +52,7 @@ class UserModel extends Model
     {
         return $this->join_tim_user_and_planning()->join('access_tim_user',
             'access_tim_user.id_user = user_planning.id_user')
-            ->join('ci_user',
-            'ci_user.id = access_tim_user.id_ci_user');
+            ->join('ci_user', 'ci_user.id = access_tim_user.id_ci_user');
     }
 
     public function get_planning_hours_minutes(int $planningId)
@@ -74,17 +73,18 @@ class UserModel extends Model
         return $data;
     }
 
-    public function is_access_tim_user(int $timUserId, int $planningId) {
+    public function is_access_tim_user($timUserId, $planningId): bool
+    {
         return !is_null($this->select('planning.id_planning')
             ->join_tim_user_and_planning()
             ->where('user_sync.id_user = ', $timUserId)->find($planningId));
     }
 
-    public function is_access_ci_user(int $ciUserId, int $planningId) {
+    public function is_access_ci_user($ciUserId, $planningId): bool
+    {
         return !is_null($this->select('planning.id_planning')
             ->join_ci_user_and_tim_user()
             ->where('ci_user.id = ', $ciUserId)->find($planningId));
     }
-
 
 }
