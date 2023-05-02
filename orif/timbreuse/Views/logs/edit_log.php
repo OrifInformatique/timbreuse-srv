@@ -1,3 +1,9 @@
+<style>
+input:invalid {
+    border-color: #ae0000;
+    border-width: 2px;
+}
+</style>
 <div class="container mt-5" id='form'>
     <h1>
         <?= esc(ucfirst(lang('tim_lang.recordModification'))) ?>
@@ -11,17 +17,17 @@
         <?= csrf_field() ?>
         <div class="form-group">
             <label for="time" class='form-label'><?= esc(ucfirst(lang('tim_lang.hour'))) ?></label>
-            <input type="time" id='time' class='form-control' name='time' step='1' value='<?= esc(old('time', $time)) ?>'>
+            <input type="time" id='time' class='form-control' name='time' step='1' value='<?= esc(old('time', $time)) ?>' required >
         </div>
         <div class="form-group">
             <div class="form-check">
-                <input type="radio" id='in' class='form-check-input' name='inside' value='true' <?= esc(old('inside', $inside)) == '1' ? 'checked' : '' ?>>
+                <input type="radio" id='in' class='form-check-input' name='inside' value='true' <?= esc(old('inside', $inside)) == '1' ? 'checked' : '' ?> required>
                 <label for="in" class='form-check-label'>
                     <?= esc(ucfirst(lang('tim_lang.enter'))) ?>
                 </label>
             </div>
             <div class="form-check">
-                <input type="radio" id='out' class='form-check-input' name='inside' value='false' <?= esc(old('inside', $inside)) == '0' ? 'checked' : '' ?>>
+                <input type="radio" id='out' class='form-check-input' name='inside' value='false' <?= esc(old('inside', $inside)) == '0' ? 'checked' : '' ?> required>
                 <label for="out" class='form-check-label'>
                     <?= esc(ucfirst(lang('tim_lang.exit'))) ?>
                 </label>

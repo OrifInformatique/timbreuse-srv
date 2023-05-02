@@ -76,17 +76,17 @@
         <?= csrf_field() ?>
         <div class="form-group">
             <label for="time" class='form-label'><?= esc(ucfirst(lang('tim_lang.hour'))) ?></label>
-            <input type="time" id='time' class='form-control' name='time' step='1' value='<?= esc(old('time')) ?>'>
+            <input type="time" id='time' class='form-control' name='time' step='1' value='<?= esc(old('time')) ?>' required>
         </div>
         <div class="form-group">
             <div class="form-check">
-                <input type="radio" id='in' class='form-check-input' name='inside' value='true' <?= esc(old('inside')) == 'true' ? 'checked' : '' ?>>
+                <input type="radio" id='in' class='form-check-input' name='inside' value='true' <?= esc(old('inside')) == 'true' ? 'checked' : '' ?> required>
                 <label for="in" class='form-check-label'>
                     <?= esc(ucfirst(lang('tim_lang.enter'))) ?>
                 </label>
             </div>
             <div class="form-check">
-                <input type="radio" id='out' class='form-check-input' name='inside' value='false' <?= esc(old('inside')) == 'false' ? 'checked' : '' ?>>
+                <input type="radio" id='out' class='form-check-input' name='inside' value='false' <?= esc(old('inside')) == 'false' ? 'checked' : '' ?> required>
                 <label for="out" class='form-check-label'>
                     <?= esc(ucfirst(lang('tim_lang.exit'))) ?>
                 </label>

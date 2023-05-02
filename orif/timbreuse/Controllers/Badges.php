@@ -102,7 +102,6 @@ class Badges extends BaseController
 
     public function edit_badge_relation($badgeId=null)
     {
-        //helper('form');
         $post = $this->request->getPost(['timUserId', 'badgeId']);
         $badgeId = is_null($badgeId) ? $post['badgeId'] : $badgeId;
         if (is_null($badgeId)) {

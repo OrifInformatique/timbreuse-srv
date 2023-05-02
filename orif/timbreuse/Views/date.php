@@ -11,8 +11,10 @@
         }
         let date = document.getElementsByTagName('input');
         date = date[0];
-        date.onchange = function () {
-            setTimeout(redirection, 500);
+        //date.onchange = function () {
+        date.onfocusout = function () {
+            redirection();
+            //setTimeout(redirection, 500);
             
         }
     </script>

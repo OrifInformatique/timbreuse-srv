@@ -1,3 +1,9 @@
+<style>
+input:invalid {
+    border-color: #ae0000;
+    border-width: 2px;
+}
+</style>
 <section class="container">
     <h3><?= esc($h3title) ?></h3>
     <!-- <?= session()->getFlashdata('error') ?> -->
@@ -11,11 +17,11 @@
         <div class="form-row">
             <div class="form-group col-md-6">
                 <label for='name'><?=esc($nameLabel)?></label>
-                <input class="form-control" id='name'value='<?=esc($name)?>' name='name'>
+                <input class="form-control" id='name'value='<?=esc($name)?>' name='name' required>
             </div>
             <div class="form-group col-md-6">
                 <label for='surname'><?=esc($surnameLabel)?></label>
-                <input class="form-control" id='surname' value='<?=esc($surname)?>' name='surname'>
+                <input class="form-control" id='surname' value='<?=esc($surname)?>' name='surname' required>
             </div>
         </div>
 
@@ -28,7 +34,7 @@
             </div>
 
 
-            <input id='badgeId'  class="form-control"  list='badgeId_list' disabled autocomplete="off" value='<?=esc($badgeId)?>'>
+            <input id='badgeId'  class="form-control"  list='badgeId_list' disabled autocomplete="off" value='<?=esc($badgeId)?>' pattern="^\d*$">
                 <datalist id='badgeId_list'>
                     <?php foreach ($availableBadges as $badge):?>
                         <option value='<?=esc($badge)?>'>
