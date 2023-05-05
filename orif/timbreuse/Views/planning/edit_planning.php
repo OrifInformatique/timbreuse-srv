@@ -20,83 +20,91 @@ input:invalid {
 .grid-container {
     display: grid;
     /* this template when big windows*/
-    grid-template-columns: auto auto auto auto auto auto;
-    grid-template-rows: auto auto auto auto;
+    grid-template-columns: repeat(6, auto);
+    grid-template-rows: repeat(5, auto);
     gap: 20px;
     padding: 10px;
 }
 
+#dateBeginEnd {
+    display: grid;
+    grid-template-columns: repeat(4, auto);
+    grid-template-rows: repeat(1, auto);
+    text-align: center;
+    grid-area: 1 / 1 / span 1 / span 6 ;
+}
+
 #mondayLabel {
-    grid-area: 1 / 2 / span 1 / span 1 ;
+    grid-area: 2 / 2 / span 1 / span 1 ;
     text-align: center;
 }
 
 #tuesdayLabel {
-    grid-area: 1 / 3 / span 1 / span 1 ;
+    grid-area: 2 / 3 / span 1 / span 1 ;
     text-align: center;
 }
 
 #wednesdayLabel {
-    grid-area: 1 / 4 / span 1 / span 1;
+    grid-area: 2 / 4 / span 1 / span 1;
     text-align: center;
 }
 
 #thursdayLabel {
-    grid-area: 1 / 5 / span 1 / span 1;
+    grid-area: 2 / 5 / span 1 / span 1;
     text-align: center;
 }
 
 #fridayLabel {
-    grid-area: 1 / 6 / span 1 / span 1;
+    grid-area: 2 / 6 / span 1 / span 1;
     text-align: center;
 }
 
-#dueTimeLabel { grid-area: 2 / 1 / span 1 / span 1; }
+#dueTimeLabel { grid-area: 3 / 1 / span 1 / span 1; }
 
-#offeredTimeLabel { grid-area: 3 / 1 / span 1 / span 1; }
+#offeredTimeLabel { grid-area: 4 / 1 / span 1 / span 1; }
 
 #mondayDueTimeInput {
-    grid-area: 2 / 2 / span 1 / span 1;
-}
-
-#tuesdayDueTimeInput {
-    grid-area: 2 / 3 / span 1 / span 1;
-}
-
-#wednesdayDueTimeInput {
-    grid-area: 2 / 4 / span 1 / span 1;
-}
-
-#thursdayDueTimeInput {
-    grid-area: 2 / 5 / span 1 / span 1;
-}
-
-#fridayDueTimeInput {
-    grid-area: 2 / 6 / span 1 / span 1;
-}
-
-#mondayOfferedTimeInput {
     grid-area: 3 / 2 / span 1 / span 1;
 }
 
-#tuesdayOfferedTimeInput {
+#tuesdayDueTimeInput {
     grid-area: 3 / 3 / span 1 / span 1;
 }
 
-#wednesdayOfferedTimeInput {
+#wednesdayDueTimeInput {
     grid-area: 3 / 4 / span 1 / span 1;
 }
 
-#thursdayOfferedTimeInput {
+#thursdayDueTimeInput {
     grid-area: 3 / 5 / span 1 / span 1;
 }
 
-#fridayOfferedTimeInput {
+#fridayDueTimeInput {
     grid-area: 3 / 6 / span 1 / span 1;
 }
 
+#mondayOfferedTimeInput {
+    grid-area: 4 / 2 / span 1 / span 1;
+}
+
+#tuesdayOfferedTimeInput {
+    grid-area: 4 / 3 / span 1 / span 1;
+}
+
+#wednesdayOfferedTimeInput {
+    grid-area: 4 / 4 / span 1 / span 1;
+}
+
+#thursdayOfferedTimeInput {
+    grid-area: 4 / 5 / span 1 / span 1;
+}
+
+#fridayOfferedTimeInput {
+    grid-area: 4 / 6 / span 1 / span 1;
+}
+
 #buttonsSpace {
-    grid-area: 4 / 1 / span 1 / span 6; 
+    grid-area: 5 / 1 / span 1 / span 6; 
     text-align: right;
 }
 
@@ -110,51 +118,58 @@ input:invalid {
         padding: 10px;
     }
 
-    #mondayLabel { grid-area: 2 / 1 / span 1 / span 2 ; }
-    #tuesdayLabel { grid-area: 4 / 1 / span 1 / span 2 ; }
-    #wednesdayLabel { grid-area: 6 / 1 / span 1 / span 2; }
-    #thursdayLabel { grid-area: 8 / 1 / span 1 / span 2; }
-    #fridayLabel { grid-area: 10 / 1 / span 1 / span 2; }
+    #dateBeginEnd {
+        display: grid;
+        grid-template-columns: repeat(1, auto);
+        grid-template-rows: repeat(4, auto);
+        text-align: center;
+        grid-area: 1 / 1 / span 4 / span 2 ;
+    }
+    #mondayLabel { grid-area: 6 / 1 / span 1 / span 2 ; }
+    #tuesdayLabel { grid-area: 8 / 1 / span 1 / span 2 ; }
+    #wednesdayLabel { grid-area: 10 / 1 / span 1 / span 2; }
+    #thursdayLabel { grid-area: 12 / 1 / span 1 / span 2; }
+    #fridayLabel { grid-area: 14 / 1 / span 1 / span 2; }
     #dueTimeLabel {
-        grid-area: 1 / 1 / span 1 / span 1;
+        grid-area: 5 / 1 / span 1 / span 1;
         text-align: center;
     }
     #offeredTimeLabel {
-        grid-area: 1 / 2 / span 1 / span 1;
+        grid-area: 5 / 2 / span 1 / span 1;
         text-align: center;
     }
     #mondayDueTimeInput {
-        grid-area: 3 / 1 / span 1 / span 1;
-    }
-    #tuesdayDueTimeInput {
-        grid-area: 5 / 1 / span 1 / span 1;
-    }
-    #wednesdayDueTimeInput {
         grid-area: 7 / 1 / span 1 / span 1;
     }
-    #thursdayDueTimeInput {
+    #tuesdayDueTimeInput {
         grid-area: 9 / 1 / span 1 / span 1;
     }
-    #fridayDueTimeInput {
+    #wednesdayDueTimeInput {
         grid-area: 11 / 1 / span 1 / span 1;
     }
+    #thursdayDueTimeInput {
+        grid-area: 13 / 1 / span 1 / span 1;
+    }
+    #fridayDueTimeInput {
+        grid-area: 15 / 1 / span 1 / span 1;
+    }
     #mondayOfferedTimeInput {
-        grid-area: 3 / 2 / span 1 / span 1;
-    }
-    #tuesdayOfferedTimeInput {
-        grid-area: 5 / 2 / span 1 / span 1;
-    }
-    #wednesdayOfferedTimeInput {
         grid-area: 7 / 2 / span 1 / span 1;
     }
-    #thursdayOfferedTimeInput {
+    #tuesdayOfferedTimeInput {
         grid-area: 9 / 2 / span 1 / span 1;
     }
-    #fridayOfferedTimeInput {
+    #wednesdayOfferedTimeInput {
         grid-area: 11 / 2 / span 1 / span 1;
     }
+    #thursdayOfferedTimeInput {
+        grid-area: 13 / 2 / span 1 / span 1;
+    }
+    #fridayOfferedTimeInput {
+        grid-area: 15 / 2 / span 1 / span 1;
+    }
     #buttonsSpace {
-        grid-area: 12 / 1 / span 1 / span 2;
+        grid-area: 16 / 1 / span 1 / span 2;
         text-align: right;
     }
 }
@@ -169,6 +184,12 @@ input:invalid {
     <?php endif ?>
     <form class="grid-container" method="post">
         <?= csrf_field() ?>
+        <div id="dateBeginEnd" class="form-group">
+            <label id="dateBeginLabel" for="dateBegin"><?=$labels['dateBegin']?></label>
+            <input id="dateBegin" class="form-control" type="date" name="dateBegin" value=<?=$date_begin?> required>
+            <label id="dateBeginLabel" for="dateEnd"><?=$labels['dateEnd']?></label>
+            <input id="dateEnd" class="form-control" type="date" name="dateEnd" value=<?=$date_end?> required>
+        </div>
         <div id="mondayLabel">
             <?= esc($labels['monday']) ?>
         </div>

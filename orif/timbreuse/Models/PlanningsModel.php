@@ -72,7 +72,21 @@ class UserModel extends Model
             return '';
         }
         return "$names[surname] $names[name]";
+    }
 
+    public function get_begin_end_dates(int $planningId): array
+    {
+        $dates = $this->select('date_begin', 'date_end')
+            ->join_tim_user_and_planning()
+            ->find($planningId);
+        var_dump($dates);
+        if (!isset($dates['date_begin'])) {
+            $dates['date_begin'] = null;
+        }
+        if (!isset($dates['date_end'])) {
+            $dates['date_end'] = null;
+        }
+        return $dates;
     }
 
 

@@ -87,6 +87,8 @@ class Plannings extends BaseController
         $data['offeredTime'] = ucfirst(lang('tim_lang.offeredTime'));
         $data['cancel'] = ucfirst(lang('tim_lang.cancel'));
         $data['save'] = ucfirst(lang('common_lang.btn_save'));
+        $data['dateBegin'] = ucfirst(lang('tim_lang.dateBegin'));
+        $data['dateEnd'] = lang('tim_lang.dateEnd');
         return $data;
 
     }
@@ -125,6 +127,7 @@ class Plannings extends BaseController
         }
         $data = $this->get_planning_hours_minutes_or_old_post($planningId,
             $model);
+        $data = array_merge($data, $model->get_begin_end_dates($planningId));
         $data['title'] = ucfirst(lang('tim_lang.titlePlanning'));
         $data['h3title'] = ucfirst(sprintf(lang('tim_lang.titlePlanning'),
             $model->get_tim_user_names($planningId)));

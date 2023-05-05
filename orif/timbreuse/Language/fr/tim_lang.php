@@ -83,4 +83,6 @@ return [
     'dueTime' => 'temps exigé',
     'offeredTime' => 'temps offert',
     'titleList' => 'liste planning',
+    'dateBegin' => 'valable du',
+    'dateEnd' => 'au',
 ];
