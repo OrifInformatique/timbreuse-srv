@@ -63,6 +63,18 @@ class UserModel extends Model
         }, $planning);
     }
 
+    public function get_tim_user_names(int $planningId): string
+    {
+        $names =  $this->select('name, surname')
+            ->join_tim_user_and_planning()
+            ->find($planningId);
+        if (!isset($names['surname'], $names['name'])) {
+            return '';
+        }
+        return "$names[surname] $names[name]";
+
+    }
+
 
     public function parse_hours_minutes(string $time)
     {

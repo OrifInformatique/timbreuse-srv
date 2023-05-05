@@ -79,7 +79,8 @@ return [
     'confirmDeleteTimUser' => ' Cet utilisateur est attribué au badge ID « %s ».',
     'titleConfirmDeleteBadge' => 'Supprimer le badge ID %s',
     'titleconfirmDeleteTimUser' => 'Supprimer l’utilisateur « %s %s »',
-    'titlePlanning' => 'emploi du temps',
+    'titlePlanning' => 'planning hebdomadaire %s',
     'dueTime' => 'temps exigé',
-    'offeredTime' => 'Temps non pointé',
+    'offeredTime' => 'temps offert',
+    'titleList' => 'liste planning',
 ];

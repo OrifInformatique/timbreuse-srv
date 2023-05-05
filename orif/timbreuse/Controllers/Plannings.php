@@ -103,6 +103,11 @@ class Plannings extends BaseController
         return get_ci_user_id();
     }
 
+    public function create_planning($timUserId)
+    {
+
+    }
+
     public function edit_planning($planningId=null)
     {
         if (($this->request->getMethod() === 'post')
@@ -121,7 +126,8 @@ class Plannings extends BaseController
         $data = $this->get_planning_hours_minutes_or_old_post($planningId,
             $model);
         $data['title'] = ucfirst(lang('tim_lang.titlePlanning'));
-        $data['h3title'] = ucfirst(lang('tim_lang.titlePlanning'));
+        $data['h3title'] = ucfirst(sprintf(lang('tim_lang.titlePlanning'),
+            $model->get_tim_user_names($planningId)));
         $data['labels'] = $this->get_label_for_edit_planning();
         $data['planningId'] = $planningId;
         $data['action'] = '.';
@@ -211,6 +217,17 @@ class Plannings extends BaseController
     protected function block_ci_user()
     {
         return $this->display_view('\User\errors\403error');
+    }
+
+    public function plannings_list()
+    {
+        $data['list_title'] = ucfirst(lang('tim_lang.titleList'));
+
+    }
+
+    protected function get_default_planning_id(): int
+    {
+        return config('\Timbreuse\Config\PlanningConfig')->defaultPlanningId;
     }
 
 }

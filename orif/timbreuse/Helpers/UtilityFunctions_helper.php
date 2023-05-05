@@ -20,7 +20,7 @@ function create_token(string ...$texts)
 function is_admin()
 {
     return session()->get('user_access') == config('\User\Config\UserConfig')
-                    ->access_lvl_admin;
+        ->access_lvl_admin;
 }
 
 function get_ci_user_id()
