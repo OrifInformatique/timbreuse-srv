@@ -1,6 +1,6 @@
 <?php if (isset($date)) : ?>
     <div class="container py-1">
-            <input type='date' class='form-control' value='<?= esc($date) ?>'>
+            <input type='date' class='form-control' value='<?= esc($date) ?>' min="1948-04-17">
     </div>
     <script>
         function redirection() {

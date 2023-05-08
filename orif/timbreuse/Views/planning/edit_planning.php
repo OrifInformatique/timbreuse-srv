@@ -186,9 +186,9 @@ input:invalid {
         <?= csrf_field() ?>
         <div id="dateBeginEnd" class="form-group">
             <label id="dateBeginLabel" for="dateBegin"><?=$labels['dateBegin']?></label>
-            <input id="dateBegin" class="form-control" type="date" name="dateBegin" value=<?=$date_begin?> required>
+            <input id="dateBegin" class="form-control" type="date" name="dateBegin" value="<?=$date_begin?>" required min="1948-04-17">
             <label id="dateBeginLabel" for="dateEnd"><?=$labels['dateEnd']?></label>
-            <input id="dateEnd" class="form-control" type="date" name="dateEnd" value=<?=$date_end?> required>
+            <input id="dateEnd" class="form-control" type="date" name="dateEnd" value="<?=$date_end?>" min="1948-04-17">
         </div>
         <div id="mondayLabel">
             <?= esc($labels['monday']) ?>

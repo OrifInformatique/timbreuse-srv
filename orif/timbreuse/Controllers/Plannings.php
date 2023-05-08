@@ -13,8 +13,10 @@ use CodeIgniter\I18n\Time;
 
 class Plannings extends BaseController
 {
-    private $validateArray = [
+    private $rules = [
             'planningId' => 'required|integer',
+            'dateBegin' => 'required|valid_date',
+            'dateEnd' => 'permit_empty|valid_date',
             'dueHoursMonday' => 'greater_than_equal_to[0]'
             . '|less_than_equal_to[10]|required',
             'dueMinutesMonday' => 'greater_than_equal_to[0]'
@@ -113,7 +115,7 @@ class Plannings extends BaseController
     public function edit_planning($planningId=null)
     {
         if (($this->request->getMethod() === 'post')
-            and ($this->validate($this->validateArray))) {
+            and ($this->validate($this->rules))) {
             return $this->post_edit_planning();
         }
         $planningId = $this->request->getPost('planningId') ?? $planningId;
@@ -142,13 +144,30 @@ class Plannings extends BaseController
         $model)
     {
         if ($this->request->getMethod() === 'post') {
-            return $this->format_post_old();
+            return $this->format_post_old_times();
         } else {
             return $model->get_planning_hours_minutes($planningId);
         }
     }
 
-    protected function format_post_old()
+    protected function get_begin_end_dates_or_old_post($planningId): array
+    {
+        if ($this->request->getMethod() === 'post') {
+            return $this->format_post_old_dates();
+        } else {
+            return $model->get_begin_end_dates($planningId);
+        }
+    }
+
+    protected function format_post_old_dates(): array
+    {
+        $post = $this->request->getPost();
+        $data = array();
+        $data['date_begin'] = $post['dateBegin'];
+        $data['date_end'] = $post['dateEnd'];
+        return $data;
+    }
+    protected function format_post_old_times()
     {
         $names = $this->get_array_for_format_post_old();
         $post = $this->request->getPost();
@@ -195,14 +214,27 @@ class Plannings extends BaseController
     {
         $model = model(PlanningsModel::class);
         $post = $this->request->getPost();
-        $formatedArray = $this->format_form_array($post);
+        $formatedTimeArray = $this->format_form_time_array($post);
+        $datesArray = $this->format_form_dates($post);
+
+        #$mergedArray = array_merge($formatedTimeArray, $datesArray);
         if (isset($post['planningId'])) {
-            $model->update($post['planningId'], $formatedArray);
+            $model->update_planning_times_and_dates($post['planningId'],
+                $formatedTimeArray, $datesArray);
         }
-        return redirect()->to(current_url() . '/../../../');
+        # return redirect()->to(current_url() . '/../../../');
     }
 
-    protected function format_form_array($formArray)
+    protected function format_form_dates(array $formArray): array
+    {
+        $formatedArray = array();
+        $formatedArray['date_begin'] = $formArray['dateBegin'] ?? null;
+        $formatedArray['date_end'] = $formArray['dateEnd'] ?? null;
+        return $formatedArray;
+    }
+
+
+    protected function format_form_time_array(array $formArray): array
     {
         $names = $this->get_array_for_format_post_old();
         $formatedArray = array();
