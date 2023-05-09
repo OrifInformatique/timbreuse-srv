@@ -3,6 +3,7 @@
 namespace Timbreuse\Validation;
 use Timbreuse\Models\BadgesModel;
 use Timbreuse\Models\UsersModel;
+use Timbreuse\Models\PlanningsModel;
 
 class TimbreuseRules
 {
@@ -46,4 +47,21 @@ class TimbreuseRules
         $error = lang('tim_lang.user_not_available');
         return false;
     }
+
+    public function cb_available_date(string $newDateBegin,
+        string $params, array $data, &$error=null) : bool
+    {
+        $params = explode(',', $params);
+        $timUserId = $params[0];
+        $planningId = $params[1];
+        $period['date_begin'] = $data['dateBegin'];
+        $period['date_end'] = $data['dateEnd'];
+        $model = model(PlanningsModel::class);
+        if ($model->is_available_period($timUserId, $period, $planningId)) {
+            return true;
+        }
+        $error = lang('tim_lang.dateColide');
+        return false;
+    }
+
 }

@@ -85,4 +85,5 @@ return [
     'titleList' => 'liste planning',
     'dateBegin' => 'valable du',
     'dateEnd' => 'au',
+    'dateColide' => 'Il y a déjà un planning pour les dates saisies.',
 ];

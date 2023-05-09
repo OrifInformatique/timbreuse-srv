@@ -9,4 +9,4 @@ VALUES ('08:12:00', '00:30:00', '08:12:00', '00:30:00', '08:12:00',
 
 INSERT INTO user_planning
     (id_user, id_planning, date_begin, date_end)
-VALUES (92, 2, NULL, NULL);
+VALUES (92, 3, NULL, NULL);

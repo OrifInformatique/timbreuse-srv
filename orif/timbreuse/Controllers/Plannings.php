@@ -13,51 +13,59 @@ use CodeIgniter\I18n\Time;
 
 class Plannings extends BaseController
 {
-    private $rules = [
-            'planningId' => 'required|integer',
-            'dateBegin' => 'required|valid_date',
-            'dateEnd' => 'permit_empty|valid_date',
-            'dueHoursMonday' => 'greater_than_equal_to[0]'
-            . '|less_than_equal_to[10]|required',
-            'dueMinutesMonday' => 'greater_than_equal_to[0]'
-            . '|less_than_equal_to[59]|required',
-            'dueHoursTuesday' => 'greater_than_equal_to[0]'
-            . '|less_than_equal_to[10]|required',
-            'dueMinutesTuesday' => 'greater_than_equal_to[0]'
-            . '|less_than_equal_to[59]|required',
-            'dueHoursWednesday' => 'greater_than_equal_to[0]'
-            . '|less_than_equal_to[10]|required',
-            'dueMinutesWednesday' => 'greater_than_equal_to[0]'
-            . '|less_than_equal_to[59]|required',
-            'dueHoursThursday' => 'greater_than_equal_to[0]'
-            . '|less_than_equal_to[10]|required',
-            'dueMinutesThursday' => 'greater_than_equal_to[0]'
-            . '|less_than_equal_to[59]|required',
-            'dueHoursFriday' => 'greater_than_equal_to[0]'
-            . '|less_than_equal_to[10]|required',
-            'dueMinutesFriday' => 'greater_than_equal_to[0]'
-            . '|less_than_equal_to[59]|required',
-            'offeredHoursMonday' => 'greater_than_equal_to[0]'
-            . '|less_than_equal_to[10]|required',
-            'offeredMinutesMonday' => 'greater_than_equal_to[0]'
-            . '|less_than_equal_to[59]|required',
-            'offeredHoursTuesday' => 'greater_than_equal_to[0]'
-            . '|less_than_equal_to[10]|required',
-            'offeredMinutesTuesday' => 'greater_than_equal_to[0]'
-            . '|less_than_equal_to[59]|required',
-            'offeredHoursWednesday' => 'greater_than_equal_to[0]'
-            . '|less_than_equal_to[10]|required',
-            'offeredMinutesWednesday' => 'greater_than_equal_to[0]'
-            . '|less_than_equal_to[59]|required',
-            'offeredHoursThursday' => 'greater_than_equal_to[0]'
-            . '|less_than_equal_to[10]|required',
-            'offeredMinutesThursday' => 'greater_than_equal_to[0]'
-            . '|less_than_equal_to[59]|required',
-            'offeredHoursFriday' => 'greater_than_equal_to[0]'
-            . '|less_than_equal_to[10]|required',
-            'offeredMinutesFriday' => 'greater_than_equal_to[0]'
-            . '|less_than_equal_to[59]|required',
-        ]; 
+    protected function get_rules(int $planningId) : array
+    {
+        $rules['planningId'] = 'required|integer';
+
+        $rules['dateBegin'] = 'required|valid_date';
+        $model = model(PlanningsModel::class);
+        $timUserId = $model->get_tim_user_id($planningId);
+        if ($timUserId) {
+            $rules['dateEnd'] 
+                = "cb_available_date[$timUserId, $planningId]";
+        }
+        $rules['dueHoursMonday'] = 'greater_than_equal_to[0]'
+            . '|less_than_equal_to[10]|required';
+        $rules['dueMinutesMonday'] = 'greater_than_equal_to[0]'
+            . '|less_than_equal_to[59]|required';
+        $rules['dueHoursTuesday'] = 'greater_than_equal_to[0]'
+            . '|less_than_equal_to[10]|required';
+        $rules['dueMinutesTuesday'] = 'greater_than_equal_to[0]'
+            . '|less_than_equal_to[59]|required';
+        $rules['dueHoursWednesday'] = 'greater_than_equal_to[0]'
+            . '|less_than_equal_to[10]|required';
+        $rules['dueMinutesWednesday'] = 'greater_than_equal_to[0]'
+            . '|less_than_equal_to[59]|required';
+        $rules['dueHoursThursday'] = 'greater_than_equal_to[0]'
+            . '|less_than_equal_to[10]|required';
+        $rules['dueMinutesThursday'] = 'greater_than_equal_to[0]'
+            . '|less_than_equal_to[59]|required';
+        $rules['dueHoursFriday'] = 'greater_than_equal_to[0]'
+            . '|less_than_equal_to[10]|required';
+        $rules['dueMinutesFriday'] = 'greater_than_equal_to[0]'
+            . '|less_than_equal_to[59]|required';
+        $rules['offeredHoursMonday'] = 'greater_than_equal_to[0]'
+            . '|less_than_equal_to[10]|required';
+        $rules['offeredMinutesMonday'] = 'greater_than_equal_to[0]'
+            . '|less_than_equal_to[59]|required';
+        $rules['offeredHoursTuesday'] = 'greater_than_equal_to[0]'
+            . '|less_than_equal_to[10]|required';
+        $rules['offeredMinutesTuesday'] = 'greater_than_equal_to[0]'
+            . '|less_than_equal_to[59]|required';
+        $rules['offeredHoursWednesday'] = 'greater_than_equal_to[0]'
+            . '|less_than_equal_to[10]|required';
+        $rules['offeredMinutesWednesday'] = 'greater_than_equal_to[0]'
+            . '|less_than_equal_to[59]|required';
+        $rules['offeredHoursThursday'] = 'greater_than_equal_to[0]'
+            . '|less_than_equal_to[10]|required';
+        $rules['offeredMinutesThursday'] = 'greater_than_equal_to[0]'
+            . '|less_than_equal_to[59]|required';
+        $rules['offeredHoursFriday'] = 'greater_than_equal_to[0]'
+            . '|less_than_equal_to[10]|required';
+        $rules['offeredMinutesFriday'] = 'greater_than_equal_to[0]'
+            . '|less_than_equal_to[59]|required';
+        return $rules;
+    }
 
 
     public function initController(RequestInterface $request,
@@ -112,10 +120,10 @@ class Plannings extends BaseController
 
     }
 
-    public function edit_planning($planningId=null)
+    public function edit_planning(?int $planningId=null)
     {
         if (($this->request->getMethod() === 'post')
-            and ($this->validate($this->rules))) {
+                and ($this->validate($this->get_rules($planningId)))) {
             return $this->post_edit_planning();
         }
         $planningId = $this->request->getPost('planningId') ?? $planningId;
@@ -127,17 +135,24 @@ class Plannings extends BaseController
                 and (!$this->is_admin())) {
             return $this->block_ci_user();
         }
+        $data = $this->get_data_for_edit_planning($planningId, $model);
+        $this->display_view(['Timbreuse\Views\planning\edit_planning.php'],
+            $data);
+    }
+
+    protected function get_data_for_edit_planning($planningId, $model): array
+    {
         $data = $this->get_planning_hours_minutes_or_old_post($planningId,
             $model);
-        $data = array_merge($data, $model->get_begin_end_dates($planningId));
+        $data = array_merge($data, $this->get_begin_end_dates_or_old_post(
+            $planningId, $model));
         $data['title'] = ucfirst(lang('tim_lang.titlePlanning'));
         $data['h3title'] = ucfirst(sprintf(lang('tim_lang.titlePlanning'),
             $model->get_tim_user_names($planningId)));
         $data['labels'] = $this->get_label_for_edit_planning();
         $data['planningId'] = $planningId;
         $data['action'] = '.';
-        $this->display_view(['Timbreuse\Views\planning\edit_planning.php'],
-            $data);
+        return $data;
     }
 
     protected function get_planning_hours_minutes_or_old_post($planningId,
@@ -150,7 +165,11 @@ class Plannings extends BaseController
         }
     }
 
-    protected function get_begin_end_dates_or_old_post($planningId): array
+    /**
+        * get dates from post or from the model
+    */
+    protected function get_begin_end_dates_or_old_post($planningId,
+        $model): array
     {
         if ($this->request->getMethod() === 'post') {
             return $this->format_post_old_dates();
@@ -222,7 +241,7 @@ class Plannings extends BaseController
             $model->update_planning_times_and_dates($post['planningId'],
                 $formatedTimeArray, $datesArray);
         }
-        # return redirect()->to(current_url() . '/../../../');
+        // return redirect()->to(current_url() . '/../../../');
     }
 
     protected function format_form_dates(array $formArray): array
