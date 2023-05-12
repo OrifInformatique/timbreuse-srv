@@ -8,6 +8,7 @@ use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Timbreuse\Models\PlanningsModel;
+use CodeIgniter\Model;
 
 use CodeIgniter\I18n\Time;
 
@@ -69,7 +70,7 @@ class Plannings extends BaseController
 
 
     public function initController(RequestInterface $request,
-        ResponseInterface $response, LoggerInterface $logger)
+        ResponseInterface $response, LoggerInterface $logger): void
     {
         $this->access_level = config('\User\Config\UserConfig')
              ->access_lvl_registered;
@@ -85,7 +86,7 @@ class Plannings extends BaseController
         return redirect()->to(current_url() . '/' . 'edit_planning/');
     }
 
-    private function get_label_for_edit_planning()
+    private function get_label_for_edit_planning(): array
     {
 
         $data['monday'] = ucfirst(lang('tim_lang.monday'));
@@ -103,24 +104,31 @@ class Plannings extends BaseController
 
     }
 
-    protected function is_admin()
+    protected function is_admin(): bool
     {
         helper('UtilityFunctions');
         return is_admin();
     }
 
-    protected function get_ci_user_id()
+    protected function get_ci_user_id(): bool
     {
         helper('UtilityFunctions');
         return get_ci_user_id();
     }
 
-    public function create_planning($timUserId)
+    public function create_planning(int $timUserId)
     {
+        # to do
 
+        $this->get_data_for_create_planning();
     }
 
-    protected function edit_user_planning(?int $planningId=null)
+    protected function get_data_for_create_planning($model): array
+    {
+        # to do
+    }
+
+    public function edit_user_planning(?int $planningId=null)
     {
         if (($this->request->getMethod() === 'post')
                 and ($this->validate($this->get_rules($planningId)))) {
@@ -143,22 +151,22 @@ class Plannings extends BaseController
     public function edit_planning(?int $planningId=null)
     {
         if ($planningId == $this->get_default_planning_id()) {
-            return $this->edit_default_planning();
+
+            $url = current_url() . '/../../../DefaultPlannings/edit_planning';
+            return redirect()->to($url);
+            //return DefaultPlannings->edit_planning();
         }
         return $this->edit_user_planning($planningId);
     }
 
-    protected function edit_default_planning()
-    {
-        $this->get_default_planning_id()
-    }
-
-    protected function get_data_for_edit_planning($planningId, $model): array
+    /**
+     * common between planning standard for user and the default planning
+    **/
+    protected function get_common_data_for_edit_planning(int $planningId,
+        Model $model): array
     {
         $data = $this->get_planning_hours_minutes_or_old_post($planningId,
             $model);
-        $data = array_merge($data, $this->get_begin_end_dates_or_old_post(
-            $planningId, $model));
         $data['title'] = ucfirst(lang('tim_lang.titlePlanning'));
         $data['h3title'] = ucfirst(sprintf(lang('tim_lang.titlePlanning'),
             $model->get_tim_user_names($planningId)));
@@ -168,8 +176,17 @@ class Plannings extends BaseController
         return $data;
     }
 
-    protected function get_planning_hours_minutes_or_old_post($planningId,
-        $model)
+    protected function get_data_for_edit_planning(int $planningId, 
+        Model $model): array
+    {
+        $data = $this->get_common_data_for_edit_planning($planningId, $model);
+        $data = array_merge($data, $this->get_begin_end_dates_or_old_post(
+            $planningId, $model));
+        return $data;
+    }
+
+    protected function get_planning_hours_minutes_or_old_post(int $planningId,
+        Model $model): array
     {
         if ($this->request->getMethod() === 'post') {
             return $this->format_post_old_times();
@@ -181,8 +198,8 @@ class Plannings extends BaseController
     /**
         * get dates from post or from the model
     */
-    protected function get_begin_end_dates_or_old_post($planningId,
-        $model): array
+    protected function get_begin_end_dates_or_old_post(int $planningId,
+        Model $model): array
     {
         if ($this->request->getMethod() === 'post') {
             return $this->format_post_old_dates();
@@ -199,7 +216,7 @@ class Plannings extends BaseController
         $data['date_end'] = $post['dateEnd'];
         return $data;
     }
-    protected function format_post_old_times()
+    protected function format_post_old_times(): array
     {
         $names = $this->get_array_for_format_post_old();
         $post = $this->request->getPost();
@@ -214,7 +231,7 @@ class Plannings extends BaseController
         return $data;
     }
 
-    protected function get_array_for_format_post_old()
+    protected function get_array_for_format_post_old(): array
     {
         $names = array();
         $names['dueHoursMonday'] = 'due_time_monday';
@@ -254,7 +271,7 @@ class Plannings extends BaseController
             $model->update_planning_times_and_dates($post['planningId'],
                 $formatedTimeArray, $datesArray);
         }
-        // return redirect()->to(current_url() . '/../../../');
+        return redirect()->to(current_url() . '/../../../');
     }
 
     protected function format_form_dates(array $formArray): array
@@ -288,6 +305,7 @@ class Plannings extends BaseController
 
     public function plannings_list()
     {
+        # to do
         $data['list_title'] = ucfirst(lang('tim_lang.titleList'));
 
     }
@@ -298,4 +316,3 @@ class Plannings extends BaseController
     }
 
 }
-

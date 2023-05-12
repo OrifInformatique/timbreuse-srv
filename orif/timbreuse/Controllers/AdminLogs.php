@@ -2,7 +2,6 @@
 
 namespace Timbreuse\Controllers;
 
-use App\Controllers\BaseController;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
@@ -21,9 +20,8 @@ class AdminLogs extends PersoLogs
     {
         $this->access_level = config( '\User\Config\UserConfig'
         )->access_lvl_admin;
-        # parent::initController($request, $response, $logger);
-        # otherwise is take acces of PersoLogs
-        Basecontroller::initController($request, $response, $logger);
+        get_parent_class(parent::class)::initController($request, $response,
+                $logger);
         $this->session = \Config\Services::session();
     }
 
