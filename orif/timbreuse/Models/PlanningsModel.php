@@ -156,13 +156,15 @@ class UserModel extends Model
 
     public function is_colide_period(array $period, array $otherPeriod): bool
     {
+        if (!isset($period['date_begin'], $otherPeriod['date_begin'])) {
+            return false;
+        }
         $p1 = time::parse($period['date_begin']);
         $p2 = time::parse($period['date_end']);
         $o1 = time::parse($otherPeriod['date_begin']);
         $o2 = time::parse($otherPeriod['date_end']);
         $periodIdBeforeOther = ($p1->isBefore($o1) and $p2->isBefore($o1));
         $periodIdAfterOther = ($p1->isAfter($o2) and $p2->isAfter($o2));
-        var_dump($periodIdAfterOther);
         $isNotColide = ($periodIdBeforeOther or $periodIdAfterOther);
         return !$isNotColide;
     }

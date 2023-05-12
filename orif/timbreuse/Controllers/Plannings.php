@@ -120,7 +120,7 @@ class Plannings extends BaseController
 
     }
 
-    public function edit_planning(?int $planningId=null)
+    protected function edit_user_planning(?int $planningId=null)
     {
         if (($this->request->getMethod() === 'post')
                 and ($this->validate($this->get_rules($planningId)))) {
@@ -138,6 +138,19 @@ class Plannings extends BaseController
         $data = $this->get_data_for_edit_planning($planningId, $model);
         $this->display_view(['Timbreuse\Views\planning\edit_planning.php'],
             $data);
+    }
+
+    public function edit_planning(?int $planningId=null)
+    {
+        if ($planningId == $this->get_default_planning_id()) {
+            return $this->edit_default_planning();
+        }
+        return $this->edit_user_planning($planningId);
+    }
+
+    protected function edit_default_planning()
+    {
+        $this->get_default_planning_id()
     }
 
     protected function get_data_for_edit_planning($planningId, $model): array
