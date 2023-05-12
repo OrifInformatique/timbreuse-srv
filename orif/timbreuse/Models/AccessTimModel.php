@@ -51,10 +51,10 @@ class AccessTimModel extends Model
 
     }
 
-    public function get_tim_user($ciUserId): int
+    public function get_tim_user_id($ciUserId): ?int
     {
         return $this->select('id_user')
-            ->where('id_ci_user', $ciUserId)->first()['id_user'];
+            ->where('id_ci_user', $ciUserId)->first()['id_user'] ?? null;
     }
 
 

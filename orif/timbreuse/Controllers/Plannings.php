@@ -8,6 +8,7 @@ use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Timbreuse\Models\PlanningsModel;
+use Timbreuse\Models\AccessTimModel;
 use CodeIgniter\Model;
 
 use CodeIgniter\I18n\Time;
@@ -110,22 +111,46 @@ class Plannings extends BaseController
         return is_admin();
     }
 
-    protected function get_ci_user_id(): bool
+    protected function get_ci_user_id(): ?int
     {
         helper('UtilityFunctions');
         return get_ci_user_id();
     }
 
-    public function create_planning(int $timUserId)
+    protected function get_tim_user_id(): ?int
+    {
+        helper('UtilityFunctions');
+        return get_tim_user_id();
+    }
+
+    public function create_planning(?int $timUserId=null)
     {
         # to do
+        $timUserId = $timUserId ?? $this->get_tim_user_id(); 
 
-        $this->get_data_for_create_planning();
+        $model = model(PlanningsModel::class);
+        $data = $this->get_data_for_create_planning($model);
+        #  test to remove
+        $data['planningId'] = null;
+        $this->display_view(['Timbreuse\Views\planning\edit_planning.php'],
+            $data);
     }
 
     protected function get_data_for_create_planning($model): array
     {
         # to do
+        $defaultPlanningId = $this ->get_default_planning_id();
+        $data = $this->get_planning_hours_minutes_or_old_post(
+                $defaultPlanningId, $model);
+        $data = array_merge($data, $this->get_begin_end_dates_or_old_post(
+                $defaultPlanningId, $model));
+        $data['h3title'] = ucfirst(lang('tim_lang.titleNewPlanning'));
+        $data['title'] = $data['h3title'];
+
+        # to do rename get_label_for_edit_planning
+        $data['labels'] = $this->get_label_for_edit_planning();
+        $data['action'] = '.';
+        return $data;
     }
 
     public function edit_user_planning(?int $planningId=null)
@@ -167,9 +192,9 @@ class Plannings extends BaseController
     {
         $data = $this->get_planning_hours_minutes_or_old_post($planningId,
             $model);
-        $data['title'] = ucfirst(lang('tim_lang.titlePlanning'));
         $data['h3title'] = ucfirst(sprintf(lang('tim_lang.titlePlanning'),
             $model->get_tim_user_names($planningId)));
+        $data['title'] = $data['h3title'];
         $data['labels'] = $this->get_label_for_edit_planning();
         $data['planningId'] = $planningId;
         $data['action'] = '.';

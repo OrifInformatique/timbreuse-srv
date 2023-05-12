@@ -23,7 +23,13 @@ function is_admin()
         ->access_lvl_admin;
 }
 
-function get_ci_user_id()
+function get_ci_user_id(): ?int
 {
     return session()->get('user_id');
+}
+
+function get_tim_user_id(): ?int
+{
+    $model = model('AccessTimModel');
+    return $model->get_tim_user_id(get_ci_user_id());
 }

@@ -80,6 +80,7 @@ return [
     'titleConfirmDeleteBadge' => 'Supprimer le badge ID %s',
     'titleconfirmDeleteTimUser' => 'Supprimer l’utilisateur « %s %s »',
     'titlePlanning' => 'planning hebdomadaire %s',
+    'titleNewPlanning' => 'Nouveau planning hebdomadaire %s',
     'dueTime' => 'temps exigé',
     'offeredTime' => 'temps offert',
     'titleList' => 'liste planning',

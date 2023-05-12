@@ -404,7 +404,7 @@ class PersoLogs extends BaseController
         $ci_id_user = $this->get_ci_user_id();
         $accessModel = model(AccessTimModel::class);
         if ($accessModel->have_one_access($ci_id_user)) {
-            $timUserId = $accessModel->get_tim_user($ci_id_user);
+            $timUserId = $accessModel->get_tim_user_id($ci_id_user);
             return redirect()->to(current_url() . '/../../AdminLogs/time_list/'
                 .$timUserId);
         } else {
@@ -1218,8 +1218,8 @@ class PersoLogs extends BaseController
     private function test24()
     {
         $model = model(AccessTimModel::class);
-        var_dump($model->get_tim_user(10));
-        return $model->get_tim_user(10);
+        var_dump($model->get_tim_user_id(10));
+        return $model->get_tim_user_id(10);
     }
     
 
