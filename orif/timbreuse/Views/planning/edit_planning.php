@@ -13,7 +13,7 @@ input:invalid {
 
 .grid-hour-input {
     display: grid;
-    grid-template-columns: auto auto auto;
+    grid-template-columns: repeat(3, auto);
     grid-template-rows: auto;
 }
 
@@ -112,8 +112,8 @@ input:invalid {
     .grid-container {
         display: grid;
         /* this template when small windows*/
-        grid-template-columns: auto auto;
-        grid-template-rows: auto auto auto auto auto auto auto auto auto auto auto auto;
+        grid-template-columns: repeat(2, auto);
+        grid-template-rows: repeat(12, auto);
         gap: 20px;
         padding: 10px;
     }
@@ -285,7 +285,8 @@ input:invalid {
           <option value="30">
           <option value="45">
         </datalist>
-        <input type="hidden" name="planningId" value="<?=esc($planningId)?>">
+        <input type="hidden" name="planningId" value="<?=esc($planningId ?? null)?>">
+        <input type="hidden" name="timUserId" value="<?=esc($timUserId ?? null)?>">
 
     </form>
 </section>

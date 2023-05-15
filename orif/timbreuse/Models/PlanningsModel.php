@@ -4,7 +4,7 @@ namespace Timbreuse\Models;
 use CodeIgniter\Model;
 use CodeIgniter\I18n\Time;
 
-class UserModel extends Model 
+class PlanningModel extends Model 
 {
     protected $table = 'planning';
     protected $primaryKey ='id_planning';
@@ -28,7 +28,7 @@ class UserModel extends Model
              -> find($planningId);
     }
 
-    public function select_time(): UserModel 
+    public function select_time(): PlanningModel 
     {
         return $this->select('due_time_monday, offered_time_monday, '
         . 'due_time_tuesday, offered_time_tuesday, due_time_wednesday, '
@@ -37,20 +37,20 @@ class UserModel extends Model
 
     }
 
-    public function join_tim_user_and_planning(): UserModel 
+    public function join_tim_user_and_planning(): PlanningModel 
     {
         return $this->join_planning_and_user_planning()
              ->join('user_sync', 'user_sync.id_user = user_planning.id_user');
     }
 
-    public function join_ci_user_and_tim_user(): UserModel 
+    public function join_ci_user_and_tim_user(): PlanningModel 
     {
         return $this->join_tim_user_and_planning()->join('access_tim_user',
             'access_tim_user.id_user = user_planning.id_user')
             ->join('ci_user', 'ci_user.id = access_tim_user.id_ci_user');
     }
 
-    public function join_planning_and_user_planning(): UserModel 
+    public function join_planning_and_user_planning(): PlanningModel 
     {
         return $this->join('user_planning',
             'user_planning.id_planning = planning.id_planning');
@@ -204,6 +204,20 @@ class UserModel extends Model
         return $this->select('id_user')
             ->join_planning_and_user_planning()
             ->find($planningId)['id_user'] ?? null;
+    }
+
+    public function insert_planning_times_and_dates(int $timUserId,
+        array $times, array $dates): void
+    {
+        $this->db->transStart();
+        $this->insert($times);
+        $values['id_planning'] = $this->selectMax('id_planning')
+            ->first();
+        $values['id_user'] = $timUserId;
+        $values = array_merge($values, $dates);
+        $this->db->table('user_planning')
+            ->insert($values);
+        $this->db->transComplete();
     }
 
     public function update_planning_times_and_dates(int $planningId,

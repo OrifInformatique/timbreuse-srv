@@ -34,7 +34,7 @@ class UserModel extends Model
         return boolval($this->findAll());
     }
 
-    public function get_names($userId)
+    public function get_names(int $userId): array
     {
         return $this->select('name, surname')->find($userId);
     }

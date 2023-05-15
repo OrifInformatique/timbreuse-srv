@@ -34,11 +34,11 @@ class AccessTimModel extends Model
             ->findall();
     }
 
-    public function is_access($ciIdUser, $userId): bool
+    public function is_access(int $ciIdUser, int $timUserId): bool
     {
         $access = $this->select('id_user')
             ->where('id_ci_user', $ciIdUser)
-            ->where('id_user', $userId)
+            ->where('id_user', $timUserId)
             ->findall();
         return !empty($access);
     }
