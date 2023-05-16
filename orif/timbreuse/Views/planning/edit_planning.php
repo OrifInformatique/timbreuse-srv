@@ -264,7 +264,7 @@ input:invalid {
             <input id="offeredMinutesFriday" class="form-control" type="number" name="offeredMinutesFriday" list="defaultMinutes" step="1" min="0" max="59" required value="<?=esc($offered_time_friday['minute'])?>">
         </div>
         <div id="buttonsSpace" class="form-group">
-        <a class="btn btn-link" href=""><?= esc($labels['cancel'])?></a>
+        <a class="btn btn-secondary" href=""><?= esc($labels['cancel'])?></a>
         <input class="btn btn-primary" type="submit" value=<?= esc($labels['save'])?>>
         </div>
 

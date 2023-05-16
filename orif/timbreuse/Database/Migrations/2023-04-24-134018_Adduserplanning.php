@@ -20,11 +20,16 @@ class Adduserplanning extends Migration
 		$field['id_planning']['type'] = 'INT';
 		$field['id_planning']['null'] = false;
 
-		$field['date_begin']['type'] = 'DATE';
-		$field['date_begin']['null'] = true;
+        $field[0] = 
+            '`date_begin` DATE DEFAULT NULL CHECK (`date_begin` < `date_end`)';
+        $field[1] = 
+            '`date_end` DATE DEFAULT NULL CHECK (`date_end` > `date_begin`)';
 
-		$field['date_end']['type'] = 'DATE';
-		$field['date_end']['null'] = true;
+		# $field['date_begin']['type'] = 'DATE';
+		# $field['date_begin']['null'] = true;
+
+		# $field['date_end']['type'] = 'DATE';
+		# $field['date_end']['null'] = true;
 
 		$this->forge->addField($field);
 		$this->forge->addPrimaryKey('id_user_planning');

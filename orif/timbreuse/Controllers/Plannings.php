@@ -18,7 +18,7 @@ class Plannings extends BaseController
 {
     protected function get_common_rules(): array
     {
-        $rules['dateBegin'] = 'required|valid_date';
+        $rules['dateBegin'] = 'required|valid_date|cb_before_date[{dateEnd}]';
         $rules['dueHoursMonday'] = 'greater_than_equal_to[0]'
             . '|less_than_equal_to[10]|required';
         $rules['dueMinutesMonday'] = 'greater_than_equal_to[0]'
@@ -78,7 +78,7 @@ class Plannings extends BaseController
     protected function get_create_rules(int $timUserId): array
     {
         $rules['timUserId'] = 'required|integer';
-        $rules['dateEnd'] = "cb_available_date[$timUserId, $planningId]";
+        $rules['dateEnd'] = "cb_available_date[$timUserId]";
         $rules = array_merge($rules, $this->get_common_rules());
         return $rules;
     }
@@ -139,9 +139,8 @@ class Plannings extends BaseController
 
     public function create_planning(?int $timUserId=null)
     {
-        # to do
         if (($this->request->getMethod() === 'post')
-                and ($this->validate($this->get_create_rules()))) {
+            and ($this->validate($this->get_create_rules($timUserId)))) {
             return $this->post_create_planning();
         }
         $timUserId = $timUserId ?? $this->get_tim_user_id(); 
@@ -154,7 +153,7 @@ class Plannings extends BaseController
             return $this->block_ci_user();
         }
         $data = $this->get_data_for_create_planning($timUserId, $model);
-        #  test to remove
+        #   to do rename edit_planning.php
         $this->display_view(['Timbreuse\Views\planning\edit_planning.php'],
             $data);
     }
@@ -162,7 +161,6 @@ class Plannings extends BaseController
     protected function get_data_for_create_planning(int $timUserId, 
         $model): array
     {
-        # to do
         $defaultPlanningId = $this ->get_default_planning_id();
         $data = $this->get_planning_hours_minutes_or_old_post(
                 $defaultPlanningId, $model);
@@ -171,7 +169,6 @@ class Plannings extends BaseController
         $data['h3title'] = ucfirst(sprintf(lang('tim_lang.titleNewPlanning'),
             $this->get_tim_user_name($timUserId)));
         $data['title'] = $data['h3title'];
-
         # to do rename get_label_for_edit_planning
         $data['labels'] = $this->get_label_for_edit_planning();
         $data['action'] = '.';
@@ -379,10 +376,16 @@ class Plannings extends BaseController
         return $this->display_view('\User\errors\403error');
     }
 
-    public function plannings_list()
+    public function plannings_list(?int $timUserId=null)
     {
         # to do
         $data['list_title'] = ucfirst(lang('tim_lang.titleList'));
+        $data['columns'] = [
+            'date_begin' =>ucfirst(lang('tim_lang.dateBegin')),
+            'date_end' =>ucfirst(lang('tim_lang.dateEnd')),
+            'due_time' =>ucfirst(lang('tim_lang.planning')),
+        ];
+        $this->display_view('Common\Views\items_list', $data);
 
     }
 

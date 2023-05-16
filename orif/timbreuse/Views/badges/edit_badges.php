@@ -34,7 +34,7 @@ input:invalid {
 
 
         <div class="form-group text-right">
-            <a href='<?=esc($returnUrl)?>' class="btn btn-link"><?=esc($labels['back'])?></a>
+            <a href='<?=esc($returnUrl)?>' class="btn btn-secondary"><?=esc($labels['back'])?></a>
             <input type='submit' value='<?=esc($labels['modify'])?>' class="btn btn-primary">
         </div>
         <a href='<?=esc($deleteUrl)?>' class="btn btn-danger"><?=esc($labels['delete'])?></a>

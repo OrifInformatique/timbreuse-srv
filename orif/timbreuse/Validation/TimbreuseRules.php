@@ -4,6 +4,7 @@ namespace Timbreuse\Validation;
 use Timbreuse\Models\BadgesModel;
 use Timbreuse\Models\UsersModel;
 use Timbreuse\Models\PlanningsModel;
+use CodeIgniter\I18n\Time;
 
 class TimbreuseRules
 {
@@ -49,19 +50,38 @@ class TimbreuseRules
     }
 
     public function cb_available_date(string $newDateBegin,
-        string $params, array $data, &$error=null) : bool
+        string $params, array $data, &$error=null): bool
     {
+        try {
+            Time::parse($newDateBegin);
+            # to test in a real server
+        } catch (\Exception $e) {
+            $error = lang('tim_lang.errorDate');
+            return false;
+        }
+        $error = lang('tim_lang.dateColide');
         $params = explode(',', $params);
         $timUserId = $params[0];
-        $planningId = $params[1];
+        $planningId = $params[1] ?? null;
         $period['date_begin'] = $data['dateBegin'];
         $period['date_end'] = $data['dateEnd'];
         $model = model(PlanningsModel::class);
-        if ($model->is_available_period($timUserId, $period, $planningId)) {
-            return true;
+        return $model->is_available_period($timUserId, $period, $planningId);
+    }
+
+    public function cb_before_date(string $dateBegin, string $dateEnd, array 
+        $data, &$error=null): bool
+    {
+        try {
+            Time::parse($dateBegin);
+            Time::parse($dateEnd);
+        } catch (\Exception $e) {
+            $error = lang('tim_lang.errorDate');
+            return false;
         }
-        $error = lang('tim_lang.dateColide');
-        return false;
+        $error = lang('tim_lang.dateNotBefore');
+        # to change
+        return $dateBegin < $dateEnd;
     }
 
 }

@@ -83,8 +83,11 @@ return [
     'titleNewPlanning' => 'Nouveau planning hebdomadaire %s',
     'dueTime' => 'temps exigé',
     'offeredTime' => 'temps offert',
-    'titleList' => 'liste planning',
+    'titleList' => 'liste de planning %s',
     'dateBegin' => 'valable du',
     'dateEnd' => 'au',
-    'dateColide' => 'Il y a déjà un planning pour les dates saisies.',
+    'dateColide' => 'Il y a déjà un planning pour un ou plusieurs jours dans l’intervalle des dates saisies.',
+    'dateNotBefore' => 'La date de début est après la date de fin.',
+    'errorDate' => 'Une erreur est survenue avec une date.',
+    'planning' => 'planning',
 ];

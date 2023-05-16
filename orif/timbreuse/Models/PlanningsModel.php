@@ -16,6 +16,12 @@ class PlanningModel extends Model
     protected $useAutoIncrement = true;
 
 
+    public function get_due_plannings_user_and_date(int $timUserId): array
+    {
+        return $this->select_due_time_and_date()->join_tim_user_and_planning()
+             ->where('user_sync.id_user = ', $timUserId)->findAll();
+    }
+
     public function get_plannings_user(int $timUserId): array
     {
         return $this->select_time()->join_tim_user_and_planning()
@@ -26,6 +32,20 @@ class PlanningModel extends Model
     {
             return $this->select_time()
              -> find($planningId);
+    }
+
+    public function select_due_time_and_date(): PlanningModel 
+    {
+        return $this->select('due_time_monday, offered_time_monday, '
+            . 'due_time_tuesday, offered_time_tuesday, due_time_wednesday, '
+            . 'date_begin, date_end');
+    }
+        
+    public function select_due_time(): PlanningModel 
+    {
+        return $this->select('due_time_monday, offered_time_monday, '
+        . 'due_time_tuesday, offered_time_tuesday, due_time_wednesday');
+
     }
 
     public function select_time(): PlanningModel 
@@ -231,5 +251,17 @@ class PlanningModel extends Model
             ->update($dates);
         $this->db->transComplete();
     }
+
+    public function get_day_string(string $time, string $carry=''): string
+    {
+        return $carry . '%s ' . substr($time, 0, 4) . ' ';
+    }
+
+    public function get_string(array $duePlanning): string
+    {
+        # to use vsprintf
+       return array_reduce($duePlanning, array($this, 'get_day_string'));
+    }
+
 
 }
