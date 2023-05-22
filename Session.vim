@@ -12,18 +12,18 @@ if &shortmess =~ 'A'
 else
   set shortmess=aoO
 endif
-badd +265 /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Controllers/Plannings.php
-badd +0 /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Views/planning/edit_planning.php
-badd +0 /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Models/notes_sql/planningtest.sql
-badd +0 ~/.vimrc
+badd +0 /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Controllers/Plannings.php
+badd +0 /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Models/PlanningsModel.php
 argglobal
 %argdel
-$argadd /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Controllers/AdminLogs.php
-set stal=2
-edit ~/.vimrc
+edit /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Controllers/Plannings.php
 let s:save_splitbelow = &splitbelow
 let s:save_splitright = &splitright
 set splitbelow splitright
+wincmd _ | wincmd |
+vsplit
+1wincmd h
+wincmd w
 let &splitbelow = s:save_splitbelow
 let &splitright = s:save_splitright
 wincmd t
@@ -33,16 +33,28 @@ set winminheight=0
 set winheight=1
 set winminwidth=0
 set winwidth=1
+wincmd =
 argglobal
-balt \!/usr/bin/bash\ (1)
-let s:l = 42 - ((20 * winheight(0) + 17) / 35)
+let s:l = 107 - ((35 * winheight(0) + 36) / 73)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 42
-normal! 05|
+keepjumps 107
+normal! 0
 lcd /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code
-set stal=1
+wincmd w
+argglobal
+if bufexists(fnamemodify("/y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Models/PlanningsModel.php", ":p")) | buffer /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Models/PlanningsModel.php | else | edit /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Models/PlanningsModel.php | endif
+let s:l = 274 - ((33 * winheight(0) + 36) / 73)
+if s:l < 1 | let s:l = 1 | endif
+keepjumps exe s:l
+normal! zt
+keepjumps 274
+normal! 017|
+lcd /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code
+wincmd w
+2wincmd w
+wincmd =
 if exists('s:wipebuf') && len(win_findbuf(s:wipebuf)) == 0
   silent exe 'bwipe ' . s:wipebuf
 endif

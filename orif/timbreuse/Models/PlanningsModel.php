@@ -16,10 +16,22 @@ class PlanningModel extends Model
     protected $useAutoIncrement = true;
 
 
-    public function get_due_plannings_user_and_date(int $timUserId): array
+    public function get_date_and_id(int $timUserId): array
     {
-        return $this->select_due_time_and_date()->join_tim_user_and_planning()
+        return $this->select_date_and_id_planning()
+                ->join_tim_user_and_planning()
+                ->where('user_sync.id_user = ', $timUserId)->findAll();
+    }
+
+    public function get_due_plannings_user(int $timUserId): array
+    {
+        return $this->select_due_time()->join_tim_user_and_planning()
              ->where('user_sync.id_user = ', $timUserId)->findAll();
+    }
+
+    public function get_due_plannings(int $planningId): array
+    {
+        return $this->select_due_time()->find($planningId);
     }
 
     public function get_plannings_user(int $timUserId): array
@@ -30,8 +42,14 @@ class PlanningModel extends Model
 
     public function get_planning(int $planningId): array
     {
-            return $this->select_time()
-             -> find($planningId);
+        return $this->select_time()
+                ->find($planningId);
+    }
+
+    public function select_date_and_id_planning(): PlanningModel 
+    {
+        return $this->select(
+                'date_begin, date_end, user_planning.id_planning');
     }
 
     public function select_due_time_and_date(): PlanningModel 
@@ -252,15 +270,49 @@ class PlanningModel extends Model
         $this->db->transComplete();
     }
 
-    public function get_day_string(string $time, string $carry=''): string
+    public function get_day_string(?string $carry, string $time): string
     {
-        return $carry . '%s ' . substr($time, 0, 4) . ' ';
+        return $carry . '%s ' . substr($time, 0, 5) . ' ';
     }
 
-    public function get_string(array $duePlanning): string
+    public function get_name_day_string(): array
     {
-        # to use vsprintf
-       return array_reduce($duePlanning, array($this, 'get_day_string'));
+        $name_day[0] = ucfirst(lang('tim_lang.monday'));
+        $name_day[1] = ucfirst(lang('tim_lang.tuesday'));
+        $name_day[2] = ucfirst(lang('tim_lang.wednesday'));
+        $name_day[3] = ucfirst(lang('tim_lang.thursday'));
+        $name_day[4] = ucfirst(lang('tim_lang.friday'));
+        return $name_day;
+    }
+
+
+
+    public function format_due_planning(array $duePlanning): string
+    {
+        $txt = array_reduce($duePlanning, array($this, 'get_day_string'));
+        $day_label = array_map(function($string) {
+            return substr($string, 0, 2);
+        }, $this->get_name_day_string());
+        return vsprintf($txt, $day_label);
+    }
+
+    public function add_due_string(array $id_and_other): array
+    {
+        $id_and_other['due_time'] = $this->get_string(
+                $id_and_other['id_planning']);
+        return $id_and_other;
+    }
+
+    public function get_data_list_user_planning(int $timUserId): array
+    {
+        $ids_and_dates = $this->get_date_and_id($timUserId);
+        return array_map(array($this, 'add_due_string'), $ids_and_dates);
+    }
+
+    public function get_string($planningId): string
+    {
+        $duePlanning = $this->get_due_plannings($planningId);
+        return $this->format_due_planning($duePlanning);
     }
 
 

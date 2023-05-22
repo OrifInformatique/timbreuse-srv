@@ -344,7 +344,9 @@ class Plannings extends BaseController
             $model->update_planning_times_and_dates($post['planningId'],
                 $formatedTimeArray, $datesArray);
         }
-        return redirect()->to(current_url() . '/../../../');
+        # to change
+        # to do
+        return redirect()->to(current_url() . '/../../../get_plannings_list');
     }
 
     protected function format_form_dates(array $formArray): array
@@ -376,15 +378,24 @@ class Plannings extends BaseController
         return $this->display_view('\User\errors\403error');
     }
 
-    public function plannings_list(?int $timUserId=null)
+    public function get_plannings_list(?int $timUserId=null)
     {
         # to do
-        $data['list_title'] = ucfirst(lang('tim_lang.titleList'));
+        
+        $data['list_title'] = ucfirst(sprintf(lang('tim_lang.titleList'),
+                $this->get_tim_user_name($timUserId)));
         $data['columns'] = [
             'date_begin' =>ucfirst(lang('tim_lang.dateBegin')),
             'date_end' =>ucfirst(lang('tim_lang.dateEnd')),
             'due_time' =>ucfirst(lang('tim_lang.planning')),
         ];
+        $model = model(PlanningsModel::class);
+        $data['items'] = $model->get_data_list_user_planning($timUserId);
+        # to see to remove the id when is not a admin
+        $data['url_create'] = "Plannings/create_planning/$timUserId";
+        $data['url_update'] = 'Plannings/edit_planning/';
+        var_dump($data);
+        $data['primary_key_field']  = 'id_planning';
         $this->display_view('Common\Views\items_list', $data);
 
     }
@@ -392,6 +403,12 @@ class Plannings extends BaseController
     protected function get_default_planning_id(): int
     {
         return config('\Timbreuse\Config\PlanningConfig')->defaultPlanningId;
+    }
+
+    public function test()
+    {
+        $model = model(PlanningsModel::class);
+        $model->get_data_list_user_planning(92);
     }
 
 }
