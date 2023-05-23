@@ -20,7 +20,9 @@ class PlanningModel extends Model
     {
         return $this->select_date_and_id_planning()
                 ->join_tim_user_and_planning()
-                ->where('user_sync.id_user = ', $timUserId)->findAll();
+                ->where('user_sync.id_user = ', $timUserId)
+                ->orderBy('date_begin', 'DESC')
+                ->findAll();
     }
 
     public function get_due_plannings_user(int $timUserId): array
@@ -52,17 +54,10 @@ class PlanningModel extends Model
                 'date_begin, date_end, user_planning.id_planning');
     }
 
-    public function select_due_time_and_date(): PlanningModel 
-    {
-        return $this->select('due_time_monday, offered_time_monday, '
-            . 'due_time_tuesday, offered_time_tuesday, due_time_wednesday, '
-            . 'date_begin, date_end');
-    }
-        
     public function select_due_time(): PlanningModel 
     {
-        return $this->select('due_time_monday, offered_time_monday, '
-        . 'due_time_tuesday, offered_time_tuesday, due_time_wednesday');
+        return $this->select('due_time_monday, due_time_tuesday, '
+        . 'due_time_wednesday, due_time_thursday, due_time_friday');
 
     }
 

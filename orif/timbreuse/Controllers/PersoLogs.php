@@ -148,13 +148,27 @@ class PersoLogs extends BaseController
         return $sumTime;
     }
 
-    protected function get_buttons_for_log_views($day, $period)
+    protected function create_planning_link(?int $timUserId=null): array
+    {
+        helper('UtilityFunctions');
+        if ($timUserId === get_tim_user_id()) {
+            $button['link'] = '/Plannings/get_plannings_list/';
+        } else {
+            $button['link'] = "/Plannings/get_plannings_list/$timUserId";
+        }
+        $button['label'] = ucfirst(lang('tim_lang.planning'));
+        return $button;
+    }
+
+    protected function get_buttons_for_log_views($day, $period,
+            ?int $timUserId=null): array
     {
         $data['buttons'] = $this->create_buttons($period);
         $data['buttons'] = array_merge(
             $this->create_time_links($day, $period),
             $data['buttons']
         );
+        array_push($data['buttons'], $this->create_planning_link($timUserId));
         return $data;
     }
 
@@ -179,7 +193,7 @@ class PersoLogs extends BaseController
         $data['items'] = $this->get_day_view_day_array($userId, $day);
         $data += $this->get_texts_for_day_view();
         $data += $this->get_page_title_for_log_views($userId, $day, $period);
-        $data += $this->get_buttons_for_log_views($day, $period);
+        $data += $this->get_buttons_for_log_views($day, $period, $userId);
         array_push($data['items'], $this->get_sum_time_for_day_view($userId,
                 $day, $period));
         $this->display_view(

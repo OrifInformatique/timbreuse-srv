@@ -89,8 +89,6 @@ class Plannings extends BaseController
     {
         $this->access_level = config('\User\Config\UserConfig')
              ->access_lvl_registered;
-        # $this->access_level = config('\User\Config\UserConfig')
-        #      ->access_lvl_admin;
         parent::initController($request, $response, $logger);
         $this->session = \Config\Services::session();
     }
@@ -98,9 +96,10 @@ class Plannings extends BaseController
 
     public function index()
     {
-        return redirect()->to(current_url() . '/' . 'edit_planning/');
+        return redirect()->to(current_url() . '/' . 'get_plannings_list/');
     }
 
+    # to rename, is also use to create
     private function get_label_for_edit_planning(): array
     {
 
@@ -131,10 +130,14 @@ class Plannings extends BaseController
         return get_ci_user_id();
     }
 
-    protected function get_tim_user_id(): ?int
+    protected function get_tim_user_id(?int $planningId=null): ?int
     {
-        helper('UtilityFunctions');
-        return get_tim_user_id();
+        if (is_null($planningId)) {
+            helper('UtilityFunctions');
+            return get_tim_user_id();
+        }
+        $model = model(PlanningsModel::class);
+        return $model->get_tim_user_id($planningId);
     }
 
     public function create_planning(?int $timUserId=null)
@@ -153,7 +156,6 @@ class Plannings extends BaseController
             return $this->block_ci_user();
         }
         $data = $this->get_data_for_create_planning($timUserId, $model);
-        #   to do rename edit_planning.php
         $this->display_view(['Timbreuse\Views\planning\edit_planning.php'],
             $data);
     }
@@ -169,9 +171,10 @@ class Plannings extends BaseController
         $data['h3title'] = ucfirst(sprintf(lang('tim_lang.titleNewPlanning'),
             $this->get_tim_user_name($timUserId)));
         $data['title'] = $data['h3title'];
-        # to do rename get_label_for_edit_planning
         $data['labels'] = $this->get_label_for_edit_planning();
         $data['action'] = '.';
+        $data['cancelLink'] = $this->get_cancel_link_for_create_planning(
+            $timUserId);
         $data['timUserId'] = $timUserId;
         return $data;
     }
@@ -182,13 +185,12 @@ class Plannings extends BaseController
         $post = $this->request->getPost();
         $formatedTimeArray = $this->format_form_time_array($post);
         $datesArray = $this->format_form_dates($post);
-
-        #$mergedArray = array_merge($formatedTimeArray, $datesArray);
         if (isset($post['timUserId'])) {
             $model->insert_planning_times_and_dates($post['timUserId'],
                 $formatedTimeArray, $datesArray);
         }
-        return redirect()->to(current_url() . '/../../../');
+        $url = $this->get_cancel_link_for_create_planning($post['timUserId']);
+        return redirect()->to(current_url() . "/../$url");
     }
 
     protected function get_tim_user_name(int $timUserId): string
@@ -227,7 +229,6 @@ class Plannings extends BaseController
 
             $url = current_url() . '/../../../DefaultPlannings/edit_planning';
             return redirect()->to($url);
-            //return DefaultPlannings->edit_planning();
         }
         return $this->edit_user_planning($planningId);
     }
@@ -246,7 +247,40 @@ class Plannings extends BaseController
         $data['labels'] = $this->get_label_for_edit_planning();
         $data['planningId'] = $planningId;
         $data['action'] = '.';
+        $data['cancelLink'] = $this->get_cancel_link_for_edit_planning(
+                $planningId);
         return $data;
+    }
+
+    // to rename, is also use after redirect when validate post
+    protected function get_cancel_link_for_create_planning(
+            ?int $timUserId=null): string
+    {
+        return $this->get_link_with_id_or_not('../get_plannings_list/',
+                $timUserId);
+    }
+
+    /**
+     * hide the id if the user "check" himself
+     **/
+    protected function get_link_with_id_or_not(string $txt,
+        ?int $timUserId=null): string
+    {
+        if ($timUserId === $this->get_tim_user_id()) {
+            return $txt;
+        }
+        return  "$txt$timUserId";
+    }
+
+    // to rename, is also use after redirect when validate post
+    protected function get_cancel_link_for_edit_planning(
+            ?int $planningId=null): string
+    {
+        if (is_null($planningId)) {
+            return  '../get_plannings_list';
+        }
+        $timUserId = $this->get_tim_user_id($planningId);
+        return $this->get_cancel_link_for_create_planning($timUserId);
     }
 
     protected function get_data_for_edit_planning(int $planningId, 
@@ -338,15 +372,12 @@ class Plannings extends BaseController
         $post = $this->request->getPost();
         $formatedTimeArray = $this->format_form_time_array($post);
         $datesArray = $this->format_form_dates($post);
-
-        #$mergedArray = array_merge($formatedTimeArray, $datesArray);
         if (isset($post['planningId'])) {
             $model->update_planning_times_and_dates($post['planningId'],
                 $formatedTimeArray, $datesArray);
         }
-        # to change
-        # to do
-        return redirect()->to(current_url() . '/../../../get_plannings_list');
+        $url = $this->get_cancel_link_for_edit_planning($post['planningId']);
+        return redirect()->to(current_url() . "/../$url");
     }
 
     protected function format_form_dates(array $formArray): array
@@ -380,8 +411,7 @@ class Plannings extends BaseController
 
     public function get_plannings_list(?int $timUserId=null)
     {
-        # to do
-        
+        $timUserId = $timUserId ?? $this->get_tim_user_id();
         $data['list_title'] = ucfirst(sprintf(lang('tim_lang.titleList'),
                 $this->get_tim_user_name($timUserId)));
         $data['columns'] = [
@@ -391,11 +421,11 @@ class Plannings extends BaseController
         ];
         $model = model(PlanningsModel::class);
         $data['items'] = $model->get_data_list_user_planning($timUserId);
-        # to see to remove the id when is not a admin
-        $data['url_create'] = "Plannings/create_planning/$timUserId";
+        $data['url_create'] = $this->get_link_with_id_or_not(
+                'Plannings/create_planning/', $timUserId);
         $data['url_update'] = 'Plannings/edit_planning/';
-        var_dump($data);
-        $data['primary_key_field']  = 'id_planning';
+        // var_dump($data);
+        $data['primary_key_field'] = 'id_planning';
         $this->display_view('Common\Views\items_list', $data);
 
     }
@@ -405,7 +435,7 @@ class Plannings extends BaseController
         return config('\Timbreuse\Config\PlanningConfig')->defaultPlanningId;
     }
 
-    public function test()
+    private function test()
     {
         $model = model(PlanningsModel::class);
         $model->get_data_list_user_planning(92);
