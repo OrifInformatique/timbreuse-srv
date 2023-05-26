@@ -14,15 +14,21 @@ class PlanningModel extends Model
         'offered_time_thursday', 'due_time_friday', 'offered_time_friday'];
 
     protected $useAutoIncrement = true;
+    protected $useSoftDeletes = true;
+    protected $deletedField  = 'date_delete';
+    protected $dateFormat = 'datetime';
 
 
-    public function get_date_and_id(int $timUserId): array
+    public function get_date_and_id(int $timUserId, bool $withDeleted): array
     {
-        return $this->select_date_and_id_planning()
+        $this->select_date_and_id_planning()
                 ->join_tim_user_and_planning()
                 ->where('user_sync.id_user = ', $timUserId)
-                ->orderBy('date_begin', 'DESC')
-                ->findAll();
+                ->orderBy('date_begin', 'DESC');
+        if ($withDeleted) {
+            $this->withDeleted();
+        }
+        return $this->findAll();
     }
 
     public function get_due_plannings_user(int $timUserId): array
@@ -33,7 +39,9 @@ class PlanningModel extends Model
 
     public function get_due_plannings(int $planningId): array
     {
-        return $this->select_due_time()->find($planningId);
+        return $this->select_due_time()
+                    ->withDeleted()
+                    ->find($planningId);
     }
 
     public function get_plannings_user(int $timUserId): array
@@ -272,12 +280,12 @@ class PlanningModel extends Model
 
     public function get_name_day_string(): array
     {
-        $name_day[0] = ucfirst(lang('tim_lang.monday'));
-        $name_day[1] = ucfirst(lang('tim_lang.tuesday'));
-        $name_day[2] = ucfirst(lang('tim_lang.wednesday'));
-        $name_day[3] = ucfirst(lang('tim_lang.thursday'));
-        $name_day[4] = ucfirst(lang('tim_lang.friday'));
-        return $name_day;
+        $nameDay[0] = ucfirst(lang('tim_lang.monday'));
+        $nameDay[1] = ucfirst(lang('tim_lang.tuesday'));
+        $nameDay[2] = ucfirst(lang('tim_lang.wednesday'));
+        $nameDay[3] = ucfirst(lang('tim_lang.thursday'));
+        $nameDay[4] = ucfirst(lang('tim_lang.friday'));
+        return $nameDay;
     }
 
 
@@ -285,23 +293,24 @@ class PlanningModel extends Model
     public function format_due_planning(array $duePlanning): string
     {
         $txt = array_reduce($duePlanning, array($this, 'get_day_string'));
-        $day_label = array_map(function($string) {
+        $dayLabel = array_map(function($string) {
             return substr($string, 0, 2);
         }, $this->get_name_day_string());
-        return vsprintf($txt, $day_label);
+        return vsprintf($txt, $dayLabel);
     }
 
-    public function add_due_string(array $id_and_other): array
+    public function add_due_string(array $idAndOther): array
     {
-        $id_and_other['due_time'] = $this->get_string(
-                $id_and_other['id_planning']);
-        return $id_and_other;
+        $idAndOther['due_time'] = $this->get_string(
+                $idAndOther['id_planning']);
+        return $idAndOther;
     }
 
-    public function get_data_list_user_planning(int $timUserId): array
+    public function get_data_list_user_planning(int $timUserId,
+            bool $withDeleted): array
     {
-        $ids_and_dates = $this->get_date_and_id($timUserId);
-        return array_map(array($this, 'add_due_string'), $ids_and_dates);
+        $idsAndDates = $this->get_date_and_id($timUserId, $withDeleted);
+        return array_map(array($this, 'add_due_string'), $idsAndDates);
     }
 
     public function get_string($planningId): string

@@ -203,8 +203,6 @@ class Plannings extends BaseController
         return "$data[surname] $data[name]";
     }
 
-
-
     public function edit_user_planning(?int $planningId=null)
     {
         if (($this->request->getMethod() === 'post')
@@ -412,22 +410,37 @@ class Plannings extends BaseController
         return $this->display_view('\User\errors\403error');
     }
 
-    protected function get_user_data_for_plannings_list(int $timUserId):array
+    protected function get_link_with_id_or_not_withDeleted(int $timUserId,
+            string $txt, bool $withDeleted): string
+    {
+        if ($timUserId === $this->get_tim_user_id()) {
+            return "$txt/$withDeleted";
+        }
+        return  "$txt/$timUserId/$withDeleted";
+
+    }
+
+    protected function get_user_data_for_plannings_list(int $timUserId,
+            bool $withDeleted):array
     {
         $data['list_title'] = ucfirst(sprintf(lang('tim_lang.titleList'),
                 $this->get_tim_user_name($timUserId)));
         $model = model(PlanningsModel::class);
-        $data['items'] = $model->get_data_list_user_planning($timUserId);
+        $data['items'] = $model->get_data_list_user_planning($timUserId,
+                $withDeleted);
         $data['url_create'] = $this->get_link_with_id_or_not(
                 'Plannings/create_planning/', $timUserId);
         $data['buttons'][0]['link'] =
                 "../../AdminLogs/time_list/$timUserId";
         $data['buttons'][0]['label'] = ucfirst(lang('tim_lang.back'));
+        $data['url_getView'] = $this->get_link_with_id_or_not_withDeleted(
+            $timUserId, 'Plannings/get_plannings_list/', $withDeleted);
         return $data;
 
     }
 
-    protected function get_no_user_data_for_plannings_list(): array
+    protected function get_no_user_data_for_plannings_list(
+            bool $withDeleted): array
     {
         $data['columns'] = [
             'date_begin' =>ucfirst(lang('tim_lang.dateBegin')),
@@ -436,21 +449,25 @@ class Plannings extends BaseController
         ];
         $data['url_update'] = 'Plannings/edit_planning/';
         $data['primary_key_field'] = 'id_planning';
+        $data['with_deleted'] = $withDeleted;
         return $data;
     }
 
-    protected function get_data_for_plannings_list(int $timUserId): array
+    protected function get_data_for_plannings_list(int $timUserId,
+            bool $withDeleted): array
     {
-        $data = $this->get_user_data_for_plannings_list($timUserId);
+        $data = $this->get_user_data_for_plannings_list($timUserId,
+                $withDeleted);
         $data = array_merge($data,
-                $this->get_no_user_data_for_plannings_list());
+                $this->get_no_user_data_for_plannings_list($withDeleted));
         return $data;
     }
 
-    public function get_plannings_list(?int $timUserId=null)
+    public function get_plannings_list(?int $timUserId=null,
+            ?bool $withDeleted=false)
     {
         $timUserId = $timUserId ?? $this->get_tim_user_id();
-        $data = $this->get_data_for_plannings_list($timUserId);
+        $data = $this->get_data_for_plannings_list($timUserId, $withDeleted);
         # check if the user check himself and show return button if not himself
         if ($timUserId === $this->get_tim_user_id()) {
             return $this->display_view('Common\Views\items_list', $data);
@@ -458,11 +475,19 @@ class Plannings extends BaseController
         return $this->display_view(['Timbreuse\Views\menu',
                     'Common\Views\items_list'], $data);
 
+
     }
 
     protected function get_default_planning_id(): int
     {
         return config('\Timbreuse\Config\PlanningConfig')->defaultPlanningId;
+    }
+
+    public function delete_planning()
+    {
+        $model = model(PlanningsModel::class);
+        $model->delete(8);
+
     }
 
     private function test()
