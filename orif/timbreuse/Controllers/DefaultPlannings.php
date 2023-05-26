@@ -14,7 +14,9 @@ use CodeIgniter\I18n\Time;
 class DefaultPlannings extends Plannings
 {
 
-    protected function get_rules(int $planningId) : array
+    # to rename, common it is confus,
+    # here common is beetween create and edit
+    protected function get_common_rules() : array
     {
         $rules['planningId'] = 'required|integer';
         $rules['dueHoursMonday'] = 'greater_than_equal_to[0]'
@@ -71,6 +73,12 @@ class DefaultPlannings extends Plannings
         $this->session = \Config\Services::session();
     }
 
+    public function index()
+    {
+        return $this->edit_planning();
+        # return redirect()->to(current_url() . '/' . 'edit_planning/');
+    }
+
     public function edit_planning($n=null)
     {
         return parent::edit_user_planning($this->get_default_planning_id());
@@ -92,6 +100,12 @@ class DefaultPlannings extends Plannings
         $data = $this->get_common_data_for_edit_planning($planningId, $model);
         $data['defaultPlanning'] = true;
         return $data;
+    }
+
+    // to rename, is also use after redirect when validate post
+    protected function get_cancel_link_for_edit_planning(?int $n=null): string
+    {
+        return  '..';
     }
 
 }

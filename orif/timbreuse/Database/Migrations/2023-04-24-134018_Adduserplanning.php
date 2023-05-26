@@ -31,6 +31,9 @@ class Adduserplanning extends Migration
 		# $field['date_end']['type'] = 'DATE';
 		# $field['date_end']['null'] = true;
 
+		# $field['date_delete']['type'] = 'DATETIME';
+		# $field['date_delete']['null'] = true;
+
 		$this->forge->addField($field);
 		$this->forge->addPrimaryKey('id_user_planning');
         $this->forge->addForeignKey('id_user', 'user_sync','id_user');

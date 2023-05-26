@@ -54,6 +54,9 @@ class Addplanning extends Migration
 		$field['offered_time_friday']['default'] = '00:00:00';
 		$field['offered_time_friday']['null'] = false;
 
+		$field['date_delete']['type'] = 'DATETIME';
+		$field['date_delete']['null'] = true;
+
 		$this->forge->addField($field);
 		$this->forge->addPrimaryKey('id_planning');
         $this->forge->createTable('planning');

@@ -90,4 +90,5 @@ return [
     'dateNotBefore' => 'La date de début est après la date de fin.',
     'errorDate' => 'Une erreur est survenue avec une date.',
     'planning' => 'planning',
+    'Defaultplanning' => 'Planning par défaut',
 ];

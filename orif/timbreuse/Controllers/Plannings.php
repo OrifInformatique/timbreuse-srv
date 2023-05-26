@@ -16,6 +16,8 @@ use CodeIgniter\I18n\Time;
 
 class Plannings extends BaseController
 {
+    # to rename, common it is confus, 
+    # here common is beetween create and edit
     protected function get_common_rules(): array
     {
         $rules['dateBegin'] = 'required|valid_date|cb_before_date[{dateEnd}]';
@@ -227,7 +229,8 @@ class Plannings extends BaseController
     {
         if ($planningId == $this->get_default_planning_id()) {
 
-            $url = current_url() . '/../../../DefaultPlannings/edit_planning';
+            # $url = current_url() . '/../../../DefaultPlannings/edit_planning';
+            $url = current_url() . '/../../../DefaultPlannings';
             return redirect()->to($url);
         }
         return $this->edit_user_planning($planningId);
@@ -409,24 +412,51 @@ class Plannings extends BaseController
         return $this->display_view('\User\errors\403error');
     }
 
-    public function get_plannings_list(?int $timUserId=null)
+    protected function get_user_data_for_plannings_list(int $timUserId):array
     {
-        $timUserId = $timUserId ?? $this->get_tim_user_id();
         $data['list_title'] = ucfirst(sprintf(lang('tim_lang.titleList'),
                 $this->get_tim_user_name($timUserId)));
+        $model = model(PlanningsModel::class);
+        $data['items'] = $model->get_data_list_user_planning($timUserId);
+        $data['url_create'] = $this->get_link_with_id_or_not(
+                'Plannings/create_planning/', $timUserId);
+        $data['buttons'][0]['link'] =
+                "../../AdminLogs/time_list/$timUserId";
+        $data['buttons'][0]['label'] = ucfirst(lang('tim_lang.back'));
+        return $data;
+
+    }
+
+    protected function get_no_user_data_for_plannings_list(): array
+    {
         $data['columns'] = [
             'date_begin' =>ucfirst(lang('tim_lang.dateBegin')),
             'date_end' =>ucfirst(lang('tim_lang.dateEnd')),
             'due_time' =>ucfirst(lang('tim_lang.planning')),
         ];
-        $model = model(PlanningsModel::class);
-        $data['items'] = $model->get_data_list_user_planning($timUserId);
-        $data['url_create'] = $this->get_link_with_id_or_not(
-                'Plannings/create_planning/', $timUserId);
         $data['url_update'] = 'Plannings/edit_planning/';
-        // var_dump($data);
         $data['primary_key_field'] = 'id_planning';
-        $this->display_view('Common\Views\items_list', $data);
+        return $data;
+    }
+
+    protected function get_data_for_plannings_list(int $timUserId): array
+    {
+        $data = $this->get_user_data_for_plannings_list($timUserId);
+        $data = array_merge($data,
+                $this->get_no_user_data_for_plannings_list());
+        return $data;
+    }
+
+    public function get_plannings_list(?int $timUserId=null)
+    {
+        $timUserId = $timUserId ?? $this->get_tim_user_id();
+        $data = $this->get_data_for_plannings_list($timUserId);
+        # check if the user check himself and show return button if not himself
+        if ($timUserId === $this->get_tim_user_id()) {
+            return $this->display_view('Common\Views\items_list', $data);
+        }
+        return $this->display_view(['Timbreuse\Views\menu',
+                    'Common\Views\items_list'], $data);
 
     }
 
