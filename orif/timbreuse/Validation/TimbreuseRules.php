@@ -84,4 +84,13 @@ class TimbreuseRules
         return $dateBegin < $dateEnd;
     }
 
+    public function cb_restore_planning(string $planningId, &$error=null): bool
+    {
+        $model = model(PlanningsModel::class);
+        $period = $model->get_begin_end_dates($planningId, true);
+        $timUserId = $model->get_tim_user_id($planningId);
+        $error = lang('tim_lang.dateColideRestore');
+        return $model->is_available_period($timUserId, $period, $planningId);
+    }
+
 }

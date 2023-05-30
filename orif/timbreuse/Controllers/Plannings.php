@@ -85,6 +85,11 @@ class Plannings extends BaseController
         return $rules;
     }
 
+    protected function get_restore_rules():array
+    {
+        $rules['planningId'] = 'required|integer|cb_restore_planning';
+        return $rules;
+    }
 
     public function initController(RequestInterface $request,
         ResponseInterface $response, LoggerInterface $logger): void
@@ -144,18 +149,14 @@ class Plannings extends BaseController
 
     public function create_planning(?int $timUserId=null)
     {
+        $timUserId = $timUserId ?? $this->get_tim_user_id(); 
         if (($this->request->getMethod() === 'post')
             and ($this->validate($this->get_create_rules($timUserId)))) {
             return $this->post_create_planning();
         }
-        $timUserId = $timUserId ?? $this->get_tim_user_id(); 
-
         $model = model(PlanningsModel::class);
-        $accessModel = model(AccessTimModel::class);
-        $isAccess = $accessModel->is_access($this->get_ci_user_id(),
-                $timUserId);
-        if ((!$isAccess) and (!$this->is_admin())) {
-            return $this->block_ci_user();
+        if (!$this->is_access($timUserId)) {
+            return $this->display_unauthorize();
         }
         $data = $this->get_data_for_create_planning($timUserId, $model);
         $this->display_view(['Timbreuse\Views\planning\edit_planning.php'],
@@ -183,8 +184,11 @@ class Plannings extends BaseController
 
     protected function post_create_planning()
     {
-        $model = model(PlanningsModel::class);
         $post = $this->request->getPost();
+        if (!$this->is_access($post['timUserId'])) {
+            return $this->display_unauthorize();
+        }
+        $model = model(PlanningsModel::class);
         $formatedTimeArray = $this->format_form_time_array($post);
         $datesArray = $this->format_form_dates($post);
         if (isset($post['timUserId'])) {
@@ -192,7 +196,8 @@ class Plannings extends BaseController
                 $formatedTimeArray, $datesArray);
         }
         $url = $this->get_cancel_link_for_create_planning($post['timUserId']);
-        return redirect()->to(current_url() . "/../$url");
+        # to fix between user and admin
+        return redirect()->to(current_url() . "/$url");
     }
 
     protected function get_tim_user_name(int $timUserId): string
@@ -211,12 +216,11 @@ class Plannings extends BaseController
         }
         $planningId = $this->request->getPost('planningId') ?? $planningId;
         if (is_null($planningId)) {
-            return $this->block_ci_user();
+            return $this->display_unauthorize();
         }
         $model = model(PlanningsModel::class);
-        if ((!$model->is_access_ci_user($this->get_ci_user_id(), $planningId))
-                and (!$this->is_admin())) {
-            return $this->block_ci_user();
+        if (!$this->is_access_planning($planningId)) {
+            return $this->display_unauthorize();
         }
         $data = $this->get_data_for_edit_planning($planningId, $model);
         $this->display_view(['Timbreuse\Views\planning\edit_planning.php'],
@@ -270,7 +274,7 @@ class Plannings extends BaseController
         if ($timUserId === $this->get_tim_user_id()) {
             return $txt;
         }
-        return  "$txt$timUserId";
+        return  "../$txt$timUserId";
     }
 
     // to rename, is also use after redirect when validate post
@@ -371,6 +375,9 @@ class Plannings extends BaseController
     {
         $model = model(PlanningsModel::class);
         $post = $this->request->getPost();
+        if (!$this->is_access_planning($post['planningId'])) {
+            return $this->display_unauthorize();
+        }
         $formatedTimeArray = $this->format_form_time_array($post);
         $datesArray = $this->format_form_dates($post);
         if (isset($post['planningId'])) {
@@ -405,7 +412,7 @@ class Plannings extends BaseController
 
     }
 
-    protected function block_ci_user()
+    protected function display_unauthorize()
     {
         return $this->display_view('\User\errors\403error');
     }
@@ -433,8 +440,10 @@ class Plannings extends BaseController
         $data['buttons'][0]['link'] =
                 "../../AdminLogs/time_list/$timUserId";
         $data['buttons'][0]['label'] = ucfirst(lang('tim_lang.back'));
-        $data['url_getView'] = $this->get_link_with_id_or_not_withDeleted(
-            $timUserId, 'Plannings/get_plannings_list/', $withDeleted);
+        # $data['url_getView'] = $this->get_link_with_id_or_not_withDeleted(
+        #     $timUserId, 'Plannings/get_plannings_list/', $withDeleted);
+        $data['url_getView'] =
+                "Plannings/get_plannings_list/$timUserId/$withDeleted";
         return $data;
 
     }
@@ -448,6 +457,7 @@ class Plannings extends BaseController
             'due_time' =>ucfirst(lang('tim_lang.planning')),
         ];
         $data['url_update'] = 'Plannings/edit_planning/';
+        $data['url_delete'] = 'Plannings/delete_planning/';
         $data['primary_key_field'] = 'id_planning';
         $data['with_deleted'] = $withDeleted;
         return $data;
@@ -463,10 +473,38 @@ class Plannings extends BaseController
         return $data;
     }
 
+    protected function is_access(?int $timUserId): bool
+    {
+        if ($this->is_admin()) {
+            return true;
+        }
+        $accessModel = model(AccessTimModel::class);
+        $isAccess = $accessModel->is_access($this->get_ci_user_id(),
+                $timUserId);
+        return $isAccess;
+    }
+
+    protected function is_access_planning(?int $planningId=null): bool
+    {
+        if ($this->is_admin()) {
+            return true;
+        } else if (is_null($planningId)) {
+            return false;
+        }
+        $planningModel = model(PlanningsModel::class);
+        $isAccess = $planningModel->is_access_tim_user(
+                $this->get_tim_user_id(), $planningId);
+        return $isAccess;
+    }
+
     public function get_plannings_list(?int $timUserId=null,
             ?bool $withDeleted=false)
     {
         $timUserId = $timUserId ?? $this->get_tim_user_id();
+        if (!$this->is_access($timUserId))
+        {
+            return $this->display_unauthorize();
+        }
         $data = $this->get_data_for_plannings_list($timUserId, $withDeleted);
         # check if the user check himself and show return button if not himself
         if ($timUserId === $this->get_tim_user_id()) {
@@ -474,8 +512,6 @@ class Plannings extends BaseController
         }
         return $this->display_view(['Timbreuse\Views\menu',
                     'Common\Views\items_list'], $data);
-
-
     }
 
     protected function get_default_planning_id(): int
@@ -483,11 +519,80 @@ class Plannings extends BaseController
         return config('\Timbreuse\Config\PlanningConfig')->defaultPlanningId;
     }
 
-    public function delete_planning()
+    public function delete_planning(?int $planningId=null)
     {
         $model = model(PlanningsModel::class);
-        $model->delete(8);
+        if ($model->is_deleted($planningId)) {
+            return redirect()->to(current_url()
+                    . "/../../restore_planning/$planningId");
+        }
+        if ($this->request->getMethod() === 'post') {
+            return $this->post_delete_planning();
+        }
+        if (!$this->is_access_planning($planningId)) {
+            return $this->display_unauthorize();
+        }
+        $data['id'] = $planningId;
+        $data['h3title'] = ucfirst(sprintf(lang(
+                'tim_lang.titleConfirmDeletePlanning'), $planningId));
+        $data['title'] = $data['h3title'];
+        $data['text'] = ucfirst(lang('tim_lang.confirmDeletePlanning'));
+        $data['link'] = '.';
+        $data['cancel_link'] = $this->get_cancel_link_for_create_planning(
+                $this->get_tim_user_id($planningId));
+        return $this->display_view(['Timbreuse\Views\confirm_delete_form.php'],
+                $data);
+    }
 
+    public function restore_planning(?int $planningId=null)
+    {
+        if (($this->request->getMethod() === 'post') and ($this->validate(
+                $this->get_restore_rules()))) {
+            return $this->post_restore_planning();
+        }
+        $post = $this->request->getPost();
+        $planningId = $planningId ?? $post['planningId'];
+        if (!$this->is_access_planning($planningId)) {
+            return $this->display_unauthorize();
+        }
+        $data['ids']['planningId'] = $planningId;
+        $data['h3title'] = ucfirst(sprintf(lang(
+                'tim_lang.titleConfirmRestorePlanning'), $planningId));
+        $data['title'] = $data['h3title'];
+        $data['text'] = ucfirst(lang('tim_lang.confirmRestorePlanning'));
+        $data['link'] = '.';
+        $data['cancel_link'] = $this->get_cancel_link_for_create_planning(
+                $this->get_tim_user_id($planningId));
+        $data['label_button'] = lang('tim_lang.restore');
+        return $this->display_view(['Timbreuse\Views\confirm_form.php'],
+                $data);
+    }
+
+    protected function post_delete_planning()
+    {
+        $post = $this->request->getPost();
+        if (!$this->is_access_planning($post['id'])) {
+            return $this->display_unauthorize();
+        }
+        $url = $this->get_cancel_link_for_edit_planning($post['id']);
+        $model = model(PlanningsModel::class);
+        $model->delete($post['id']);
+        return redirect()->to(current_url() . "/$url");
+    }
+
+    protected function post_restore_planning()
+    {
+        $post = $this->request->getPost();
+        if (!$this->is_access_planning($post['planningId'])) {
+            return $this->display_unauthorize();
+        }
+        $model = model(PlanningsModel::class);
+        $post = $this->request->getPost();
+        $updateArray['date_delete'] = null;
+        var_dump($post['planningId']);
+        $model->onlyDeleted()->update($post['planningId'], $updateArray);
+        $url = $this->get_cancel_link_for_edit_planning($post['planningId']);
+        return redirect()->to(current_url() . "/$url");
     }
 
     private function test()

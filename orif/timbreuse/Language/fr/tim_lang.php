@@ -91,4 +91,9 @@ return [
     'errorDate' => 'Une erreur est survenue avec une date.',
     'planning' => 'planning',
     'Defaultplanning' => 'Planning par défaut',
+    'confirmDeletePlanning' => 'Êtes-vous sûr·e de vouloir supprimer ce planning.',
+    'titleConfirmDeletePlanning' => 'Supprimer le planning ID %s',
+    'confirmRestorePlanning' => 'Êtes-vous sûr·e de vouloir restorer ce planning.',
+    'titleConfirmRestorePlanning' => 'Restorer le planning ID %s',
+    'dateColideRestore' => 'Il y a déjà un planning pour un ou plusieurs jours dans l’intervalle des dates du planning à restorer.',
 ];

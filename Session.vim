@@ -12,16 +12,19 @@ if &shortmess =~ 'A'
 else
   set shortmess=aoO
 endif
-badd +107 /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Controllers/Plannings.php
-badd +1 /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Models/PlanningsModel.php
-badd +0 ~/.vimrc
-badd +37 /Y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Models/UsersModel.php
-badd +0 /Y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/common/Views/items_list.php
-badd +1 /Y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Controllers/Users.php
+badd +524 /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Controllers/Plannings.php
+badd +0 /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Models/PlanningsModel.php
+badd +364 /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Controllers/Users.php
+badd +749 /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Controllers/PersoLogs.php
+badd +95 /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Language/fr/tim_lang.php
+badd +0 /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/common/Views/items_list.php
+badd +8 /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Views/confirm_form.php
 argglobal
 %argdel
+$argadd /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Language/fr/tim_lang.php
+$argadd /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Language/fr-CH/tim_lang.php
 set stal=2
-edit /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Controllers/Plannings.php
+edit /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Controllers/Users.php
 let s:save_splitbelow = &splitbelow
 let s:save_splitright = &splitright
 set splitbelow splitright
@@ -30,10 +33,6 @@ vsplit
 wincmd _ | wincmd |
 vsplit
 2wincmd h
-wincmd _ | wincmd |
-split
-1wincmd k
-wincmd w
 wincmd w
 wincmd w
 let &splitbelow = s:save_splitbelow
@@ -47,45 +46,36 @@ set winminwidth=0
 set winwidth=1
 wincmd =
 argglobal
-let s:l = 349 - ((20 * winheight(0) + 15) / 30)
-if s:l < 1 | let s:l = 1 | endif
-keepjumps exe s:l
-normal! zt
-keepjumps 349
-normal! 059|
-lcd /Y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code
-wincmd w
-argglobal
-if bufexists(fnamemodify("/y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Controllers/Plannings.php", ":p")) | buffer /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Controllers/Plannings.php | else | edit /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Controllers/Plannings.php | endif
-let s:l = 396 - ((23 * winheight(0) + 15) / 30)
-if s:l < 1 | let s:l = 1 | endif
-keepjumps exe s:l
-normal! zt
-keepjumps 396
-normal! 055|
-lcd /Y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code
-wincmd w
-argglobal
-if bufexists(fnamemodify("/y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Models/PlanningsModel.php", ":p")) | buffer /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Models/PlanningsModel.php | else | edit /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Models/PlanningsModel.php | endif
+if bufexists(fnamemodify("/y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Controllers/Users.php", ":p")) | buffer /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Controllers/Users.php | else | edit /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Controllers/Users.php | endif
 balt /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Controllers/Plannings.php
-let s:l = 295 - ((30 * winheight(0) + 30) / 61)
+let s:l = 367 - ((41 * winheight(0) + 30) / 61)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 295
-normal! 019|
-lcd /Y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code
-wincmd w
-argglobal
-if bufexists(fnamemodify("/y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Models/PlanningsModel.php", ":p")) | buffer /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Models/PlanningsModel.php | else | edit /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Models/PlanningsModel.php | endif
-balt /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Controllers/Plannings.php
-let s:l = 54 - ((11 * winheight(0) + 36) / 72)
-if s:l < 1 | let s:l = 1 | endif
-keepjumps exe s:l
-normal! zt
-keepjumps 54
+keepjumps 367
 normal! 0
-lcd /Y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code
+lcd /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code
+wincmd w
+argglobal
+if bufexists(fnamemodify("/y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Views", ":p")) | buffer /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Views | else | edit /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Views | endif
+balt /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Views/confirm_form.php
+let s:l = 1 - ((0 * winheight(0) + 36) / 72)
+if s:l < 1 | let s:l = 1 | endif
+keepjumps exe s:l
+normal! zt
+keepjumps 1
+normal! 0
+lcd /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code
+wincmd w
+argglobal
+if bufexists(fnamemodify("/y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Controllers/Users.php", ":p")) | buffer /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Controllers/Users.php | else | edit /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code/orif/timbreuse/Controllers/Users.php | endif
+let s:l = 141 - ((63 * winheight(0) + 36) / 72)
+if s:l < 1 | let s:l = 1 | endif
+keepjumps exe s:l
+normal! zt
+keepjumps 141
+normal! 016|
+lcd /y/Apprenants/MarcPorta/6_AteliersAutre/timbreuseRFID/web/code
 wincmd w
 wincmd =
 set stal=1

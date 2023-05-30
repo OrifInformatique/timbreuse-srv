@@ -11,7 +11,8 @@ class PlanningModel extends Model
     protected $allowedFields = ['due_time_monday', 'offered_time_monday',
         'due_time_tuesday', 'offered_time_tuesday', 'due_time_wednesday',
         'offered_time_wednesday', 'due_time_thursday',
-        'offered_time_thursday', 'due_time_friday', 'offered_time_friday'];
+        'offered_time_thursday', 'due_time_friday', 'offered_time_friday',
+        'date_delete'];
 
     protected $useAutoIncrement = true;
     protected $useSoftDeletes = true;
@@ -116,11 +117,16 @@ class PlanningModel extends Model
         return "$names[surname] $names[name]";
     }
 
-    public function get_begin_end_dates(int $planningId): array
+
+    public function get_begin_end_dates(int $planningId,
+            bool $withDeleted=false): array
     {
-        $dates = $this->select('date_begin, date_end')
-            ->join_tim_user_and_planning()
-            ->find($planningId);
+        $this->select('date_begin, date_end')
+            ->join_tim_user_and_planning();
+        if ($withDeleted) {
+            $this->withDeleted();
+        }
+        $dates = $this->find($planningId);
         return $this->set_null_if_not_set_date($dates);
     }
 
@@ -145,6 +151,7 @@ class PlanningModel extends Model
     {
         return !is_null($this->select('planning.id_planning')
             ->join_tim_user_and_planning()
+            ->withDeleted()
             ->where('user_sync.id_user = ', $timUserId)->find($planningId));
     }
 
@@ -244,6 +251,7 @@ class PlanningModel extends Model
     {
         return $this->select('id_user')
             ->join_planning_and_user_planning()
+            ->withDeleted()
             ->find($planningId)['id_user'] ?? null;
     }
 
@@ -313,10 +321,22 @@ class PlanningModel extends Model
         return array_map(array($this, 'add_due_string'), $idsAndDates);
     }
 
-    public function get_string($planningId): string
+    public function get_string(int $planningId): string
     {
         $duePlanning = $this->get_due_plannings($planningId);
         return $this->format_due_planning($duePlanning);
+    }
+
+    public function is_deleted(?int $planningId): bool
+    {
+        if (is_null($planningId)) {
+            return false;
+        }
+        $data = $this->select('date_delete')
+                ->withDeleted()
+                ->find($planningId);
+        return isset($data['date_delete']);
+
     }
 
 

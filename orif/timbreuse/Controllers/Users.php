@@ -172,8 +172,8 @@ class Users extends BaseController
 
         $userNames = $this->get_usernames($userId, $ciUserId);
         $data = array();
-        $data['userId'] = $userId;
-        $data['ciUserId'] = $ciUserId;
+        $data['ids']['userId'] = $userId;
+        $data['ids']['ciUserId'] = $ciUserId;
         $data['link'] = '../../post_add_access';
         $data['cancel_link'] = '../../ci_users_list/' . $userId;
         $data['label_button'] = lang('tim_lang.add');
@@ -216,8 +216,8 @@ class Users extends BaseController
     {
         $userNames = $this->get_usernames($userId, $ciUserId);
         $data = array();
-        $data['userId'] = $userId;
-        $data['ciUserId'] = $ciUserId;
+        $data['ids']['userId'] = $userId;
+        $data['ids']['ciUserId'] = $ciUserId;
         $data['link'] = '../../post_delete_access';
         $data['cancel_link'] = '../../ci_users_list/' . $userId;
         $data['label_button'] = lang('tim_lang.delete');
@@ -346,41 +346,4 @@ class Users extends BaseController
         }
     }
 
-    /**
-     * @deprecated
-     */
-    public function old_delete_tim_user($timUserId)
-    {
-        trigger_error('Method ' . __METHOD__ . ' is deprecated',
-            E_USER_DEPRECATED);
-        $model = model(UsersModel::class);
-        $names = $model->select('name, surname')->find($timUserId);
-        $data['text'] = sprintf(lang('tim_lang.confirmDeleteTimUser'),
-                $names['name'], $names['surname']);
-        $data['link'] = '../confirm_delete_tim_user';
-        $data['label_button'] = ucfirst(lang('tim_lang.delete')); 
-        $data['title'] = lang('tim_lang.delete');
-        $data['cancel_link'] = '../edit_tim_user/' . $timUserId;
-        $data['userId'] = $timUserId;
-        $data['ciUserId'] = null;
-        $this->display_view('Timbreuse\Views\confirm_form', $data);
-    }
-
-    /**
-     * @deprecated
-     */
-    public function old_confirm_delete_tim_user()
-    {
-        trigger_error('Method ' . __METHOD__ . ' is deprecated',
-            E_USER_DEPRECATED);
-        if ($this->request->getMethod() !== 'post') {
-            return $this->display_view('\User\errors\403error');
-        }
-        $model = model(UsersModel::class);
-        $timUserId = $this->request->getPost('userId');
-        if ($timUserId !== null) {
-            $model->delete($timUserId);
-        }
-        return redirect()->to(current_url() . '/../../..');
-    }
 }
