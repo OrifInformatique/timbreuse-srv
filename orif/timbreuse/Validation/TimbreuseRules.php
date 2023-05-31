@@ -72,6 +72,9 @@ class TimbreuseRules
     public function cb_before_date(string $dateBegin, string $dateEnd, array 
         $data, &$error=null): bool
     {
+        if (isset($dateEnd)) {
+            return true;
+        }
         try {
             Time::parse($dateBegin);
             Time::parse($dateEnd);
@@ -79,6 +82,7 @@ class TimbreuseRules
             $error = lang('tim_lang.errorDate');
             return false;
         }
+        
         $error = lang('tim_lang.dateNotBefore');
         # to change
         return $dateBegin < $dateEnd;

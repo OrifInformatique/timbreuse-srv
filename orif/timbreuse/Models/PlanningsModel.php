@@ -54,6 +54,7 @@ class PlanningModel extends Model
     public function get_planning(int $planningId): array
     {
         return $this->select_time()
+                ->withDeleted()
                 ->find($planningId);
     }
 

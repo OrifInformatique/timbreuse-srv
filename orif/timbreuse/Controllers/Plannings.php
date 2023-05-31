@@ -325,7 +325,7 @@ class Plannings extends BaseController
         if ($this->request->getMethod() === 'post') {
             return $this->format_post_old_dates();
         } else {
-            return $model->get_begin_end_dates($planningId);
+            return $model->get_begin_end_dates($planningId, true);
         }
     }
 
@@ -402,6 +402,10 @@ class Plannings extends BaseController
         $formatedArray = array();
         $formatedArray['date_begin'] = $formArray['dateBegin'] ?? null;
         $formatedArray['date_end'] = $formArray['dateEnd'] ?? null;
+        $formatedArray['date_begin'] = $formatedArray['date_begin'] !== '' ?
+                $formatedArray['date_begin']: null;
+        $formatedArray['date_end'] = $formatedArray['date_end'] !== '' ?
+                $formatedArray['date_end']: null;
         return $formatedArray;
     }
 
@@ -598,7 +602,6 @@ class Plannings extends BaseController
         $model = model(PlanningsModel::class);
         $post = $this->request->getPost();
         $updateArray['date_delete'] = null;
-        var_dump($post['planningId']);
         $model->onlyDeleted()->update($post['planningId'], $updateArray);
         $url = $this->get_cancel_link_for_edit_planning($post['planningId']);
         return redirect()->to(current_url() . "/$url");

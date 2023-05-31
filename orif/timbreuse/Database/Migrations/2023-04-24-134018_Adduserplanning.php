@@ -22,8 +22,13 @@ class Adduserplanning extends Migration
 
         $field[0] = 
             '`date_begin` DATE DEFAULT NULL CHECK (`date_begin` < `date_end`)';
-        $field[1] = 
+        $field[1] =
             '`date_end` DATE DEFAULT NULL CHECK (`date_end` > `date_begin`)';
+
+        # $field[0] = 
+        #     '`date_begin` DATE DEFAULT NULL CHECK ((`date_begin` < `date_end`) OR (`date_end` IS NULL))';
+        # $field[1] =
+        #     '`date_end` DATE DEFAULT NULL CHECK ((`date_end` > `date_begin`) OR (`date_end` IS NULL))';
 
 		# $field['date_begin']['type'] = 'DATE';
 		# $field['date_begin']['null'] = true;
