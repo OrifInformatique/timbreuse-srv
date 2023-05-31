@@ -195,8 +195,8 @@ class Plannings extends BaseController
             $model->insert_planning_times_and_dates($post['timUserId'],
                 $formatedTimeArray, $datesArray);
         }
-        $url = $this->get_cancel_link_for_create_planning($post['timUserId']);
-        # to fix between user and admin
+        $url = $this->get_redirect_link_for_create_planning(
+            $post['timUserId']);
         return redirect()->to(current_url() . "/$url");
     }
 
@@ -265,6 +265,15 @@ class Plannings extends BaseController
                 $timUserId);
     }
 
+    protected function get_redirect_link_for_create_planning(
+            ?int $timUserId=null): string
+    {
+        if ($timUserId === $this->get_tim_user_id()) {
+            return '../get_plannings_list/';
+        }
+        return "../../get_plannings_list/$timUserId";
+    }
+
     /**
      * hide the id if the user "check" himself
      **/
@@ -274,7 +283,7 @@ class Plannings extends BaseController
         if ($timUserId === $this->get_tim_user_id()) {
             return $txt;
         }
-        return  "../$txt$timUserId";
+        return  "$txt$timUserId";
     }
 
     // to rename, is also use after redirect when validate post

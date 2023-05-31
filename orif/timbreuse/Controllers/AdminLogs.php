@@ -54,7 +54,7 @@ class AdminLogs extends PersoLogs
         }
     }
 
-    protected function get_edit_url_for_day_view(array $log)
+    protected function get_edit_url_for_day_view(array $log): string
     {
             return '../../../edit_log/' .  $log['id_log'];
     }
