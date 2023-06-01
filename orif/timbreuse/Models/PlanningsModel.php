@@ -222,7 +222,7 @@ class PlanningModel extends Model
             ?int $planningId=null): bool
     {
         if (strlen($period['date_end']) == 0) {
-            $date['date_end'] = '9999-12-31';
+            $period['date_end'] = '9999-12-31';
         }
         $unavailableDates = $this->get_unavailable_period($timUserId,
             $planningId);
@@ -338,6 +338,20 @@ class PlanningModel extends Model
                 ->find($planningId);
         return isset($data['date_delete']);
 
+    }
+
+    /**
+        * return seconds
+    */
+    public function get_due_time_day(string $date, int $timUserId)
+    {
+        $this->join_planning_and_user_planning();
+        return $this->select('planning.id_planning')
+            ->where('date_begin <=', $date)
+            ->where('date_end >=', $date)
+            ->orWhere('date_end IS NULL')
+            ->where('id_user >=', $timUserId)
+            ->findAll();
     }
 
 

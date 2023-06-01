@@ -607,10 +607,11 @@ class Plannings extends BaseController
         return redirect()->to(current_url() . "/$url");
     }
 
-    private function test()
+    public function test()
     {
         $model = model(PlanningsModel::class);
-        $model->get_data_list_user_planning(92);
+        $a = $model->get_due_time_day('2023-05-31', 92);
+        var_dump($a);
     }
 
 }

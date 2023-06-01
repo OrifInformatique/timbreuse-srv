@@ -72,7 +72,7 @@ class TimbreuseRules
     public function cb_before_date(string $dateBegin, string $dateEnd, array 
         $data, &$error=null): bool
     {
-        if (isset($dateEnd)) {
+        if ((!isset($dateEnd)) or ($dateEnd === '')) {
             return true;
         }
         try {
