@@ -13,6 +13,7 @@ use CodeIgniter\I18n\Time;
 use Timbreuse\Models\AccessTimModel;
 use Timbreuse\Models\LogsFakeLogsModel;
 use Timbreuse\Models\FakeLogsModel;
+use Timbreuse\Models\PlanningsModel;
 
 class PersoLogs extends BaseController
 {
@@ -33,7 +34,7 @@ class PersoLogs extends BaseController
         }
 
 
-    protected function get_last_monday(Time $day)
+    protected function get_last_monday(Time $day): Time
     {
         return $day->subDays($day->dayOfWeek - 1);
     }
@@ -65,14 +66,19 @@ class PersoLogs extends BaseController
         );
     }
 
-    static function get_hours_by_seconds($seconds): string
+    static function get_hours_by_seconds(int $seconds): string
     {
+        $negative = $seconds < 0;
+        $seconds = abs($seconds);
         $hours = floor($seconds / 3600);
         $seconds -= $hours * 3600;
-
         $minutes = floor($seconds / 60);
         $seconds -= $minutes * 60;
-        return sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
+        $text = sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
+        if ($negative) {
+            return "-$text";
+        }
+        return $text;
     }
 
     /**
@@ -116,8 +122,7 @@ class PersoLogs extends BaseController
         $logs = $model->get_filtered_logs($userId, $date, 'week');
         $data['label_week'] = $this->get_workdays_text($date);
         $data['time'] = $this->get_hours_by_seconds(
-            $this->get_time_array($logs)
-        );
+                $this->get_time_array($logs));
         $data['url'] = '../' . $date->toDateString() . '/week';
         return $data;
     }
@@ -131,6 +136,7 @@ class PersoLogs extends BaseController
         $data['columns'][1] = lang('tim_lang.enter/exit');
         return $data;
     }
+
     protected function get_page_title_for_log_views($userId, $day, $period)
     {
         $usersModel = model(UsersModel::class);
@@ -142,8 +148,7 @@ class PersoLogs extends BaseController
     protected function get_sum_time_for_day_view($userId, $day, $period)
     {
         $sumTime = array();
-        $sumTime['time'] = $this->get_time_day_by_period($userId, $day,
-                $period);
+        $sumTime['time'] = $this->get_time_day_by_period($userId, $day, $period);
         $sumTime['date'] = ucfirst(lang('tim_lang.timeTotal'));
         return $sumTime;
     }
@@ -183,7 +188,6 @@ class PersoLogs extends BaseController
             $data['userId'] = $userId;
         }
         return $data;
-
     }
 
     protected function time_list_day($userId, $day = null, $period = null)
@@ -196,13 +200,9 @@ class PersoLogs extends BaseController
         $data += $this->get_buttons_for_log_views($day, $period, $userId);
         array_push($data['items'], $this->get_sum_time_for_day_view($userId,
                 $day, $period));
-        $this->display_view(
-            [
-                'Timbreuse\Views\period_menu', 'Timbreuse\Views\date',
-                'Timbreuse\Views\logs\day_time.php'
-            ],
-            $data
-        );
+        $this->display_view(['Timbreuse\Views\period_menu',
+                'Timbreuse\Views\date', 'Timbreuse\Views\logs\day_time.php'],
+                $data);
     }
 
     protected function time_list_month($userId, $day = null, $period = null)
@@ -211,22 +211,15 @@ class PersoLogs extends BaseController
         $data['columns'] = array();
         $data['columns'][0] = lang('tim_lang.week');
         $data['columns'][1] = lang('tim_lang.time');
-
         $day = Time::parse($day);
         $data += $this->put_args_in_array_for_log_views($userId, $day,
                 $period);
         $data['items'] = $this->get_month_week_array($userId, $day);
-
-        $data += $this->get_page_title_for_log_views($userId, $day,
-                $period);
+        $data += $this->get_page_title_for_log_views($userId, $day, $period);
         $data += $this->get_buttons_for_log_views($day, $period);
-        $this->display_view(
-            [
-                'Timbreuse\Views\period_menu',
-                'Timbreuse\Views\date', 'Timbreuse\Views\logs\month_time.php'
-            ],
-            $data
-        );
+        $this->display_view(['Timbreuse\Views\period_menu',
+                'Timbreuse\Views\date', 'Timbreuse\Views\logs\month_time.php'],
+                $data);
     }
 
     /**
@@ -437,7 +430,6 @@ class PersoLogs extends BaseController
         } else {
             return;
         }
-
         if (!(session()->has('userIdAccess'))) {
             $model = model(AccessTimModel::class);
             $userId = $model->get_access_users($this->get_ci_user_id());
@@ -452,7 +444,6 @@ class PersoLogs extends BaseController
                     return $this->access_user_list();
                     break;
             }
-
         } elseif (($day === null) and ($period === null)) {
             session()->remove('userIdAccess');
         } else {
@@ -460,19 +451,14 @@ class PersoLogs extends BaseController
             $userId = session()->get('userIdAccess');
             $this->check_and_block_user();
         }
-
-
         if (($day === null)) {
-            return redirect()->to(
-                current_url() . '/../perso_time/'
+            return redirect()->to(current_url() . '/../perso_time/'
                 . Time::today()->toDateString() . '/day');
         }
         if ($period === null) {
             return redirect()->to(current_url() . '/../' . $day . '/day');
         }
-
         return $this->perso_time_period($userId, $day, $period);
-
     }
 
     protected function perso_time_period($userId, $day, $period)
@@ -1234,6 +1220,106 @@ class PersoLogs extends BaseController
         $model = model(AccessTimModel::class);
         var_dump($model->get_tim_user_id(10));
         return $model->get_tim_user_id(10);
+    }
+
+    public function get_balance_day(int $timUserId, string $date): string
+    {
+        $planningModel = model(PlanningsModel::class);
+        $planningTime = $planningModel
+                ->get_planning_time_day($date, $timUserId);
+        $date = Time::parse($date);
+        $logsTime = $this->get_time_day_by_period($timUserId, $date, 'day');
+        $times = $this->to_seconds_for_planning_day($planningTime[0],
+                $planningTime[1], $logsTime);
+        $balanceSeconds = $this->get_balance_seconds($times['dueTime'],
+                $times['offeredTime'], $times['logsTime']);
+        $balance = $this->get_hours_by_seconds($balanceSeconds);
+        $balance = $this->get_string_with_plus($balance);
+        return $balance;
+    }
+
+    public function get_balance_week(int $timUserId, string $date): string
+    {
+        $date = Time::parse($date);
+        $monday = $this->get_last_monday($date);
+        return $this->get_balance_period($monday, 5, $timUserId);
+    }
+
+    # to ? refactored because one week possible (5 days)
+    public function get_balance_period(Time $firstDay,
+            int $numberOfDay, int $timUserId): string
+    {
+        $days = range(0, $numberOfDay - 1);
+        $daysDate = array_map(array($firstDay, 'addDays'), $days);
+        $daysDateText = array_map(function($day) {
+            return $day->toDateString();
+        }, $daysDate);
+        $daysBalanceText = array_map(function($day) use ($timUserId) {
+            return $this->get_balance_day($timUserId, $day);
+        }, $daysDateText);
+        $daysBalanceSeconds = array_map(array($this, 'toSeconds'),
+                $daysBalanceText); 
+        $balanceSeconds = array_reduce($daysBalanceSeconds,
+                function($carry, $day) {
+                    return $carry + $day;
+                });
+        $balanceText = $this->get_hours_by_seconds($balanceSeconds);
+        return $balanceText;
+    }
+
+
+    # to fix
+    public function get_balance_month(int $timUserId, string $date)#: string
+    {
+        $date = Time::parse($date);
+        $firstDay = Time::create($date->year, $date->month, 1);
+        $lastDay = $firstDay->addMonths(1)->subDays(1);
+        $numberOfDay = $lastDay->day;
+        return $this->get_balance_period($firstDay, $numberOfDay, $timUserId);
+    }
+
+
+    public function get_string_with_plus($text): string
+    {
+        if ($text[0] === '-') {
+            return $text;
+        }
+        return "+$text";
+    }
+
+    public function get_balance_seconds(int $dueTime, int $offeredTime,
+            int $logsTime): int
+    {
+        if ($logsTime === 0) {
+            return -$dueTime;
+        }
+        return -$dueTime + $logsTime + $offeredTime;
+    }
+
+    public function to_seconds_for_planning_day(string $dueTime,
+            string $offeredTime, string $logsTime): array
+    {
+        $data['dueTime'] = $this->toSeconds($dueTime);
+        $data['offeredTime'] = $this->toSeconds($offeredTime);
+        $data['logsTime'] = $this->toSeconds($logsTime);
+        return $data;
+    }
+
+    public function toSeconds(string $time): int
+    {
+        $negative = false;
+        if ($time[0] === '-') {
+            $negative = true;
+        }
+        if (($time[0] === '-') or ($time[0] === '+')) {
+            $time = substr($time, 1, -1);
+        }
+        $date = Time::parse($time);
+        $seconds = $date->hour * 3600 + $date->minute * 60 + $date->second;
+        if ($negative) {
+            $seconds = -$seconds;
+        }
+        return $seconds;
     }
     
 

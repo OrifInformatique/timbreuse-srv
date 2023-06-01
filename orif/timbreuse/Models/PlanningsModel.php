@@ -340,19 +340,54 @@ class PlanningModel extends Model
 
     }
 
-    /**
-        * return seconds
-    */
-    public function get_due_time_day(string $date, int $timUserId)
+    public function get_planning_time_day(string $date, int $timUserId): array
     {
+        $columns = $this->get_columns_day_name($date);
+        $date = $this->db->escape($date);
+        $timUserId = $this->db->escape($timUserId);
+        $where = "(date_begin <= $date) AND ((date_end >= $date) OR "
+                . "(date_end IS NULL)) AND (id_user = $timUserId)";
         $this->join_planning_and_user_planning();
-        return $this->select('planning.id_planning')
-            ->where('date_begin <=', $date)
-            ->where('date_end >=', $date)
-            ->orWhere('date_end IS NULL')
-            ->where('id_user >=', $timUserId)
-            ->findAll();
+        $columnsData = $this->select("$columns[0],  $columns[1]")
+                ->where($where)
+                ->first();
+        $keys = array_keys($columnsData);
+        return array($columnsData[$keys[0]], $columnsData[$keys[1]]);
     }
+
+    public function get_balance(string $date, int $timUserId)
+    {
+        $planning_time = $this->get_planning_time_day($date, $timUserId);
+    }
+
+    # to edit
+    public function convert_second(array $columnsData): array
+    {
+        $keys = array_keys($columnsData);
+        $dueTime = Time::parse($columnsData[$keys[0]]);
+        $offeredTime = Time::parse($columnsData[$keys[1]]);
+        return array($dueTime, $offeredTime);
+    }
+
+    public function get_columns_day_name(string $date): array
+    {
+        $dayOfWeek = Time::parse($date)->dayOfWeek;
+        $label[1][0] = 'due_time_monday';
+        $label[1][1] = 'offered_time_monday';
+        $label[2][0] = 'due_time_tuesday';
+        $label[2][1] = 'offered_time_tuesday';
+        $label[3][0] = 'due_time_wednesday';
+        $label[3][1] = 'offered_time_wednesday';
+        $label[4][0] = 'due_time_thursday';
+        $label[4][1] = 'offered_time_thursday';
+        $label[5][0] = 'due_time_friday';
+        $label[5][1] = 'offered_time_friday';
+        return $label[$dayOfWeek];
+
+
+    }
+
+   
 
 
 }

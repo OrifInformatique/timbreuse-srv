@@ -610,7 +610,14 @@ class Plannings extends BaseController
     public function test()
     {
         $model = model(PlanningsModel::class);
-        $a = $model->get_due_time_day('2023-05-31', 92);
+        $a = $model->get_planning_time_day('2023-06-08', 92);
+        var_dump($a);
+    }
+
+    public function test2()
+    {
+        $model = model(PlanningsModel::class);
+        $a = $model->get_column_day_names('2023-06-01');
         var_dump($a);
     }
 
