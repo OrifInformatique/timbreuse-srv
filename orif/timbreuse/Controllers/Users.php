@@ -293,9 +293,7 @@ class Users extends BaseController
 
     public function edit_tim_user($timUserId)
     {
-        /**
-        * show the edit formulaire, when is valited go to post_edit… method
-        */
+        #show the edit formulaire, when is valited go to post_edit… method
         if (($this->request->getMethod() === 'post') and $this->validate([
             'name' => 'required',
             'surname' => 'required',
@@ -309,8 +307,8 @@ class Users extends BaseController
         $this->display_view('Timbreuse\Views\users\edit_tim_user', $data);
     }
 
-    protected function update_user_and_badge($timUserId, $newBadgeId, $name, 
-            $surname)
+    protected function update_user_and_badge(int $timUserId, ?int $newBadgeId,
+        string $name, string $surname): bool
     {
         $userData['name'] = $name;
         $userData['surname'] = $surname;
@@ -338,8 +336,9 @@ class Users extends BaseController
         $surname = $this->request->getPost('surname');
         $timUserId = $this->request->getPost('timUserId');
         $newBadgeId = $this->request->getPost('badgeId');
+        $newBadgeId = $newBadgeId === '' ? null : $newBadgeId;
         if($this->update_user_and_badge($timUserId, $newBadgeId, $name, 
-                $surname)){
+                $surname)) {
             return redirect()->to(current_url() . '/../../..');
         } else {
             return redirect()->to(current_url() . '/../..');
