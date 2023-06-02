@@ -29,11 +29,12 @@ class BadgesModel extends Model
         }
     }
 
-    public function get_available_badges()
+    public function get_available_badges(): array
     {
         #$this->orderBy('id_badge');
-        $this->where('id_user', null);
-         return $this->findColumn('id_badge');
+        $data = $this->where('id_user', null)
+                ->findColumn('id_badge');
+        return $data ?? array();
         
     }
 
@@ -112,14 +113,15 @@ class BadgesModel extends Model
             ->find($badgeId);
     }
 
-    public function get_available_users_info()
+    public function get_available_users_info(): array
     {
-        return $this->select('user_sync.id_user, name, surname')
+        $data = $this->select('user_sync.id_user, name, surname')
             ->join('user_sync', 'user_sync.id_user = badge_sync.id_user',
                 'right')
             ->where('id_badge', null)
             ->orderBy('name')
             ->findall();
+        return $data ?? array();
     }
 
     public function is_allocate_user(string $badgeId): bool
