@@ -77,7 +77,7 @@ class Badges extends BaseController
 
     public function delete_badge($badgeId=null)
     {
-        if ($this->request->getMethod() === 'post' and $badgeId === null) {
+        if ($this->request->getMethod() === 'post') {
             $badgeId = $this->request->getPost('id');
             return $this->delete_badge_post($badgeId);
         } elseif ($badgeId === null) {
@@ -97,7 +97,7 @@ class Badges extends BaseController
             $badgeModel->delete($badgeId);
         }
         $badgeModel->transComplete();
-        return redirect()->to(current_url() . '/..');
+        return redirect()->to(current_url() . '/../..');
     }
 
     public function edit_badge_relation($badgeId=null)
@@ -137,7 +137,7 @@ class Badges extends BaseController
         $model = model(badgesModel::class);
         $model->update($post['badgeId'], $badgeData);
 
-        return redirect()->to(current_url() . '/..');
+        return redirect()->to(current_url() . '/../..');
     }
 
     public function get_data_for_edit_badge_relation($badgeId)
