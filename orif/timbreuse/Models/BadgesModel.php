@@ -10,7 +10,7 @@ class BadgesModel extends Model
 
     protected $useSoftDeletes = true;
 
-    protected $allowedFields = ['id_user'];
+    protected $allowedFields = ['id_user', 'date_delete'];
 
     protected $useTimestamps = true;
     protected $createdField  = '';
@@ -113,7 +113,11 @@ class BadgesModel extends Model
             ->find($badgeId);
     }
 
-    public function get_available_users_info(): array
+    /**
+     * @deprecated 
+     * it is moved to userModel
+    */
+    private function get_available_users_info(): array
     {
         $data = $this->select('user_sync.id_user, name, surname')
             ->join('user_sync', 'user_sync.id_user = badge_sync.id_user',

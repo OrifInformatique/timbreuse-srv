@@ -154,9 +154,10 @@ class Badges extends BaseController
             $data['availableUsers'][0] = $currentUser;
         }
         array_push($data['availableUsers'], $this->get_empty_user_info());
+        $userModel = model(UsersModel::class);
 
         $data['availableUsers'] = array_merge($data['availableUsers'],
-            $model->get_available_users_info());
+            $userModel->get_available_users_info());
 
         $data['labels']['user'] = ucfirst(lang('tim_lang.timUserRelation'));
         $data['labels']['back'] = ucfirst(lang('tim_lang.cancel'));

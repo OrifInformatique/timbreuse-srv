@@ -82,7 +82,7 @@ class Users extends BaseController
 
     public function delete_tim_user($timUserId=null)
     {
-        if ($this->request->getMethod() === 'post' and $timUserId === null) {
+        if ($this->request->getMethod() === 'post') {
             $timUserId = $this->request->getPost('id');
             return $this->delete_timUser_post($timUserId);
         } elseif ($timUserId === null) {
@@ -102,7 +102,7 @@ class Users extends BaseController
             $timUserModel->delete($timUserId);
         }
         $timUserModel->db->transComplete();
-        return redirect()->to(current_url() . '/..');
+        return redirect()->to(current_url() . '/../..');
     }
 
     public function ci_users_list($userId = 92)
