@@ -74,7 +74,7 @@ class Users extends BaseController
         }
         $data['text'] = sprintf(lang('tim_lang.confirmDeleteTimUser'),
             $badgeId, '');
-        $data['link'] = '.';
+        $data['link'] = '';
         $data['cancel_link'] = '..';
         $data['id'] = $timUserId;
         return $data;

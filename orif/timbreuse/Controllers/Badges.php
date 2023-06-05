@@ -69,7 +69,7 @@ class Badges extends BaseController
         $data['text'] = sprintf(lang('tim_lang.confirmDeleteBadge'),
             $userInfo['name'], $userInfo['surname']);
 
-        $data['link'] = '.';
+        $data['link'] = '';
         $data['cancel_link'] = '..';
         $data['id'] = $badgeId;
         return $data;
@@ -144,7 +144,7 @@ class Badges extends BaseController
     {
         $data['badgeId'] = $badgeId;
         # $data['postUrl'] = '../post_edit_badge_relation/' . $badgeId;
-        $data['postUrl'] = '.';
+        $data['postUrl'] = '';
         $data['returnUrl'] = '..';
         $data['deleteUrl'] = '../delete_badge/' . $badgeId;
         $model = model(badgesModel::class);
