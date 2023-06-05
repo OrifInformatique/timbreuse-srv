@@ -69,7 +69,7 @@ class Badges extends BaseController
         $data['text'] = sprintf(lang('tim_lang.confirmDeleteBadge'),
             $userInfo['name'], $userInfo['surname']);
 
-        $data['link'] = '.';
+        $data['link'] = '';
         $data['cancel_link'] = '..';
         $data['id'] = $badgeId;
         return $data;
@@ -77,7 +77,7 @@ class Badges extends BaseController
 
     public function delete_badge($badgeId=null)
     {
-        if ($this->request->getMethod() === 'post' and $badgeId === null) {
+        if ($this->request->getMethod() === 'post') {
             $badgeId = $this->request->getPost('id');
             return $this->delete_badge_post($badgeId);
         } elseif ($badgeId === null) {
@@ -97,7 +97,7 @@ class Badges extends BaseController
             $badgeModel->delete($badgeId);
         }
         $badgeModel->transComplete();
-        return redirect()->to(current_url() . '/..');
+        return redirect()->to(current_url() . '/../..');
     }
 
     public function edit_badge_relation($badgeId=null)
@@ -136,14 +136,14 @@ class Badges extends BaseController
         $model = model(badgesModel::class);
         $model->update($post['badgeId'], $badgeData);
 
-        return redirect()->to(current_url() . '/..');
+        return redirect()->to(current_url() . '/../..');
     }
 
     public function get_data_for_edit_badge_relation($badgeId)
     {
         $data['badgeId'] = $badgeId;
         # $data['postUrl'] = '../post_edit_badge_relation/' . $badgeId;
-        $data['postUrl'] = '.';
+        $data['postUrl'] = '';
         $data['returnUrl'] = '..';
         $data['deleteUrl'] = '../delete_badge/' . $badgeId;
         $model = model(badgesModel::class);
@@ -153,9 +153,10 @@ class Badges extends BaseController
             $data['availableUsers'][0] = $currentUser;
         }
         array_push($data['availableUsers'], $this->get_empty_user_info());
+        $userModel = model(UsersModel::class);
 
         $data['availableUsers'] = array_merge($data['availableUsers'],
-            $model->get_available_users_info());
+            $userModel->get_available_users_info());
 
         $data['labels']['user'] = ucfirst(lang('tim_lang.timUserRelation'));
         $data['labels']['back'] = ucfirst(lang('tim_lang.cancel'));

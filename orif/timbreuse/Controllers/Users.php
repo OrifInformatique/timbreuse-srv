@@ -74,7 +74,7 @@ class Users extends BaseController
         }
         $data['text'] = sprintf(lang('tim_lang.confirmDeleteTimUser'),
             $badgeId, '');
-        $data['link'] = '.';
+        $data['link'] = '';
         $data['cancel_link'] = '..';
         $data['id'] = $timUserId;
         return $data;
@@ -82,7 +82,7 @@ class Users extends BaseController
 
     public function delete_tim_user($timUserId=null)
     {
-        if ($this->request->getMethod() === 'post' and $timUserId === null) {
+        if ($this->request->getMethod() === 'post') {
             $timUserId = $this->request->getPost('id');
             return $this->delete_timUser_post($timUserId);
         } elseif ($timUserId === null) {
@@ -102,7 +102,7 @@ class Users extends BaseController
             $timUserModel->delete($timUserId);
         }
         $timUserModel->db->transComplete();
-        return redirect()->to(current_url() . '/..');
+        return redirect()->to(current_url() . '/../..');
     }
 
     public function ci_users_list($userId = 92)

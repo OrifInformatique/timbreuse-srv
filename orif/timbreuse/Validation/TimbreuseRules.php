@@ -31,9 +31,10 @@ class TimbreuseRules
     public function cb_available_user(string $newUserId, string $badgeId,
         array $data, &$error=null) : bool
     {
-        $model = model(badgesModel::class);
-        $availableUsers = $model->get_available_users_info();
-        $oldUserId = $model->get_user_id($badgeId);
+        $badgeModel = model(badgesModel::class);
+        $userModel = model(UsersModel::class);
+        $availableUsers = $userModel->get_available_users_info();
+        $oldUserId = $badgeModel->get_user_id($badgeId);
         $empty_user['id_user'] = '';
         array_push($availableUsers, $empty_user);
         if (isset($oldUserId)){
