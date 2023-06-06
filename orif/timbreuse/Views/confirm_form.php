@@ -5,7 +5,7 @@
         </div>
     <?php endif ?>
     <p><?= esc($text) ?></p>
-    <form action=<?= esc($link) ?> method="post">
+    <form action="<?= esc($link) ?>" method="post">
         <?= csrf_field() ?>
         <!-- CSRF protection -->
         <input type="submit" value="<?= esc(ucfirst($label_button)) ?>" class="btn btn-primary">

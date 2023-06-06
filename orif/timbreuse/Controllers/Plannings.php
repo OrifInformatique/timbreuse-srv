@@ -261,8 +261,10 @@ class Plannings extends BaseController
     protected function get_cancel_link_for_create_planning(
             ?int $timUserId=null): string
     {
-        return $this->get_link_with_id_or_not(current_url()
-                . '/../get_plannings_list/', $timUserId);
+        if ($timUserId === $this->get_tim_user_id()) {
+            return current_url() . '/../get_plannings_list';
+        }
+        return current_url() . "/../../get_plannings_list/$timUserId";
     }
 
     protected function get_redirect_link_for_create_planning(
@@ -395,7 +397,7 @@ class Plannings extends BaseController
                 $formatedTimeArray, $datesArray);
         }
         $url = $this->get_cancel_link_for_edit_planning($post['planningId']);
-        return redirect()->to(current_url() . "/../$url");
+        return redirect()->to($url);
     }
 
     protected function format_form_dates(array $formArray): array
@@ -552,8 +554,8 @@ class Plannings extends BaseController
         $data['title'] = $data['h3title'];
         $data['text'] = ucfirst(lang('tim_lang.confirmDeletePlanning'));
         $data['link'] = '';
-        $data['cancel_link'] = $this->get_cancel_link_for_create_planning(
-                $this->get_tim_user_id($planningId));
+        $data['cancel_link'] = $this->get_cancel_link_for_edit_planning(
+                $planningId);
         return $this->display_view(['Timbreuse\Views\confirm_delete_form.php'],
                 $data);
     }
@@ -575,8 +577,8 @@ class Plannings extends BaseController
         $data['title'] = $data['h3title'];
         $data['text'] = ucfirst(lang('tim_lang.confirmRestorePlanning'));
         $data['link'] = '';
-        $data['cancel_link'] = $this->get_cancel_link_for_create_planning(
-                $this->get_tim_user_id($planningId));
+        $data['cancel_link'] = $this->get_cancel_link_for_edit_planning(
+                $planningId);
         $data['label_button'] = lang('tim_lang.restore');
         return $this->display_view(['Timbreuse\Views\confirm_form.php'],
                 $data);
@@ -591,7 +593,7 @@ class Plannings extends BaseController
         $url = $this->get_cancel_link_for_edit_planning($post['id']);
         $model = model(PlanningsModel::class);
         $model->delete($post['id']);
-        return redirect()->to(current_url() . "/$url");
+        return redirect()->to($url);
     }
 
     protected function post_restore_planning()
@@ -605,7 +607,7 @@ class Plannings extends BaseController
         $updateArray['date_delete'] = null;
         $model->onlyDeleted()->update($post['planningId'], $updateArray);
         $url = $this->get_cancel_link_for_edit_planning($post['planningId']);
-        return redirect()->to(current_url() . "/$url");
+        return redirect()->to($url);
     }
 
     public function test()
