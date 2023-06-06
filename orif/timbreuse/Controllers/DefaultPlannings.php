@@ -105,7 +105,7 @@ class DefaultPlannings extends Plannings
     // to rename, is also use after redirect when validate post
     protected function get_cancel_link_for_edit_planning(?int $n=null): string
     {
-        return  '..';
+        return current_url() . '/../';
     }
 
 }
