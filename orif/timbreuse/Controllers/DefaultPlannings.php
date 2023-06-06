@@ -92,7 +92,7 @@ class DefaultPlannings extends Plannings
         $formatedTimeArray = $this->format_form_time_array($post);
 
         $model->update($this->get_default_planning_id(), $formatedTimeArray);
-        return redirect()->to(current_url() . '/../../../');
+        return redirect()->to(current_url() . '/../');
     }
 
     protected function get_data_for_edit_planning($planningId, $model): array
