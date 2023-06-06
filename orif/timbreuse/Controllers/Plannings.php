@@ -175,7 +175,7 @@ class Plannings extends BaseController
             $this->get_tim_user_name($timUserId)));
         $data['title'] = $data['h3title'];
         $data['labels'] = $this->get_label_for_edit_planning();
-        $data['action'] = '.';
+        $data['action'] = '';
         $data['cancelLink'] = $this->get_cancel_link_for_create_planning(
             $timUserId);
         $data['timUserId'] = $timUserId;
@@ -251,7 +251,7 @@ class Plannings extends BaseController
         $data['title'] = $data['h3title'];
         $data['labels'] = $this->get_label_for_edit_planning();
         $data['planningId'] = $planningId;
-        $data['action'] = '.';
+        $data['action'] = '';
         $data['cancelLink'] = $this->get_cancel_link_for_edit_planning(
                 $planningId);
         return $data;
@@ -261,8 +261,8 @@ class Plannings extends BaseController
     protected function get_cancel_link_for_create_planning(
             ?int $timUserId=null): string
     {
-        return $this->get_link_with_id_or_not('../get_plannings_list/',
-                $timUserId);
+        return $this->get_link_with_id_or_not(current_url()
+                . '/../get_plannings_list/', $timUserId);
     }
 
     protected function get_redirect_link_for_create_planning(
@@ -294,7 +294,8 @@ class Plannings extends BaseController
             return  '../get_plannings_list';
         }
         $timUserId = $this->get_tim_user_id($planningId);
-        return $this->get_cancel_link_for_create_planning($timUserId);
+        return $this->get_link_with_id_or_not(current_url()
+                . '/../../get_plannings_list/', $timUserId);
     }
 
     protected function get_data_for_edit_planning(int $planningId, 
@@ -550,7 +551,7 @@ class Plannings extends BaseController
                 'tim_lang.titleConfirmDeletePlanning'), $planningId));
         $data['title'] = $data['h3title'];
         $data['text'] = ucfirst(lang('tim_lang.confirmDeletePlanning'));
-        $data['link'] = '.';
+        $data['link'] = '';
         $data['cancel_link'] = $this->get_cancel_link_for_create_planning(
                 $this->get_tim_user_id($planningId));
         return $this->display_view(['Timbreuse\Views\confirm_delete_form.php'],
@@ -573,7 +574,7 @@ class Plannings extends BaseController
                 'tim_lang.titleConfirmRestorePlanning'), $planningId));
         $data['title'] = $data['h3title'];
         $data['text'] = ucfirst(lang('tim_lang.confirmRestorePlanning'));
-        $data['link'] = '.';
+        $data['link'] = '';
         $data['cancel_link'] = $this->get_cancel_link_for_create_planning(
                 $this->get_tim_user_id($planningId));
         $data['label_button'] = lang('tim_lang.restore');
