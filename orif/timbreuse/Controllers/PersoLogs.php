@@ -157,9 +157,10 @@ class PersoLogs extends BaseController
     {
         helper('UtilityFunctions');
         if ($timUserId === get_tim_user_id()) {
-            $button['link'] = '/Plannings/get_plannings_list/';
+            $button['link'] = base_url('/Plannings/get_plannings_list/');
         } else {
-            $button['link'] = "/Plannings/get_plannings_list/$timUserId";
+            $button['link'] = base_url(
+                "/Plannings/get_plannings_list/$timUserId");
         }
         $button['label'] = ucfirst(lang('tim_lang.planning'));
         return $button;
