@@ -343,6 +343,9 @@ class PlanningModel extends Model
     public function get_planning_time_day(string $date, int $timUserId): array
     {
         $columns = $this->get_columns_day_name($date);
+        if (is_null($columns)) {
+            return array(0 , 0);
+        }
         $date = $this->db->escape($date);
         $timUserId = $this->db->escape($timUserId);
         $where = "(date_begin <= $date) AND ((date_end >= $date) OR "
@@ -369,7 +372,7 @@ class PlanningModel extends Model
         return array($dueTime, $offeredTime);
     }
 
-    public function get_columns_day_name(string $date): array
+    public function get_columns_day_name(string $date): ?array
     {
         $dayOfWeek = Time::parse($date)->dayOfWeek;
         $label[1][0] = 'due_time_monday';
@@ -382,6 +385,8 @@ class PlanningModel extends Model
         $label[4][1] = 'offered_time_thursday';
         $label[5][0] = 'due_time_friday';
         $label[5][1] = 'offered_time_friday';
+        $label[6] = null;
+        $label[7] = null;
         return $label[$dayOfWeek];
 
 

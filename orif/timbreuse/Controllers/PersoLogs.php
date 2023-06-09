@@ -191,33 +191,36 @@ class PersoLogs extends BaseController
         return $data;
     }
 
-    protected function time_list_day($userId, $day = null, $period = null)
+    protected function time_list_day($timUserId, $day = null, $period = null)
     {
         $day = Time::parse($day);
-        $data = $this->put_args_in_array_for_log_views($userId, $day, $period);
-        $data['items'] = $this->get_day_view_day_array($userId, $day);
+        $data = $this->put_args_in_array_for_log_views($timUserId, $day,
+            $period);
+        $data['items'] = $this->get_day_view_day_array($timUserId, $day);
         $data += $this->get_texts_for_day_view();
-        $data += $this->get_page_title_for_log_views($userId, $day, $period);
-        $data += $this->get_buttons_for_log_views($day, $period, $userId);
-        array_push($data['items'], $this->get_sum_time_for_day_view($userId,
+        $data += $this->get_page_title_for_log_views($timUserId, $day,
+            $period);
+        $data += $this->get_buttons_for_log_views($day, $period, $timUserId);
+        array_push($data['items'], $this->get_sum_time_for_day_view($timUserId,
                 $day, $period));
         $this->display_view(['Timbreuse\Views\period_menu',
                 'Timbreuse\Views\date', 'Timbreuse\Views\logs\day_time.php'],
                 $data);
     }
 
-    protected function time_list_month($userId, $day = null, $period = null)
+    protected function time_list_month($timUserId, $day = null, $period = null)
     {
         $data['title'] = lang('tim_lang.month');
         $data['columns'] = array();
         $data['columns'][0] = lang('tim_lang.week');
         $data['columns'][1] = lang('tim_lang.time');
         $day = Time::parse($day);
-        $data += $this->put_args_in_array_for_log_views($userId, $day,
+        $data += $this->put_args_in_array_for_log_views($timUserId, $day,
                 $period);
-        $data['items'] = $this->get_month_week_array($userId, $day);
-        $data += $this->get_page_title_for_log_views($userId, $day, $period);
-        $data += $this->get_buttons_for_log_views($day, $period);
+        $data['items'] = $this->get_month_week_array($timUserId, $day);
+        $data += $this->get_page_title_for_log_views($timUserId, $day,
+            $period);
+        $data += $this->get_buttons_for_log_views($day, $period, $timUserId);
         $this->display_view(['Timbreuse\Views\period_menu',
                 'Timbreuse\Views\date', 'Timbreuse\Views\logs\month_time.php'],
                 $data);
@@ -378,19 +381,20 @@ class PersoLogs extends BaseController
         return $data;
     }
 
-    protected function time_list_week($userId, $day = null,
+    protected function time_list_week($timUserId, $day = null,
             $period = null): void
     {
         $day = Time::parse($day);
-        $data = $this->put_args_in_array_for_log_views($userId, $day,
+        $data = $this->put_args_in_array_for_log_views($timUserId, $day,
                 $period);
         $data += $this->get_texts_for_week_view();
-        $data['items'] = $this->get_week_time_table($userId, $day,);
+        $data['items'] = $this->get_week_time_table($timUserId, $day,);
         $data['sumTime'] = $this->get_time_day_by_period_with_asterisk(
-                $userId, $day, $period,);
+                $timUserId, $day, $period,);
 
-        $data += $this->get_page_title_for_log_views($userId, $day, $period);
-        $data += $this->get_buttons_for_log_views($day, $period);
+        $data += $this->get_page_title_for_log_views($timUserId, $day,
+            $period);
+        $data += $this->get_buttons_for_log_views($day, $period, $timUserId);
         $this->display_view(['Timbreuse\Views\period_menu',
                 'Timbreuse\Views\date', 'Timbreuse\Views\logs\week_time.php'],
                 $data);
@@ -1246,11 +1250,11 @@ class PersoLogs extends BaseController
         return $this->get_balance_period($monday, 5, $timUserId);
     }
 
-    # to ? refactored because one week possible (5 days)
-    public function get_balance_period(Time $firstDay,
+    public function get_balance_period(string $firstDay,
             int $numberOfDay, int $timUserId): string
     {
         $days = range(0, $numberOfDay - 1);
+        $firstDay = Time::parse($firstDay);
         $daysDate = array_map(array($firstDay, 'addDays'), $days);
         $daysDateText = array_map(function($day) {
             return $day->toDateString();
@@ -1268,9 +1272,33 @@ class PersoLogs extends BaseController
         return $balanceText;
     }
 
+    # not use
+    public function get_balance_period_from_monday(string $firstDay,
+        string $lastDay, int $timUserId): string
+    {
+        $firstDay = Time::parse($firstDay);
+        $lastDay = Time::parse($lastDay);
+        $numberOfDay = $lastDay->difference($firstDay)->days;
+        $weeks = range(0, $numberOfDay, 7);
+        $weeksDate = array_map(array($firstDay, 'addDays'), $weeks);
+        $daysDateText = array_map(function($OneDayOfWeek) {
+            return $OneDayOfWeek->toDateString();
+        }, $weeksDate);
+        $balanceWeek = array_map(function($week) use ($timUserId) {
+            return $this->get_balance_week($timUserId, $week);
+        }, $daysDateText);
+        $balanceWeekSeconds = array_map(array($this, 'toSeconds'),
+                $balanceWeek); 
+        $balanceSeconds = array_reduce($balanceWeekSeconds,
+                function($carry, $day) {
+                    return $carry + $day;
+                });
+        $balanceText = $this->get_hours_by_seconds($balanceSeconds);
+        return $balanceText;
+    }
 
-    # to fix
-    public function get_balance_month(int $timUserId, string $date)#: string
+
+    public function get_balance_month(int $timUserId, string $date): string
     {
         $date = Time::parse($date);
         $firstDay = Time::create($date->year, $date->month, 1);
@@ -1315,12 +1343,32 @@ class PersoLogs extends BaseController
         if (($time[0] === '-') or ($time[0] === '+')) {
             $time = substr($time, 1, -1);
         }
-        $date = Time::parse($time);
-        $seconds = $date->hour * 3600 + $date->minute * 60 + $date->second;
+        // $date = Time::parse($time);
+        $date = $this->parseDuration($time);
+        //$seconds = $date->hour * 3600 + $date->minute * 60 + $date->second;
+        $seconds = $date['hour'] * 3600 + $date['minute'] * 60
+                + $date['second'];
         if ($negative) {
             $seconds = -$seconds;
         }
         return $seconds;
+    }
+
+    public function parseDuration(string $duration): array
+    {
+        $beginHour = 0;
+        $endHour = strpos($duration, ':') - 1;
+        $beginMinute = $endHour + 2;
+        $endMinute = strpos($duration, ':', $beginMinute) - 1;
+        $beginSecond = $endMinute + 2;
+        $endSecond = strlen($duration) - 1;
+        $return['hour'] = substr($duration, $beginHour,
+                $endHour - $beginHour + 1);
+        $return['minute'] = substr($duration, $beginMinute,
+                $endMinute - $beginMinute + 1);
+        $return['second'] = substr($duration, $beginSecond,
+                $endSecond - $beginSecond + 1);
+        return array_map('intval', $return);
     }
     
 
