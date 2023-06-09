@@ -42,7 +42,11 @@
             <tfoot>
                 <tr>
                     <th><?= esc(ucfirst(lang('tim_lang.weekTime'))) ?></th>
-                    <td><?= esc($sumTime) ?>
+                    <td colspan="6"><?= esc($sumTime) ?>
+                </tr>
+                <tr>
+                    <th><?= esc(ucfirst(lang('tim_lang.balance'))) ?></th>
+                    <td colspan="6" class="text-<?= $balance[0] == '+' ? 'success': 'danger font-weight-bold'?>"><?= esc($balance) ?></td>
                 </tr>
             </tfoot>
         </table>

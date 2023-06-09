@@ -201,8 +201,11 @@ class PersoLogs extends BaseController
         $data += $this->get_page_title_for_log_views($timUserId, $day,
             $period);
         $data += $this->get_buttons_for_log_views($day, $period, $timUserId);
-        array_push($data['items'], $this->get_sum_time_for_day_view($timUserId,
-                $day, $period));
+        # array_push($data['items'], $this->get_sum_time_for_day_view($timUserId,
+        #         $day, $period));
+        $data['sumTime'] = $this->get_time_day_by_period($timUserId, $day,
+            $period);
+        $data['balance'] = $this->get_balance_day($timUserId, $day);
         $this->display_view(['Timbreuse\Views\period_menu',
                 'Timbreuse\Views\date', 'Timbreuse\Views\logs\day_time.php'],
                 $data);
@@ -221,6 +224,9 @@ class PersoLogs extends BaseController
         $data += $this->get_page_title_for_log_views($timUserId, $day,
             $period);
         $data += $this->get_buttons_for_log_views($day, $period, $timUserId);
+        $data['sumTime'] = $this->get_time_day_by_period($timUserId, $day,
+            $period);
+        $data['balance'] = $this->get_balance_month($timUserId, $day);
         $this->display_view(['Timbreuse\Views\period_menu',
                 'Timbreuse\Views\date', 'Timbreuse\Views\logs\month_time.php'],
                 $data);
@@ -353,13 +359,13 @@ class PersoLogs extends BaseController
     /**
      * use for week view with time
      */
-    protected function get_week_time_table($userId, $date): array
+    protected function get_week_time_table($timUserId, $date): array
     {
         $monday = $this->get_last_monday($date);
         $weekdays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
         $data = array();
         foreach ($weekdays as $i => $weekday) {
-            $data[$weekday] = $this->get_upper_day_time_table($userId,
+            $data[$weekday] = $this->get_upper_day_time_table($timUserId,
                     $monday->addDays($i));
         }
         return $data;
@@ -391,6 +397,7 @@ class PersoLogs extends BaseController
         $data['items'] = $this->get_week_time_table($timUserId, $day,);
         $data['sumTime'] = $this->get_time_day_by_period_with_asterisk(
                 $timUserId, $day, $period,);
+        $data['balance'] = $this->get_balance_week($timUserId, $day);
 
         $data += $this->get_page_title_for_log_views($timUserId, $day,
             $period);
@@ -1227,7 +1234,7 @@ class PersoLogs extends BaseController
         return $model->get_tim_user_id(10);
     }
 
-    public function get_balance_day(int $timUserId, string $date): string
+    protected function get_balance_day(int $timUserId, string $date): string
     {
         $planningModel = model(PlanningsModel::class);
         $planningTime = $planningModel
@@ -1243,14 +1250,14 @@ class PersoLogs extends BaseController
         return $balance;
     }
 
-    public function get_balance_week(int $timUserId, string $date): string
+    protected function get_balance_week(int $timUserId, string $date): string
     {
         $date = Time::parse($date);
         $monday = $this->get_last_monday($date);
         return $this->get_balance_period($monday, 5, $timUserId);
     }
 
-    public function get_balance_period(string $firstDay,
+    protected function get_balance_period(string $firstDay,
             int $numberOfDay, int $timUserId): string
     {
         $days = range(0, $numberOfDay - 1);
@@ -1269,11 +1276,12 @@ class PersoLogs extends BaseController
                     return $carry + $day;
                 });
         $balanceText = $this->get_hours_by_seconds($balanceSeconds);
-        return $balanceText;
+        $balanceTextPlus = $this->get_string_with_plus($balanceText);
+        return $balanceTextPlus;
     }
 
     # not use
-    public function get_balance_period_from_monday(string $firstDay,
+    protected function get_balance_period_from_monday(string $firstDay,
         string $lastDay, int $timUserId): string
     {
         $firstDay = Time::parse($firstDay);
@@ -1298,7 +1306,7 @@ class PersoLogs extends BaseController
     }
 
 
-    public function get_balance_month(int $timUserId, string $date): string
+    protected function get_balance_month(int $timUserId, string $date): string
     {
         $date = Time::parse($date);
         $firstDay = Time::create($date->year, $date->month, 1);
@@ -1308,7 +1316,7 @@ class PersoLogs extends BaseController
     }
 
 
-    public function get_string_with_plus($text): string
+    protected function get_string_with_plus($text): string
     {
         if ($text[0] === '-') {
             return $text;
@@ -1316,7 +1324,7 @@ class PersoLogs extends BaseController
         return "+$text";
     }
 
-    public function get_balance_seconds(int $dueTime, int $offeredTime,
+    protected function get_balance_seconds(int $dueTime, int $offeredTime,
             int $logsTime): int
     {
         if ($logsTime === 0) {
@@ -1325,7 +1333,7 @@ class PersoLogs extends BaseController
         return -$dueTime + $logsTime + $offeredTime;
     }
 
-    public function to_seconds_for_planning_day(string $dueTime,
+    protected function to_seconds_for_planning_day(string $dueTime,
             string $offeredTime, string $logsTime): array
     {
         $data['dueTime'] = $this->toSeconds($dueTime);
@@ -1334,7 +1342,7 @@ class PersoLogs extends BaseController
         return $data;
     }
 
-    public function toSeconds(string $time): int
+    protected function toSeconds(string $time): int
     {
         $negative = false;
         if ($time[0] === '-') {
@@ -1354,7 +1362,7 @@ class PersoLogs extends BaseController
         return $seconds;
     }
 
-    public function parseDuration(string $duration): array
+    protected function parseDuration(string $duration): array
     {
         $beginHour = 0;
         $endHour = strpos($duration, ':') - 1;

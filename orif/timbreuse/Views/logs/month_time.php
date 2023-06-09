@@ -14,12 +14,24 @@
                     <?php endforeach ?>
                 </tr>
             </thead>
+            <tbody>
             <?php foreach ($items as $item) : ?>
-                <tr>
-                    <th><a href="<?= esc($item['url']) ?>"><?= esc($item['label_week']) ?></a></th>
-                    <td><?= esc($item['time']) ?></td>
-                </tr>
+                    <tr>
+                        <th><a href="<?= esc($item['url']) ?>"><?= esc($item['label_week']) ?></a></th>
+                        <td><?= esc($item['time']) ?></td>
+                    </tr>
             <?php endforeach ?>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th><?= esc(ucfirst(lang('tim_lang.monthTime'))) ?></th>
+                    <td><?= esc($sumTime) ?></td>
+                </tr>
+                <tr>
+                    <th><?= esc(ucfirst(lang('tim_lang.balance'))) ?></th>
+                    <td class="text-<?= $balance[0] == '+' ? 'success': 'danger font-weight-bold'?>"><?= esc($balance) ?></td>
+                </tr>
+            </tfoot>
         </table>
     </div>
 </div>

@@ -354,6 +354,9 @@ class PlanningModel extends Model
         $columnsData = $this->select("$columns[0],  $columns[1]")
                 ->where($where)
                 ->first();
+        if (is_null($columnsData)) {
+            return array(0 , 0);
+        }
         $keys = array_keys($columnsData);
         return array($columnsData[$keys[0]], $columnsData[$keys[1]]);
     }

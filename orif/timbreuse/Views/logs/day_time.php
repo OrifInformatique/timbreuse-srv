@@ -15,48 +15,60 @@
                         <th></th>
                 </tr>
             </thead>
-            <?php foreach ($items as $item) : ?>
+            <tbody>
+                <?php foreach ($items as $item) : ?>
+                    <tr>
+                        <?php if (isset($item['status']) and ($item['status'] == 'deleted')) : ?>
+                            <td>
+                                <del><?= esc($item['date']) ?></del>
+                                <span class="badge badge-secondary">
+                                    <?= esc(lang('tim_lang.deleted')) ?>
+                                </span>
+                            </td>
+                        <?php elseif (isset($item['url'])) : ?>
+                            <td>
+                                <a href="<?= esc($item['url']) ?>">
+                                    <?= esc($item['date']) ?>
+                                </a>
+                                <span class="badge badge-primary">
+                                    <?php if ($item['status'] == 'site') : ?>
+                                        <?= esc(lang('tim_lang.siteStatus')) ?>
+                                    <?php elseif ($item['status'] == 'modified') : ?>
+                                        <?= esc(lang('tim_lang.modified')) ?>
+                                    <?php endif; ?>
+                                </span>
+                            </td>
+                        <?php else : ?>
+                            <td><?= esc($item['date']) ?></td>
+                        <?php endif; ?>
+                        <?php if (isset($item['status']) and ($item['status'] == 'deleted')) : ?>
+                            <td><del><?= esc($item['time']) ?></del></td>
+                        <?php else : ?>
+                        <!-- enter exit and time in last row -->
+                            <td><?= esc($item['time']) ?></td>
+                        <?php endif; ?>
+                        <?php if (isset($item['edit_url'])) : ?>
+                            <td>
+                                <a href='<?= esc($item['edit_url']) ?>'>
+                                    <i class="bi-pencil" style="font-size: 20px;"></i>
+                                </a>
+                            </td>
+                        <?php else: ?>
+                            <td></td>
+                        <?php endif; ?>
+                    </tr>
+                <?php endforeach ?>
+            </tbody>
+            <tfoot>
                 <tr>
-                    <?php if (isset($item['status']) and ($item['status'] == 'deleted')) : ?>
-                        <td>
-                            <del><?= esc($item['date']) ?></del>
-                            <span class="badge badge-secondary">
-                                <?= esc(lang('tim_lang.deleted')) ?>
-                            </span>
-                        </td>
-                    <?php elseif (isset($item['url'])) : ?>
-                        <td>
-                            <a href="<?= esc($item['url']) ?>">
-                                <?= esc($item['date']) ?>
-                            </a>
-                            <span class="badge badge-primary">
-                                <?php if ($item['status'] == 'site') : ?>
-                                    <?= esc(lang('tim_lang.siteStatus')) ?>
-                                <?php elseif ($item['status'] == 'modified') : ?>
-                                    <?= esc(lang('tim_lang.modified')) ?>
-                                <?php endif; ?>
-                            </span>
-                        </td>
-                    <?php else : ?>
-                        <td><?= esc($item['date']) ?></td>
-                    <?php endif; ?>
-                    <?php if (isset($item['status']) and ($item['status'] == 'deleted')) : ?>
-                        <td><del><?= esc($item['time']) ?></del></td>
-                    <?php else : ?>
-                    <!-- enter exit and time in last row -->
-                        <td><?= esc($item['time']) ?></td>
-                    <?php endif; ?>
-                    <?php if (isset($item['edit_url'])) : ?>
-                        <td>
-                            <a href='<?= esc($item['edit_url']) ?>'>
-                                <i class="bi-pencil" style="font-size: 20px;"></i>
-                            </a>
-                        </td>
-                    <?php else: ?>
-                        <td></td>
-                    <?php endif; ?>
+                    <th><?= esc(ucfirst(lang('tim_lang.timeTotal'))) ?></th>
+                    <td colspan="2"><?= esc($sumTime) ?></td>
                 </tr>
-            <?php endforeach ?>
+                <tr>
+                    <th><?= esc(ucfirst(lang('tim_lang.balance'))) ?></th>
+                    <td colspan="2" class="text-<?= $balance[0] == '+' ? 'success': 'danger font-weight-bold'?>"><?= esc($balance) ?></td>
+                </tr>
+            </tfoot>
         </table>
     </div>
     <button class="btn btn-primary" <?= is_null(old('time')) && is_null(old('inside')) ? '' : 'hidden' ?>>
