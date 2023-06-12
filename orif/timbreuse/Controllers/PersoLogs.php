@@ -36,7 +36,8 @@ class PersoLogs extends BaseController
 
     protected function get_last_monday(Time $day): Time
     {
-        return $day->subDays($day->dayOfWeek - 1);
+        helper('UtilityFunctions');
+        return get_last_monday($day);
     }
 
     protected function get_month_week_array($userId, Time $date): array
@@ -66,19 +67,10 @@ class PersoLogs extends BaseController
         );
     }
 
-    static function get_hours_by_seconds(int $seconds): string
+    protected function get_hours_by_seconds(int $seconds): string
     {
-        $negative = $seconds < 0;
-        $seconds = abs($seconds);
-        $hours = floor($seconds / 3600);
-        $seconds -= $hours * 3600;
-        $minutes = floor($seconds / 60);
-        $seconds -= $minutes * 60;
-        $text = sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
-        if ($negative) {
-            return "-$text";
-        }
-        return $text;
+        helper('UtilityFunctions');
+        return get_hours_by_seconds($seconds);
     }
 
     /**
@@ -985,6 +977,130 @@ class PersoLogs extends BaseController
             $this->redirect_log($log));
     }
 
+    protected function get_balance_day(int $timUserId, string $date): string
+    {
+        $planningModel = model(PlanningsModel::class);
+        $planningTime = $planningModel
+                ->get_planning_time_day($date, $timUserId);
+        $date = Time::parse($date);
+        $logsTime = $this->get_time_day_by_period($timUserId, $date, 'day');
+        $times = $this->to_seconds_for_planning_day($planningTime[0],
+                $planningTime[1], $logsTime);
+        $balanceSeconds = $this->get_balance_seconds($times['dueTime'],
+                $times['offeredTime'], $times['logsTime']);
+        $balance = $this->get_hours_by_seconds($balanceSeconds);
+        $balance = $this->get_string_with_plus($balance);
+        return $balance;
+    }
+
+    protected function get_balance_week(int $timUserId, string $date): string
+    {
+        $date = Time::parse($date);
+        $monday = $this->get_last_monday($date);
+        return $this->get_balance_period($monday, 5, $timUserId);
+    }
+
+    protected function get_balance_period(string $firstDay,
+            int $numberOfDay, int $timUserId): string
+    {
+        $days = range(0, $numberOfDay - 1);
+        $firstDay = Time::parse($firstDay);
+        $daysDate = array_map(array($firstDay, 'addDays'), $days);
+        $daysDateText = array_map(function($day) {
+            return $day->toDateString();
+        }, $daysDate);
+        $daysBalanceText = array_map(function($day) use ($timUserId) {
+            return $this->get_balance_day($timUserId, $day);
+        }, $daysDateText);
+        $daysBalanceSeconds = array_map(array($this, 'toSeconds'),
+                $daysBalanceText); 
+        $balanceSeconds = array_reduce($daysBalanceSeconds,
+                function($carry, $day) {
+                    return $carry + $day;
+                });
+        $balanceText = $this->get_hours_by_seconds($balanceSeconds);
+        $balanceTextPlus = $this->get_string_with_plus($balanceText);
+        return $balanceTextPlus;
+    }
+
+
+    # not use
+    protected function get_balance_period_from_monday(string $firstDay,
+        string $lastDay, int $timUserId): string
+    {
+        $firstDay = Time::parse($firstDay);
+        $lastDay = Time::parse($lastDay);
+        $numberOfDay = $lastDay->difference($firstDay)->days;
+        $weeks = range(0, $numberOfDay, 7);
+        $weeksDate = array_map(array($firstDay, 'addDays'), $weeks);
+        $daysDateText = array_map(function($OneDayOfWeek) {
+            return $OneDayOfWeek->toDateString();
+        }, $weeksDate);
+        $balanceWeek = array_map(function($week) use ($timUserId) {
+            return $this->get_balance_week($timUserId, $week);
+        }, $daysDateText);
+        $balanceWeekSeconds = array_map(array($this, 'toSeconds'),
+                $balanceWeek); 
+        $balanceSeconds = array_reduce($balanceWeekSeconds,
+                function($carry, $day) {
+                    return $carry + $day;
+                });
+        $balanceText = $this->get_hours_by_seconds($balanceSeconds);
+        return $balanceText;
+    }
+
+
+    protected function get_balance_month(int $timUserId, string $date): string
+    {
+        $date = Time::parse($date);
+        $firstDay = Time::create($date->year, $date->month, 1);
+        $lastDay = $firstDay->addMonths(1)->subDays(1);
+        $numberOfDay = $lastDay->day;
+        return $this->get_balance_period($firstDay, $numberOfDay, $timUserId);
+    }
+
+
+    protected function get_string_with_plus($text): string
+    {
+        if ($text[0] === '-') {
+            return $text;
+        }
+        return "+$text";
+    }
+
+    protected function get_balance_seconds(int $dueTime, int $offeredTime,
+            int $logsTime): int
+    {
+        if ($dueTime === $offeredTime) {
+            return 0;
+        }
+        if ($logsTime === 0) {
+            return -$dueTime;
+        }
+        return -$dueTime + $logsTime + $offeredTime;
+    }
+
+    protected function to_seconds_for_planning_day(string $dueTime,
+            string $offeredTime, string $logsTime): array
+    {
+        $data['dueTime'] = $this->toSeconds($dueTime);
+        $data['offeredTime'] = $this->toSeconds($offeredTime);
+        $data['logsTime'] = $this->toSeconds($logsTime);
+        return $data;
+    }
+
+    protected function toSeconds(string $time): int
+    {
+        helper('UtilityFunctions');
+        return toSeconds($time);
+    }
+
+    protected function parseDuration(string $duration): array
+    {
+        helper('UtilityFunctions');
+        return parseDuration($duration);
+    }
+
 
     private function test1()
     {
@@ -1234,153 +1350,24 @@ class PersoLogs extends BaseController
         return $model->get_tim_user_id(10);
     }
 
-    protected function get_balance_day(int $timUserId, string $date): string
+    public function test25()
     {
-        $planningModel = model(PlanningsModel::class);
-        $planningTime = $planningModel
-                ->get_planning_time_day($date, $timUserId);
-        $date = Time::parse($date);
-        $logsTime = $this->get_time_day_by_period($timUserId, $date, 'day');
-        $times = $this->to_seconds_for_planning_day($planningTime[0],
-                $planningTime[1], $logsTime);
-        $balanceSeconds = $this->get_balance_seconds($times['dueTime'],
-                $times['offeredTime'], $times['logsTime']);
-        $balance = $this->get_hours_by_seconds($balanceSeconds);
-        $balance = $this->get_string_with_plus($balance);
-        return $balance;
+        $model = model(PlanningsModel::class);
+        return $model->get_due_time_period('2023-05-29', 7, 92);
     }
 
-    protected function get_balance_week(int $timUserId, string $date): string
+    public function test26()
     {
-        $date = Time::parse($date);
-        $monday = $this->get_last_monday($date);
-        return $this->get_balance_period($monday, 5, $timUserId);
+        $model = model(PlanningsModel::class);
+        return $model->get_due_time_week(92, '2023-05-29');
     }
 
-    protected function get_balance_period(string $firstDay,
-            int $numberOfDay, int $timUserId): string
+    public function test27()
     {
-        $days = range(0, $numberOfDay - 1);
-        $firstDay = Time::parse($firstDay);
-        $daysDate = array_map(array($firstDay, 'addDays'), $days);
-        $daysDateText = array_map(function($day) {
-            return $day->toDateString();
-        }, $daysDate);
-        $daysBalanceText = array_map(function($day) use ($timUserId) {
-            return $this->get_balance_day($timUserId, $day);
-        }, $daysDateText);
-        $daysBalanceSeconds = array_map(array($this, 'toSeconds'),
-                $daysBalanceText); 
-        $balanceSeconds = array_reduce($daysBalanceSeconds,
-                function($carry, $day) {
-                    return $carry + $day;
-                });
-        $balanceText = $this->get_hours_by_seconds($balanceSeconds);
-        $balanceTextPlus = $this->get_string_with_plus($balanceText);
-        return $balanceTextPlus;
+        $model = model(PlanningsModel::class);
+        return $model->get_due_time_month(92, '2023-04-12');
     }
 
-    # not use
-    protected function get_balance_period_from_monday(string $firstDay,
-        string $lastDay, int $timUserId): string
-    {
-        $firstDay = Time::parse($firstDay);
-        $lastDay = Time::parse($lastDay);
-        $numberOfDay = $lastDay->difference($firstDay)->days;
-        $weeks = range(0, $numberOfDay, 7);
-        $weeksDate = array_map(array($firstDay, 'addDays'), $weeks);
-        $daysDateText = array_map(function($OneDayOfWeek) {
-            return $OneDayOfWeek->toDateString();
-        }, $weeksDate);
-        $balanceWeek = array_map(function($week) use ($timUserId) {
-            return $this->get_balance_week($timUserId, $week);
-        }, $daysDateText);
-        $balanceWeekSeconds = array_map(array($this, 'toSeconds'),
-                $balanceWeek); 
-        $balanceSeconds = array_reduce($balanceWeekSeconds,
-                function($carry, $day) {
-                    return $carry + $day;
-                });
-        $balanceText = $this->get_hours_by_seconds($balanceSeconds);
-        return $balanceText;
-    }
-
-
-    protected function get_balance_month(int $timUserId, string $date): string
-    {
-        $date = Time::parse($date);
-        $firstDay = Time::create($date->year, $date->month, 1);
-        $lastDay = $firstDay->addMonths(1)->subDays(1);
-        $numberOfDay = $lastDay->day;
-        return $this->get_balance_period($firstDay, $numberOfDay, $timUserId);
-    }
-
-
-    protected function get_string_with_plus($text): string
-    {
-        if ($text[0] === '-') {
-            return $text;
-        }
-        return "+$text";
-    }
-
-    protected function get_balance_seconds(int $dueTime, int $offeredTime,
-            int $logsTime): int
-    {
-        if ($dueTime === $offeredTime) {
-            return 0;
-        }
-        if ($logsTime === 0) {
-            return -$dueTime;
-        }
-        return -$dueTime + $logsTime + $offeredTime;
-    }
-
-    protected function to_seconds_for_planning_day(string $dueTime,
-            string $offeredTime, string $logsTime): array
-    {
-        $data['dueTime'] = $this->toSeconds($dueTime);
-        $data['offeredTime'] = $this->toSeconds($offeredTime);
-        $data['logsTime'] = $this->toSeconds($logsTime);
-        return $data;
-    }
-
-    protected function toSeconds(string $time): int
-    {
-        $negative = false;
-        if ($time[0] === '-') {
-            $negative = true;
-        }
-        if (($time[0] === '-') or ($time[0] === '+')) {
-            $time = substr($time, 1, -1);
-        }
-        // $date = Time::parse($time);
-        $date = $this->parseDuration($time);
-        //$seconds = $date->hour * 3600 + $date->minute * 60 + $date->second;
-        $seconds = $date['hour'] * 3600 + $date['minute'] * 60
-                + $date['second'];
-        if ($negative) {
-            $seconds = -$seconds;
-        }
-        return $seconds;
-    }
-
-    protected function parseDuration(string $duration): array
-    {
-        $beginHour = 0;
-        $endHour = strpos($duration, ':') - 1;
-        $beginMinute = $endHour + 2;
-        $endMinute = strpos($duration, ':', $beginMinute) - 1;
-        $beginSecond = $endMinute + 2;
-        $endSecond = strlen($duration) - 1;
-        $return['hour'] = substr($duration, $beginHour,
-                $endHour - $beginHour + 1);
-        $return['minute'] = substr($duration, $beginMinute,
-                $endMinute - $beginMinute + 1);
-        $return['second'] = substr($duration, $beginSecond,
-                $endSecond - $beginSecond + 1);
-        return array_map('intval', $return);
-    }
     
 
 }
