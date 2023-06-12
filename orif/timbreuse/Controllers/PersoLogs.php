@@ -1327,6 +1327,9 @@ class PersoLogs extends BaseController
     protected function get_balance_seconds(int $dueTime, int $offeredTime,
             int $logsTime): int
     {
+        if ($dueTime === $offeredTime) {
+            return 0;
+        }
         if ($logsTime === 0) {
             return -$dueTime;
         }

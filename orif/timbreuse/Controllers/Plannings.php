@@ -476,6 +476,7 @@ class Plannings extends BaseController
         $data['url_delete'] = 'Plannings/delete_planning/';
         $data['primary_key_field'] = 'id_planning';
         $data['with_deleted'] = $withDeleted;
+        $data['display_deleted_label'] = lang('tim_lang.showDeletedPlanning');
         return $data;
     }
 
