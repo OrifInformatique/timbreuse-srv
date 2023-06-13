@@ -61,8 +61,20 @@
             </tbody>
             <tfoot>
                 <tr>
+                    <th><?= esc(ucfirst(lang('tim_lang.workTime'))) ?></th>
+                    <td colspan="2"><?= esc($sumWorkTime) ?></td>
+                </tr>
+                <tr>
+                    <th><?= esc(ucfirst(lang('tim_lang.offeredTime'))) ?></th>
+                    <td colspan="2"><?= esc($offeredTime) ?></td>
+                </tr>
+                <tr>
                     <th><?= esc(ucfirst(lang('tim_lang.timeTotal'))) ?></th>
                     <td colspan="2"><?= esc($sumTime) ?></td>
+                </tr>
+                <tr>
+                    <th><?= esc(ucfirst(lang('tim_lang.dueTime'))) ?></th>
+                    <td colspan="2"><?= esc($dueTime) ?></td>
                 </tr>
                 <tr>
                     <th><?= esc(ucfirst(lang('tim_lang.balance'))) ?></th>

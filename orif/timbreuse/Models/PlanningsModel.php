@@ -510,6 +510,38 @@ class PlanningModel extends Model
             'get_offered_time_period');
     }
 
+    public function get_offered_time_by_period(int $timUserId, string $date, 
+        string $period)
+    {
+        switch ($period) {
+        case 'day':
+            return $this->get_offered_time_day($timUserId, $date);
+            break;
+        case 'week':
+            return $this->get_offered_time_week($timUserId, $date);
+            break;
+        case 'month':
+            return $this->get_offered_time_month($timUserId, $date);
+            break;
+        }
+    }
+
+    public function get_due_time_by_period(int $timUserId, string $date, 
+        string $period)
+    {
+        switch ($period) {
+        case 'day':
+            return $this->get_due_time_day($timUserId, $date);
+            break;
+        case 'week':
+            return $this->get_due_time_week($timUserId, $date);
+            break;
+        case 'month':
+            return $this->get_due_time_month($timUserId, $date);
+            break;
+        }
+    }
+
    
 
 

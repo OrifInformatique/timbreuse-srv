@@ -193,14 +193,45 @@ class PersoLogs extends BaseController
         $data += $this->get_page_title_for_log_views($timUserId, $day,
             $period);
         $data += $this->get_buttons_for_log_views($day, $period, $timUserId);
-        # array_push($data['items'], $this->get_sum_time_for_day_view($timUserId,
-        #         $day, $period));
-        $data['sumTime'] = $this->get_time_day_by_period($timUserId, $day,
+        $data['sumWorkTime'] = $this->get_time_day_by_period($timUserId, $day,
             $period);
-        $data['balance'] = $this->get_balance_day($timUserId, $day);
+        $planningModel = model(PlanningsModel::class);
+        $data['offeredTime'] = $planningModel->get_offered_time_by_period(
+            $timUserId, $day, $period);
+        $data['sumTime'] = $this->get_total_time_by_period($timUserId, $day,
+            $period);
+        $data['dueTime'] = $planningModel->get_due_time_by_period($timUserId,
+            $day, $period);
+        $data['balance'] = $this->get_balance_by_period($timUserId, $day,
+            $period);
         $this->display_view(['Timbreuse\Views\period_menu',
                 'Timbreuse\Views\date', 'Timbreuse\Views\logs\day_time.php'],
                 $data);
+    }
+
+    protected function get_total_time_by_period(int $timUserId, string $day,
+        string $period): string
+    {
+        $time = Time::parse($day);
+        $sumWorkTime = $this->get_time_day_by_period($timUserId, $time,
+            $period);
+        $planningModel = model(PlanningsModel::class);
+        $offeredTime = $planningModel->get_offered_time_by_period($timUserId,
+            $day, $period);
+        $dueTime = $planningModel->get_due_time_by_period($timUserId,
+            $day, $period);
+        $offeredTimeSeconds = $this->toSeconds($offeredTime);
+        $dueTimeSeconds = $this->toSeconds($dueTime);
+        if ($offeredTimeSeconds === $dueTimeSeconds) {
+            return $this->get_hours_by_seconds($dueTimeSeconds);
+        }
+        $sumWorkTimeSeconds = $this->toSeconds($sumWorkTime);
+        if ($sumWorkTimeSeconds == 0) {
+            return $this->get_hours_by_seconds(0);
+        }
+
+        $totalTimeSecond = $sumWorkTimeSeconds + $offeredTimeSeconds;
+        return $this->get_hours_by_seconds($totalTimeSecond);
     }
 
     protected function time_list_month($timUserId, $day = null, $period = null)
@@ -1000,6 +1031,25 @@ class PersoLogs extends BaseController
         return $this->get_balance_period($monday, 5, $timUserId);
     }
 
+    protected function get_balance_by_period(int $timUserId, string $date,
+        string $period): string
+    {
+        switch ($period) {
+        case 'day':
+            return $this->get_balance_day($timUserId, $date);
+            break;
+        case 'week':
+            return $this->get_balance_week($timUserId, $date);
+            break;
+        case 'month':
+            return $this->get_balance_month($timUserId, $date);
+            break;
+        }
+    }
+
+    /**
+        * period is time beeteen two fixed points in time
+    */
     protected function get_balance_period(string $firstDay,
             int $numberOfDay, int $timUserId): string
     {

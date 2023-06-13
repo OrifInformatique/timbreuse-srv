@@ -99,4 +99,6 @@ return [
     'monthTime' => 'temps total du premier jour du mois jusqu’au dernier',
     'balance' => 'balance',
     'showDeletedPlanning' =>'Afficher les plannings supprimés',
+    'workTime' =>'Temps de travail',
+
 ];
