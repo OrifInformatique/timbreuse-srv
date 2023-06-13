@@ -1365,7 +1365,10 @@ class PersoLogs extends BaseController
     public function test27()
     {
         $model = model(PlanningsModel::class);
-        return $model->get_due_time_month(92, '2023-04-12');
+        $date = '2023-04-12';
+        $timUserId = 92;
+        var_dump(array($model->get_due_time_month($timUserId, $date),
+            $model->get_offered_time_month($timUserId, $date)));
     }
 
     

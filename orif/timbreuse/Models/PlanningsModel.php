@@ -297,8 +297,6 @@ class PlanningModel extends Model
         return $nameDay;
     }
 
-
-
     public function format_due_planning(array $duePlanning): string
     {
         $txt = array_reduce($duePlanning, array($this, 'get_day_string'));
@@ -337,9 +335,11 @@ class PlanningModel extends Model
                 ->withDeleted()
                 ->find($planningId);
         return isset($data['date_delete']);
-
     }
 
+    /**
+        * return [0] due_time, [1] offered_time
+    */
     public function get_planning_time_day(string $date, int $timUserId): array
     {
         $columns = $this->get_columns_day_name($date);
@@ -391,8 +391,6 @@ class PlanningModel extends Model
         $label[6] = null;
         $label[7] = null;
         return $label[$dayOfWeek];
-
-
     }
 
     public function toSeconds(string $time): int
@@ -407,8 +405,22 @@ class PlanningModel extends Model
         return parseDuration($duration);
     }
 
-    public function get_due_time_period(string $firstDay,
+    public function get_due_time_period(string $firstDay, int $numberOfDay,
+        int $timUserId): string
+    {
+        return $this->get_time_period($firstDay, $numberOfDay, $timUserId,
+            'get_due_time_day');
+    }
+
+    public function get_offered_time_period(string $firstDay,
             int $numberOfDay, int $timUserId): string
+    {
+        return $this->get_time_period($firstDay, $numberOfDay, $timUserId,
+            'get_offered_time_day');
+    }
+
+    public function get_time_period(string $firstDay,
+            int $numberOfDay, int $timUserId, string $methodName): string
     {
         $days = range(0, $numberOfDay - 1);
         $firstDay = Time::parse($firstDay);
@@ -416,8 +428,10 @@ class PlanningModel extends Model
         $daysDateText = array_map(function($day) {
             return $day->toDateString();
         }, $daysDate);
-        $daysDueText = array_map(function($day) use ($timUserId) {
-            return $this->get_due_time_day($timUserId, $day);
+        $daysDueText = array_map(function($day) use ($timUserId, $methodName) {
+            return call_user_func_array(array($this, $methodName),
+                array($timUserId, $day));
+            #return $this->get_due_time_day($timUserId, $day);
         }, $daysDateText);
         $daysDueSeconds = array_map(array($this, 'toSeconds'),
                 $daysDueText); 
@@ -429,15 +443,13 @@ class PlanningModel extends Model
         return $dueText;
     }
 
-
-
     public function get_hours_by_seconds(int $seconds): string
     {
         helper('UtilityFunctions');
         return get_hours_by_seconds($seconds);
     }
 
-    protected function get_last_monday(Time $day): Time
+    public function get_last_monday(Time $day): Time
     {
         helper('UtilityFunctions');
         return get_last_monday($day);
@@ -448,21 +460,54 @@ class PlanningModel extends Model
         return $this->get_planning_time_day($date, $timUserId)[0];
     }
 
-    public function get_due_time_week(int $timUserId, string $date): string
+    public function get_offered_time_day(int $timUserId, string $date): string
+    {
+        return $this->get_planning_time_day($date, $timUserId)[1];
+    }
+
+    public function get_time_week(int $timUserId, string $date,
+        string $methodName): string
     {
         $date = Time::parse($date);
         $monday = $this->get_last_monday($date);
-        return $this->get_due_time_period($monday, 5, $timUserId);
+        return call_user_func_array(array($this, $methodName), array($monday,
+            5, $timUserId));
     }
 
-    public function get_due_time_month(int $timUserId,
+    public function get_due_time_week(int $timUserId, string $date): string
+    {
+        return $this->get_time_week($timUserId, $date, 'get_due_time_period');
+    }
+
+    public function get_offered_time_week(int $timUserId,
         string $date): string
+    {
+        return $this->get_time_week($timUserId, $date,
+            'get_offered_time_period');
+    }
+
+    public function get_time_month(int $timUserId,
+        string $date, string $methodName): string
     {
         $date = Time::parse($date);
         $firstDay = Time::create($date->year, $date->month, 1);
         $lastDay = $firstDay->addMonths(1)->subDays(1);
         $numberOfDay = $lastDay->day;
-        return $this->get_due_time_period($firstDay, $numberOfDay, $timUserId);
+        return call_user_func_array(array($this, $methodName),
+            array($firstDay, $numberOfDay, $timUserId));
+    }
+
+    public function get_due_time_month(int $timUserId, string $date): string
+    {
+        return $this->get_time_month($timUserId, $date,
+            'get_due_time_period');
+    }
+
+    public function get_offered_time_month(int $timUserId,
+        string $date): string
+    {
+        return $this->get_time_month($timUserId, $date,
+            'get_offered_time_period');
     }
 
    
