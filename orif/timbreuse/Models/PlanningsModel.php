@@ -340,11 +340,12 @@ class PlanningModel extends Model
     /**
         * return [0] due_time, [1] offered_time
     */
-    public function get_planning_time_day(string $date, int $timUserId): array
+    public function get_planning_time_day(string $date, int $timUserId): ?array
     {
         $columns = $this->get_columns_day_name($date);
         if (is_null($columns)) {
-            return array(0 , 0);
+            # return array(0 , 0);
+            return null;
         }
         $date = $this->db->escape($date);
         $timUserId = $this->db->escape($timUserId);
@@ -355,16 +356,33 @@ class PlanningModel extends Model
                 ->where($where)
                 ->first();
         if (is_null($columnsData)) {
-            return array(0 , 0);
+            # return array(0 , 0);
+            return null;
         }
         $keys = array_keys($columnsData);
         return array($columnsData[$keys[0]], $columnsData[$keys[1]]);
     }
 
-    public function get_balance(string $date, int $timUserId)
+    public function is_planning_day(string $date, int $timUserId): bool
     {
-        $planning_time = $this->get_planning_time_day($date, $timUserId);
+        $columns = $this->get_columns_day_name($date);
+        if (is_null($columns)) {
+            return false;
+        }
+        $date = $this->db->escape($date);
+        $timUserId = $this->db->escape($timUserId);
+        $where = "(date_begin <= $date) AND ((date_end >= $date) OR "
+                . "(date_end IS NULL)) AND (id_user = $timUserId)";
+        $this->join_planning_and_user_planning();
+        $columnsData = $this->select("$columns[0],  $columns[1]")
+                ->where($where)
+                ->first();
+        if (is_null($columnsData)) {
+            return false;
+        }
+        return true;
     }
+
 
     # to edit
     public function convert_second(array $columnsData): array
@@ -406,41 +424,41 @@ class PlanningModel extends Model
     }
 
     public function get_due_time_period(string $firstDay, int $numberOfDay,
-        int $timUserId): string
+        int $timUserId): ?string
     {
         return $this->get_time_period($firstDay, $numberOfDay, $timUserId,
             'get_due_time_day');
     }
 
     public function get_offered_time_period(string $firstDay,
-            int $numberOfDay, int $timUserId): string
+            int $numberOfDay, int $timUserId): ?string
     {
         return $this->get_time_period($firstDay, $numberOfDay, $timUserId,
             'get_offered_time_day');
     }
 
+    /* is duplicate from persologs */
     public function get_time_period(string $firstDay,
-            int $numberOfDay, int $timUserId, string $methodName): string
+            int $numberOfDay, int $timUserId, string $methodName): ?string
     {
         $days = range(0, $numberOfDay - 1);
         $firstDay = Time::parse($firstDay);
         $daysDate = array_map(array($firstDay, 'addDays'), $days);
-        $daysDateText = array_map(function($day) {
-            return $day->toDateString();
-        }, $daysDate);
-        $daysDueText = array_map(function($day) use ($timUserId, $methodName) {
-            return call_user_func_array(array($this, $methodName),
-                array($timUserId, $day));
-            #return $this->get_due_time_day($timUserId, $day);
-        }, $daysDateText);
-        $daysDueSeconds = array_map(array($this, 'toSeconds'),
-                $daysDueText); 
-        $dueSeconds = array_reduce($daysDueSeconds,
-                function($carry, $day) {
-                    return $carry + $day;
-                });
-        $dueText = $this->get_hours_by_seconds($dueSeconds);
-        return $dueText;
+        $daysDateText = array_map(fn($day) => $day->toDateString(), $daysDate);
+        $daysText = array_map(fn($day) => call_user_func_array(
+            array($this, $methodName), array($timUserId, $day)),
+            $daysDateText);
+        $daysTextFiltered = array_filter($daysText,
+            fn($text) => !is_null($text));
+        if (is_null($daysTextFiltered)) {
+            return null;
+        }
+        $daysSeconds = array_map(array($this, 'toSeconds'),
+                $daysTextFiltered); 
+        $seconds = array_reduce($daysSeconds,
+                fn($carry, $day) => $carry + $day);
+        $text = $this->get_hours_by_seconds($seconds);
+        return $text;
     }
 
     public function get_hours_by_seconds(int $seconds): string
@@ -455,13 +473,21 @@ class PlanningModel extends Model
         return get_last_monday($day);
     }
     
-    public function get_due_time_day(int $timUserId, string $date): string
+    public function get_due_time_day(int $timUserId, string $date): ?string
     {
+        $planningTimeDay = $this->get_planning_time_day($date, $timUserId);
+        if (is_null($planningTimeDay)) {
+            return null;
+        }
         return $this->get_planning_time_day($date, $timUserId)[0];
     }
 
-    public function get_offered_time_day(int $timUserId, string $date): string
+    public function get_offered_time_day(int $timUserId, string $date): ?string
     {
+        $planningTimeDay = $this->get_planning_time_day($date, $timUserId);
+        if (is_null($planningTimeDay)) {
+            return null;
+        }
         return $this->get_planning_time_day($date, $timUserId)[1];
     }
 

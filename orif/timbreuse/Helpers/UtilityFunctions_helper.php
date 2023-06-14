@@ -91,3 +91,26 @@ function get_last_monday(Time $day): Time
 {
     return $day->subDays($day->dayOfWeek - 1);
 }
+
+function get_time_period(string $firstDay,
+        int $numberOfDay, int $timUserId, string $methodName, $instance): ?string
+{
+    $days = range(0, $numberOfDay - 1);
+    $firstDay = Time::parse($firstDay);
+    $daysDate = array_map(array($firstDay, 'addDays'), $days);
+    $daysDateText = array_map(fn($day) => $day->toDateString(), $daysDate);
+    $daysText = array_map(fn($day) => call_user_func_array(
+        array($instance, $methodName), array($timUserId, $day)),
+        $daysDateText);
+    $daysTextFiltered = array_filter($daysText,
+        fn($text) => !is_null($text));
+    if (is_null($daysTextFiltered)) {
+        return null;
+    }
+    $daysSeconds = array_map(array($instance, 'toSeconds'),
+            $daysTextFiltered); 
+    $seconds = array_reduce($daysSeconds,
+            fn($carry, $day) => $carry + $day);
+    $text = $instance->get_hours_by_seconds($seconds);
+    return $text;
+}
