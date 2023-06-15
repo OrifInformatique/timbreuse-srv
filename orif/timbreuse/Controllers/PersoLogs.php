@@ -73,6 +73,7 @@ class PersoLogs extends BaseController
         return get_hours_by_seconds($seconds);
     }
 
+
     /**
      * calculate the time
      */
@@ -86,8 +87,9 @@ class PersoLogs extends BaseController
                     Time::parse($log['date'])))))
             {
                 $dateIn = $log['date'];
-            } elseif (($dateIn !== null) and ($this->is_same_day(
-                Time::parse($dateIn), Time::parse($log['date']))))
+            } elseif ((!boolval($log['inside'])) and (($dateIn !== null)
+                and ($this->is_same_day(Time::parse($dateIn), Time::parse(
+                    $log['date'])))))
             {
                 $carry += abs(Time::parse($log['date'])->difference($dateIn)
                     ->seconds);
@@ -208,7 +210,7 @@ class PersoLogs extends BaseController
     }
 
     protected function get_detail_time_array(int $timUserId, string $day,
-        string $period): array
+        string $period, bool $asterisk=false): array
     {
         $planningModel = model(PlanningsModel::class);
         if (!$planningModel->is_planning_day($day, $timUserId)) {
@@ -222,7 +224,7 @@ class PersoLogs extends BaseController
         $data['dueTime'] = $planningModel->get_due_time_by_period($timUserId,
             $day, $period);
         $data['sumTime'] = $this->get_total_time_by_period($timUserId, $day,
-            $period);
+            $period, $asterisk);
         $data['balance'] = $this->get_balance_by_period($timUserId, $day,
             $period);
         return $data;
@@ -293,7 +295,7 @@ class PersoLogs extends BaseController
     }
 
     protected function get_total_time_by_period(int $timUserId, string $day,
-        string $period): string
+        string $period, bool $asterisk=false): string
     {
         $time = Time::parse($day);
         $sumWorkTime = $this->get_time_day_by_period($timUserId, $time,
@@ -301,8 +303,8 @@ class PersoLogs extends BaseController
         $planningModel = model(PlanningsModel::class);
         $offeredTime = $planningModel->get_offered_time_by_period($timUserId,
             $day, $period);
-        $dueTime = $planningModel->get_due_time_by_period($timUserId,
-            $day, $period);
+        $dueTime = $planningModel->get_due_time_by_period($timUserId, $day,
+            $period);
         $offeredTimeSeconds = $this->toSeconds($offeredTime);
         $dueTimeSeconds = $this->toSeconds($dueTime);
         if ($offeredTimeSeconds === $dueTimeSeconds) {
@@ -312,9 +314,12 @@ class PersoLogs extends BaseController
         if ($sumWorkTimeSeconds == 0) {
             return $this->get_hours_by_seconds(0);
         }
-
         $totalTimeSecond = $sumWorkTimeSeconds + $offeredTimeSeconds;
-        return $this->get_hours_by_seconds($totalTimeSecond);
+        $totalTime =  $this->get_hours_by_seconds($totalTimeSecond);
+        $model = model(LogsModel::class);
+        $logs = $model->get_filtered_logs($timUserId, $time, $period);
+        return ($this->is_not_tim_logs($logs) and $asterisk) ?
+            $totalTime . '✱' : $totalTime;
     }
 
     protected function time_list_month($timUserId, $day = null, $period = null)
@@ -462,7 +467,7 @@ class PersoLogs extends BaseController
         $data['time'] = $this->get_time_day_by_period_with_asterisk($timUserId,
             $date, 'day');
         $data = array_merge($data, $this
-            ->get_detail_time_array($timUserId, $date, 'day'));
+            ->get_detail_time_array($timUserId, $date, 'day', true));
         return $data;
     }
 
@@ -478,7 +483,6 @@ class PersoLogs extends BaseController
             $data[$weekday] = $this->get_upper_day_time_table($timUserId,
                     $monday->addDays($i));
         }
-        #var_dump($data);
         return $data;
     }
 
@@ -513,7 +517,7 @@ class PersoLogs extends BaseController
         $data['sumWorkTime'] = $this->get_time_day_by_period_with_asterisk(
                 $timUserId, $day, $period);
         $data = array_merge($data, $this->get_detail_time_array($timUserId,
-            $day, $period));
+            $day, $period, true));
         $data += $this->get_page_title_for_log_views($timUserId, $day,
             $period);
         $data += $this->get_buttons_for_log_views($day, $period, $timUserId);
