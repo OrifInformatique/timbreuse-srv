@@ -52,7 +52,7 @@ class Logs extends BaseController
         // $data['url_update'] = "items_list/update/";
         // $data['url_delete'] = "items_list/delete/";
         // $data['url_create'] = "items_list/create/";
-        $this->display_view('Common\Views\items_list', $data);
+        return $this->display_view('Common\Views\items_list', $data);
 
 	}
 

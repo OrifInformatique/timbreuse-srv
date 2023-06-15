@@ -159,8 +159,8 @@ class Plannings extends BaseController
             return $this->display_unauthorize();
         }
         $data = $this->get_data_for_create_planning($timUserId, $model);
-        $this->display_view(['Timbreuse\Views\planning\edit_planning.php'],
-            $data);
+        return $this->display_view(
+            ['Timbreuse\Views\planning\edit_planning.php'], $data);
     }
 
     protected function get_data_for_create_planning(int $timUserId, 
@@ -223,8 +223,8 @@ class Plannings extends BaseController
             return $this->display_unauthorize();
         }
         $data = $this->get_data_for_edit_planning($planningId, $model);
-        $this->display_view(['Timbreuse\Views\planning\edit_planning.php'],
-            $data);
+        return $this->display_view(
+            ['Timbreuse\Views\planning\edit_planning.php'], $data);
     }
 
     public function edit_planning(?int $planningId=null)

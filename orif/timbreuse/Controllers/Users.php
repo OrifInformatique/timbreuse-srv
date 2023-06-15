@@ -51,7 +51,7 @@ class Users extends BaseController
         $data['url_update'] = 'Users/edit_tim_user/';
         $data['url_delete'] = 'Users/delete_tim_user/';
         // $data['url_create'] = "items_list/create/";
-        $this->display_view('Common\Views\items_list', $data);
+        return $this->display_view('Common\Views\items_list', $data);
     }
 
     protected function get_data_for_delete_tim_user($timUserId)
@@ -89,7 +89,8 @@ class Users extends BaseController
             return $this->display_view('\User\errors\403error');
         }
         $data = $this->get_data_for_delete_tim_user($timUserId);
-        $this->display_view('Timbreuse\Views\confirm_delete_form', $data);
+        return $this->display_view('Timbreuse\Views\confirm_delete_form',
+            $data);
     }
 
     private function delete_timUser_post($timUserId)
@@ -105,41 +106,33 @@ class Users extends BaseController
         return redirect()->to(current_url() . '/../..');
     }
 
-    public function ci_users_list($userId = 92)
+    public function ci_users_list($userId)
     {
         $model = model(AccessTimModel::class);
         $modelCi = model(User_model::class);
         $data['title'] = lang('tim_lang.webUsers');
 
-        $data['list_title'] = sprintf(
-            lang('tim_lang.ci_users_list_title'),
-            $this->get_username($userId)
-        );
-
+        $data['list_title'] = sprintf(lang('tim_lang.ci_users_list_title'),
+            $this->get_username($userId));
         $data['columns'] = [
             'id' => lang('tim_lang.id_site'),
             'username' => ucfirst(lang('tim_lang.username')),
             'access' => ucfirst(lang('tim_lang.access')),
         ];
-
-        $data['items'] = $modelCi->select('id, username')->findall();
+        $data['items'] = $modelCi->select('id, username')->orderBy('username')
+            ->findall();
         $access = $model->select('id_ci_user')->where('id_user=', $userId)
             ->findall();
-
-        $access = array_map(function ($access) {
-            return array_pop($access);
-        }, $access);
-
+        $access = array_map(fn ($access) => array_pop($access), $access);
         $data['items'] = array_map(function (array $item) use ($access) {
             $item['access'] = array_search($item['id'], $access) !== false ?
                 lang('tim_lang.yes') : lang('tim_lang.no');
             return $item;
         }, $data['items']);
-
         $data['primary_key_field']  = 'id';
         $data['url_update'] = 'Users/form_add_access/' . $userId . '/';
         $data['url_delete'] = 'Users/form_delete_access/' . $userId . '/';
-        $this->display_view('Common\Views\items_list', $data);
+        return $this->display_view('Common\Views\items_list', $data);
     }
     
     protected function get_usernames($userId, $ciUserId)
@@ -182,7 +175,7 @@ class Users extends BaseController
             $userNames['ciUserName'],
             $userNames['userName']
         );
-        $this->display_view('Timbreuse\Views\confirm_form', $data);
+        return $this->display_view('Timbreuse\Views\confirm_form', $data);
     }
 
     protected function add_access($userId, $ciUserId)
@@ -226,7 +219,7 @@ class Users extends BaseController
             $userNames['ciUserName'],
             $userNames['userName']
         );
-        $this->display_view('Timbreuse\Views\confirm_form', $data);
+        return $this->display_view('Timbreuse\Views\confirm_form', $data);
     }
 
     public function post_delete_access()
@@ -304,7 +297,8 @@ class Users extends BaseController
             return $this->post_edit_tim_user();
         }
         $data = $this->get_data_for_edit_tim_user($timUserId);
-        $this->display_view('Timbreuse\Views\users\edit_tim_user', $data);
+        return $this->display_view('Timbreuse\Views\users\edit_tim_user',
+            $data);
     }
 
     protected function update_user_and_badge(int $timUserId, ?int $newBadgeId,

@@ -111,7 +111,7 @@ class Auth extends BaseController {
 
             // Display login page
             $output = array('title' => lang('user_lang.title_page_login'));
-            $this->display_view('\User\auth\login', $output);
+            return $this->display_view('\User\auth\login', $output);
         } else {
             return redirect()->to(base_url());
         }
@@ -188,7 +188,7 @@ class Auth extends BaseController {
 
             // Display the password change form
             $output['title'] = lang('user_lang.page_my_password_change');
-            $this->display_view('\User\auth\change_password', $output);
+            return $this->display_view('\User\auth\change_password', $output);
         } else {
             // Access is not allowed
             return redirect()->to('/user/auth/login');
