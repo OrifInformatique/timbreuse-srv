@@ -11,9 +11,13 @@
         }
         let date = document.getElementsByTagName('input');
         date = date[0];
+        let oldText = date.value;
         //date.onchange = function () {
         date.onfocusout = function () {
-            redirection();
+            let newText = date.value;
+            if (newText !== oldText) {
+                redirection();
+            }
             //setTimeout(redirection, 500);
             
         }

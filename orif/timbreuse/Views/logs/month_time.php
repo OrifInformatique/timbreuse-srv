@@ -22,27 +22,15 @@
                     </tr>
             <?php endforeach ?>
             </tbody>
-            <tfoot>
+            <tfoot class="table table-borderless">
                 <tr>
-                    <th><?= esc(ucfirst(lang('tim_lang.monthTime'))) ?></th>
-                    <td colspan="2"><?= esc($sumWorkTime) ?></td>
+                    <td></td>
                 </tr>
                 <tr>
-                    <th><?= esc(ucfirst(lang('tim_lang.offeredTime'))) ?></th>
-                    <td colspan="2"><?= esc($offeredTime) ?></td>
+                    <td></td>
+                    <th><?= esc(ucfirst(lang('tim_lang.monthDetail'))) ?></th>
                 </tr>
-                <tr>
-                    <th><?= esc(ucfirst(lang('tim_lang.timeTotal'))) ?></th>
-                    <td colspan="2"><?= esc($sumTime) ?></td>
-                </tr>
-                <tr>
-                    <th><?= esc(ucfirst(lang('tim_lang.dueTime'))) ?></th>
-                    <td colspan="2"><?= esc($dueTime) ?></td>
-                </tr>
-                <tr>
-                    <th><?= esc(ucfirst(lang('tim_lang.balance'))) ?></th>
-                    <td class="text-<?= $balance[0] === '+' ? 'success': 'danger font-weight-bold'?>"><?= esc($balance) ?></td>
-                </tr>
+                <?=view('Timbreuse\Views\logs\detail_balance', $this->data)?>
             </tfoot>
         </table>
     </div>

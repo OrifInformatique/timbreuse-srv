@@ -96,7 +96,7 @@ return [
     'confirmRestorePlanning' => 'Êtes-vous sûr·e de vouloir restorer ce planning.',
     'titleConfirmRestorePlanning' => 'Restorer le planning ID %s',
     'dateColideRestore' => 'Il y a déjà un planning pour un ou plusieurs jours dans l’intervalle des dates du planning à restorer.',
-    'monthTime' => 'Temps de travail du premier jour du mois jusqu’au dernier',
+    'monthDetail' => '1ᵉ au 31 du mois',
     'balance' => 'balance',
     'showDeletedPlanning' =>'Afficher les plannings supprimés',
     'workTime' =>'Temps de travail',

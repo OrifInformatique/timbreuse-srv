@@ -392,7 +392,6 @@ class PersoLogs extends BaseController
         } else {
             return '';
         }
-
         if ($this->is_not_tim_log($entry)) {
             $entryStr .= '✱';
         }
@@ -507,13 +506,13 @@ class PersoLogs extends BaseController
         $data['rows'] = [
             'morning' => lang('tim_lang.rowMorning'),
             'afternoon' => lang('tim_lang.rowAfternoon'),
-            # 'total' => ucfirst(lang('tim_lang.workTime')),
             'time' => ucfirst(lang('tim_lang.workTime')),
             'offeredTime' => ucfirst(lang('tim_lang.offeredTime')),
-            'sumTime' => ucfirst(lang('tim_lang.timeTotal')),
-            'dueTime' => ucfirst(lang('tim_lang.dueTime')),
+            # 'sumTime' => ucfirst(lang('tim_lang.timeTotal')),
+            # 'dueTime' => ucfirst(lang('tim_lang.dueTime')),
             'balance' => ucfirst(lang('tim_lang.balance')),
         ];
+        # comments above have too many responsibility
         $data['rows2'] = [
             'time' => lang('tim_lang.time'),
             'firstEntry' => lang('tim_lang.firstEntry'),

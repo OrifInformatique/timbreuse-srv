@@ -46,31 +46,12 @@
                     <?php endforeach ?>
                 <?php endforeach ?>
             </tbody>
-            <tfoot>
+            <tfoot class="table table-borderless">
                 <tr>
                     <td></td>
                     <th colspan="6"><?= esc(ucfirst(lang('tim_lang.week'))) ?></th>
                 </tr>
-                <tr>
-                    <th><?= esc(ucfirst(lang('tim_lang.workTime'))) ?></th>
-                    <td colspan="6"><?= esc($sumWorkTime) ?></td>
-                </tr>
-                <tr>
-                    <th><?= esc(ucfirst(lang('tim_lang.offeredTime'))) ?></th>
-                    <td colspan="6"><?= esc($offeredTime) ?></td>
-                </tr>
-                <tr>
-                    <th><?= esc(ucfirst(lang('tim_lang.timeTotal'))) ?></th>
-                    <td colspan="6"><?= esc($sumTime) ?></td>
-                </tr>
-                <tr>
-                    <th><?= esc(ucfirst(lang('tim_lang.dueTime'))) ?></th>
-                    <td colspan="6"><?= esc($dueTime) ?></td>
-                </tr>
-                <tr>
-                    <th><?= esc(ucfirst(lang('tim_lang.balance'))) ?></th>
-                    <td colspan="6" class="text-<?= $balance[0] == '+' ? 'success': 'danger font-weight-bold'?>"><?= esc($balance) ?></td>
-                </tr>
+                <?=view('Timbreuse\Views\logs\detail_balance', $this->data)?>
             </tfoot>
         </table>
     </div>
