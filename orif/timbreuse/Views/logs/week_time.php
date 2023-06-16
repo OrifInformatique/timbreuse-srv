@@ -32,9 +32,12 @@
                                         <?php if (isset($item[$halfKey][$typeKey])) : ?>
                                             <?php # time or hour  ?>
                                             <?= esc($item[$halfKey][$typeKey]) ?>
-                                        <?php elseif (isset($item[$halfKey])) : ?>
+                                        <?php elseif (isset($item[$halfKey]) and $halfKey !== 'balance') : ?>
                                             <?php # time sums  ?>
                                             <?= esc($item[$halfKey]) ?>
+                                        <?php elseif (isset($item['balance'])) : ?>
+                                            <?php # time sums balance ?>
+                                            <span class="text-<?= $item['balance'][0] === '+' ? 'success': 'danger font-weight-bold'?>"><?= esc($item['balance']) ?></span>
                                         <?php endif ?>
                                     </td>
                                 <?php endforeach ?>

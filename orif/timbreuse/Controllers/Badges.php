@@ -53,7 +53,7 @@ class Badges extends BaseController
         $data['url_delete'] = 'Badges/delete_badge/';
         # $data['url_create'] = "items_list/create/";
 
-        $this->display_view('Common\Views\items_list', $data);
+        return $this->display_view('Common\Views\items_list', $data);
     }
 
     protected function get_data_for_delete_badge($badgeId)
@@ -84,7 +84,8 @@ class Badges extends BaseController
             return $this->display_view('\User\errors\403error');
         }
         $data = $this->get_data_for_delete_badge($badgeId);
-        $this->display_view('Timbreuse\Views\confirm_delete_form', $data);
+        return $this->display_view('Timbreuse\Views\confirm_delete_form',
+            $data);
     }
 
     private function delete_badge_post($badgeId)
@@ -115,7 +116,8 @@ class Badges extends BaseController
             return $this->post_edit_badge_relation($post);
         }
         $data = $this->get_data_for_edit_badge_relation($badgeId);
-        $this->display_view('Timbreuse\Views\badges\edit_badges', $data);
+        return $this->display_view('Timbreuse\Views\badges\edit_badges',
+            $data);
     }
 
     protected function get_empty_user_info()

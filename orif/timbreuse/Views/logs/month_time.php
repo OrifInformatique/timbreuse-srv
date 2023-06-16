@@ -41,7 +41,7 @@
                 </tr>
                 <tr>
                     <th><?= esc(ucfirst(lang('tim_lang.balance'))) ?></th>
-                    <td class="text-<?= $balance[0] == '+' ? 'success': 'danger font-weight-bold'?>"><?= esc($balance) ?></td>
+                    <td class="text-<?= $balance[0] === '+' ? 'success': 'danger font-weight-bold'?>"><?= esc($balance) ?></td>
                 </tr>
             </tfoot>
         </table>
