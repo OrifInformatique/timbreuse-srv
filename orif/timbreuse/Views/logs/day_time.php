@@ -48,7 +48,7 @@
                         <?php if (isset($item['edit_url'])) : ?>
                             <td>
                                 <a href='<?= esc($item['edit_url']) ?>'>
-                                    <i class="bi-pencil" style="font-size: 20px;"></i>
+                                    <i class="bi-pencil" style="font-size: 20px;" title="<?=lang('common_lang.btn_edit')?>" ></i>
                                 </a>
                             </td>
                         <?php else: ?>

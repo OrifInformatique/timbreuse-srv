@@ -155,21 +155,25 @@ helper("form");
                         <!-- Bootstrap details icon ("Card text"), redirect to url_detail, adding /primary_key as parameter -->
                         <?php if(isset($url_detail)) { ?>
                             <a class="not-underline" href="<?= site_url(esc($url_detail.$itemEntity[$primary_key_field])) ?>">
-                                <i class="bi-card-text" style="font-size: 20px;"></i>
+                                <i class="bi-card-text" style="font-size: 20px;" title="<?=lang('common_lang.btn_details') ?>" ></i>
                             </a>
                         <?php } ?>
 
                         <!-- Bootstrap edit icon ("Pencil"), redirect to url_update, adding /primary_key as parameter -->
                         <?php if(isset($url_update)) { ?>
                             <a class="not-underline" href="<?= site_url(esc($url_update.$itemEntity[$primary_key_field])) ?>">
-                                <i class="bi-pencil" style="font-size: 20px;"></i>
+                                <i class="bi-pencil" style="font-size: 20px;" title="<?=lang('common_lang.btn_edit') ?>" ></i>
                             </a>
                         <?php } ?>
                         
                         <!-- Bootstrap delete icon ("Trash"), redirect to url_delete, adding /primary_key as parameter -->
                         <?php if(isset($url_delete)) { ?>
                             <a class="not-underline" href="<?= site_url(esc($url_delete.$itemEntity[$primary_key_field])) ?>">
-                                <i class="bi-trash" style="font-size: 20px;"></i>
+                                <?php if (!isset($itemEntity['date_delete'])) : ?>
+                                    <i class="bi bi-trash" style="font-size: 20px;" title="<?=lang('common_lang.btn_delete') ?>" ></i>
+                                <?php else : ?>
+                                <i class="bi bi-arrow-counterclockwise" style="font-size: 20px;" title="<?=lang('common_lang.btn_reactivate') ?>" ></i>
+                                <?php endif ?>
                             </a>
                         <?php } ?>
                     </td>

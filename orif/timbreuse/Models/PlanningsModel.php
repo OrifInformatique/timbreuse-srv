@@ -61,7 +61,8 @@ class PlanningModel extends Model
     public function select_date_and_id_planning(): PlanningModel 
     {
         return $this->select(
-                'date_begin, date_end, user_planning.id_planning');
+            'date_begin, date_end, user_planning.id_planning, '
+            .'planning.date_delete');
     }
 
     public function select_due_time(): PlanningModel 
