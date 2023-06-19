@@ -54,17 +54,20 @@ class PersoLogs extends BaseController
         return $weeks;
     }
 
-    protected function get_workdays_text($date): string
+    protected function get_workdays_text(Time $date, ?int $dayNumber=6,
+        ?bool $withYear=false): string
     {
         $monday = $this->get_last_monday($date);
-        $friday = $monday->addDays(6);
-        return sprintf(
-            '%02d.%02d – %02d.%02d',
-            $monday->day,
-            $monday->month,
-            $friday->day,
-            $friday->month
-        );
+        $lastDay = $monday->addDays($dayNumber);
+        $mondayText = $monday->toLocalizedString('d MMMM – ');
+        if ($withYear) {
+            $lastDayText = $lastDay->toLocalizedString('d MMMM yyyy');
+        } else {
+            $lastDayText = $lastDay->toLocalizedString('d MMMM');
+        }
+        return $mondayText . $lastDayText;
+        # return sprintf('%02d.%02d – %02d.%02d', $monday->day, $monday->month,
+        #     $lastDay->day, $lastDay->month);
     }
 
     protected function get_hours_by_seconds(int $seconds): string
@@ -716,18 +719,20 @@ class PersoLogs extends BaseController
 
     protected function create_title($user, $day, $period)
     {
-        $date = $day->toDateString();
         switch ($period) {
             case 'day':
-                return $user['surname'] . ' ' . $user['name'] . ' ' . $date;
+                return $user['surname'] . ' ' . $user['name'] . '   '
+
+                    . $day->toLocalizedString('eeee d MMMM yyyy');
                 break;
             case 'month':
-                return $user['surname'] . ' ' . $user['name'] . ' mois ' .
-                    $date;
+                return $user['surname'] . ' ' . $user['name'] . '   '
+                    . $day->toLocalizedString('MMMM yyyy');
                 break;
             case 'week':
-                return $user['surname'] . ' ' . $user['name'] . ' semaine ' .
-                    $date;
+                $weekText = $this->get_workdays_text($day, 4, true);
+                return $user['surname'] . ' ' . $user['name'] . '   '
+                    . $weekText;
                 break;
         }
     }
