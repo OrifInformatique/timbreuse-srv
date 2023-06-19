@@ -464,11 +464,6 @@ class Plannings extends BaseController
 
     }
 
-    protected function is_deleted_planning(array $planning): string
-    {
-       return isset($planning['date_delete']);
-    }
-
     protected function get_no_user_data_for_plannings_list(
             bool $withDeleted): array
     {

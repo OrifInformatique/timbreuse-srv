@@ -292,5 +292,12 @@ input:invalid {
         <input type="hidden" name="timUserId" value="<?=esc($timUserId ?? null)?>">
 
     </form>
+    <details>
+        <summary><?= esc(ucfirst(lang('tim_lang.help'))) ?></summary>
+        <?= lang('tim_lang.planningExplanation1') ?>
+        <ul>
+            <?= lang('tim_lang.planningExplanation2') ?>
+        </ul>
+    </details>
 </section>
 

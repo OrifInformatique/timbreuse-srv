@@ -14,4 +14,7 @@ return [
     'timUserEdit' => 'Édition utilisateur de la timbreuse',
     'siteAccountLabel' => 'modifier le lien compte site web ⇋ compte timbreuse',
     'timUsersList' => 'Liste des utilisateurs de la timbreuse',
+    'planningExplanation1' => '<p>Le <strong>temps exigé</strong> correspond au temps que vous devez travailler. (temps à l’Orif + temps aux cours)<p> '
+        . '<p>Le <strong>temps offert</strong> correspond au temps qui n’est pas vérifié par la timbreuse mais qui est quand même compté comme du temps de travail. (temps des pauses + temps aux cours)</p> '
+        . '<p>Exemple pour une personne à 100 %  (41 heures sur 5 jours) : </p> ',
 ];
