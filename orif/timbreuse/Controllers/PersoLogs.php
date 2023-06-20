@@ -54,11 +54,21 @@ class PersoLogs extends BaseController
         return $weeks;
     }
 
-    protected function get_workdays_text(Time $date, ?int $dayNumber=6,
-        ?bool $withYear=false): string
+    protected function get_workdays_text_with_number(time $monday,
+        time $lastDay, bool $withYear): string
     {
-        $monday = $this->get_last_monday($date);
-        $lastDay = $monday->addDays($dayNumber);
+        $mondayText = $monday->toLocalizedString('dd.MM – ');
+        if ($withYear) {
+            $lastDayText = $lastDay->toLocalizedString('dd.MM.yyyy');
+        } else {
+            $lastDayText = $lastDay->toLocalizedString('dd.MM');
+        }
+        return $mondayText . $lastDayText;
+    }
+
+    protected function get_workdays_text_with_month_name(time $monday,
+        time $lastDay, bool $withYear): string
+    {
         $mondayText = $monday->toLocalizedString('d MMMM – ');
         if ($withYear) {
             $lastDayText = $lastDay->toLocalizedString('d MMMM yyyy');
@@ -66,6 +76,20 @@ class PersoLogs extends BaseController
             $lastDayText = $lastDay->toLocalizedString('d MMMM');
         }
         return $mondayText . $lastDayText;
+    }
+
+    protected function get_workdays_text(Time $date, ?int $dayNumber=6,
+        ?bool $withYear=false, ?bool $withNumber=true): string
+    {
+        $monday = $this->get_last_monday($date);
+        $lastDay = $monday->addDays($dayNumber);
+        if ($withNumber) {
+            return $this->get_workdays_text_with_number($monday, $lastDay,
+                $withYear);
+        } else {
+            return $this->get_workdays_text_with_month_name($monday, $lastDay,
+                $withYear);
+        }
         # return sprintf('%02d.%02d – %02d.%02d', $monday->day, $monday->month,
         #     $lastDay->day, $lastDay->month);
     }
@@ -226,7 +250,9 @@ class PersoLogs extends BaseController
         string $period, bool $asterisk=false): array
     {
         $planningModel = model(PlanningsModel::class);
-        if (!$planningModel->is_planning_day($day, $timUserId)) {
+        if (!$planningModel->has_planning_by_period($timUserId, $day,
+            $period))
+        {
             return $this->get_detail_time_array_null();
         }
         $time = Time::parse($day);
@@ -717,7 +743,7 @@ class PersoLogs extends BaseController
         return $buttons;
     }
 
-    protected function create_title($user, $day, $period)
+    protected function create_title(array $user, Time $day, $period)
     {
         switch ($period) {
             case 'day':
@@ -730,7 +756,7 @@ class PersoLogs extends BaseController
                     . $day->toLocalizedString('MMMM yyyy');
                 break;
             case 'week':
-                $weekText = $this->get_workdays_text($day, 4, true);
+                $weekText = $this->get_workdays_text($day, 4, true, false);
                 return $user['surname'] . ' ' . $user['name'] . '   '
                     . $weekText;
                 break;

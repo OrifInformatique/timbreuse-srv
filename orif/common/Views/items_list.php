@@ -172,7 +172,7 @@ helper("form");
                                 <?php if (!isset($itemEntity['date_delete'])) : ?>
                                     <i class="bi bi-trash" style="font-size: 20px;" title="<?=lang('common_lang.btn_delete') ?>" ></i>
                                 <?php else : ?>
-                                <i class="bi bi-arrow-counterclockwise" style="font-size: 20px;" title="<?=lang('common_lang.btn_reactivate') ?>" ></i>
+                                <i class="bi bi-arrow-counterclockwise" style="font-size: 20px;" title="<?=lang('common_lang.btn_restore') ?>" ></i>
                                 <?php endif ?>
                             </a>
                         <?php } ?>

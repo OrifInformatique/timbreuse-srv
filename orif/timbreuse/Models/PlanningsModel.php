@@ -318,7 +318,22 @@ class PlanningModel extends Model
             bool $withDeleted): array
     {
         $idsAndDates = $this->get_date_and_id($timUserId, $withDeleted);
-        return array_map(array($this, 'add_due_string'), $idsAndDates);
+        $idsAndFormatedDates = array_map(function($line) {
+            $line['date_begin'] = $this->format_date_planning(
+                $line['date_begin']);
+            $line['date_end'] = $this->format_date_planning($line['date_end']);
+            return $line;
+        }, $idsAndDates);
+        return array_map(array($this, 'add_due_string'), $idsAndFormatedDates);
+    }
+
+    public function format_date_planning(?string $date): string
+    {
+        if (is_null($date)) {
+            return '';
+        }
+        $time = Time::parse($date);
+        return $time->toLocalizedString('dd.MM.yyyy');
     }
 
     public function get_string(int $planningId): string
@@ -364,11 +379,14 @@ class PlanningModel extends Model
         return array($columnsData[$keys[0]], $columnsData[$keys[1]]);
     }
 
-    public function is_planning_day(string $date, int $timUserId): bool
+    /**
+        * null is sunday and saturday
+    */
+    public function has_planning_day(int $timUserId, string $date): ?bool
     {
         $columns = $this->get_columns_day_name($date);
         if (is_null($columns)) {
-            return false;
+            return null;
         }
         $date = $this->db->escape($date);
         $timUserId = $this->db->escape($timUserId);
@@ -384,6 +402,52 @@ class PlanningModel extends Model
         return true;
     }
 
+    public function has_planning_week(int $timUserId, string $date): bool
+    {
+        return $this->get_time_week($timUserId, $date, 'has_planning_period');
+    }
+
+    public function has_planning_month(int $timUserId, string $date): bool
+    {
+        return $this->get_time_month($timUserId, $date, 'has_planning_period');
+    }
+
+    public function has_planning_period(string $firstDay, int $numberOfDay,
+        int $timUserId): bool
+    {
+        $days = range(0, $numberOfDay - 1);
+        $firstDay = Time::parse($firstDay);
+        $daysDate = array_map(array($firstDay, 'addDays'), $days);
+        $daysDateText = array_map(fn($day) => $day->toDateString(), $daysDate);
+        $daysHasPlanning = array_map(fn($day) => $this->has_planning_day(
+            $timUserId, $day), $daysDateText);
+        # $daysHasPlanning = array_map(fn($day) => call_user_func_array(
+        #     array($this, $methodName), array($timUserId, $day)),
+        #     $daysDateText);
+        $daysHasPlanningFiltered = array_filter($daysHasPlanning,
+            fn($line) => !is_null($line));
+        if (is_null($daysHasPlanningFiltered)) {
+            return false;
+        }
+        return array_reduce($daysHasPlanningFiltered, fn($carry, $line)
+            => ($carry and $line), true);
+    }
+
+    public function has_planning_by_period(int $timUserId, string $date, 
+        string $period): bool
+    {
+        switch ($period) {
+        case 'day':
+            return $this->has_planning_day($timUserId, $date);
+            break;
+        case 'week':
+            return $this->has_planning_week($timUserId, $date);
+            break;
+        case 'month':
+            return $this->has_planning_month($timUserId, $date);
+            break;
+        }
+    }
 
     # to edit
     public function convert_second(array $columnsData): array

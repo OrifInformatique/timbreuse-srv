@@ -92,8 +92,8 @@ function get_last_monday(Time $day): Time
     return $day->subDays($day->dayOfWeek - 1);
 }
 
-function get_time_period(string $firstDay,
-        int $numberOfDay, int $timUserId, string $methodName, $instance): ?string
+function get_time_period(string $firstDay, int $numberOfDay, int $timUserId,
+    string $methodName, $instance): ?string
 {
     $days = range(0, $numberOfDay - 1);
     $firstDay = Time::parse($firstDay);

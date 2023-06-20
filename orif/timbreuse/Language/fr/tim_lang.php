@@ -106,7 +106,7 @@ return [
         . '<p>Exemple pour une personne à 100 %  (41 heures sur 5 jours) : </p> ',
     'planningExplanation2' => '<li>Pour une <em>journée de travail</em> à l’Orif, elle devra mettre le <strong>temps exigé</strong> à 8:12 et le <strong>temps offert</strong> à 0:30 (deux pauses).</li> '
         . '<li>Pour une <em>journée de cours</em>, elle devra mettre le <strong>temps exigé</strong> à 8:12 et le <strong>temps offert</strong> à 8:12.</li> '
-        . '<li>Pour une <em>journée fériée</em>, elle devra mettre le <strong>temps exigé</strong> à 0:0 et le <strong>temps offert</strong> à 0:0.</li> ',
+        . '<li>Pour un <em>jour férié</em>, elle devra mettre le <strong>temps exigé</strong> à 0:0 et le <strong>temps offert</strong> à 0:0.</li> ',
     'help' => 'aide',
 
 ];
