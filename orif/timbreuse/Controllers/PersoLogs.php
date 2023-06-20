@@ -86,12 +86,9 @@ class PersoLogs extends BaseController
         if ($withNumber) {
             return $this->get_workdays_text_with_number($monday, $lastDay,
                 $withYear);
-        } else {
-            return $this->get_workdays_text_with_month_name($monday, $lastDay,
-                $withYear);
         }
-        # return sprintf('%02d.%02d – %02d.%02d', $monday->day, $monday->month,
-        #     $lastDay->day, $lastDay->month);
+        return $this->get_workdays_text_with_month_name($monday, $lastDay,
+            $withYear);
     }
 
     protected function get_hours_by_seconds(int $seconds): string
@@ -256,8 +253,6 @@ class PersoLogs extends BaseController
             return $this->get_detail_time_array_null();
         }
         $time = Time::parse($day);
-        # $sumWorkTime = $this->get_time_day_by_period($timUserId, $time,
-        #     $period);
         $data['offeredTime'] = $this->get_offered_time_show_by_period(
             $timUserId, $day, $period);
         $data['dueTime'] = $planningModel->get_due_time_by_period($timUserId,
@@ -301,8 +296,8 @@ class PersoLogs extends BaseController
     }
 
     /* is duplicate from planningmodel */
-    public function get_time_period(string $firstDay,
-            int $numberOfDay, int $timUserId, string $methodName): string
+    public function get_time_period(string $firstDay, int $numberOfDay,
+        int $timUserId, string $methodName): string
     {
         $days = range(0, $numberOfDay - 1);
         $firstDay = Time::parse($firstDay);
@@ -427,38 +422,6 @@ class PersoLogs extends BaseController
         return $entryStr;
     }
 
-    # protected function get_string_time_for_day_time_table(int $userId, $date,
-    #     $halfDay, bool $isLast): string
-    # {
-    #     try {
-    #         $model = model(LogsModel::class);
-    #         $entry = $model->get_border_log_by_period($userId, $date, $halfDay,
-    #                                                     $isLast);
-    #         $entryStr = Time::parse($entry['date'])->toTimeString();
-
-    #         if ($this->is_not_tim_log($entry)) {
-    #             $entryStr .= '✱';
-    #         }
-    #         return $entryStr;
-    #     } catch (\Exception $e) {
-    #         return '';
-    #     }
-    # }
-
-    /**
-     * @deprecated
-     */
-    protected function is_fake_log(array $logs): bool
-    {
-        trigger_error('Deprecated function called.', E_USER_DEPRECATED);
-        foreach ($logs as $log) {
-            if (isset($log['id_fake_log'])) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     protected function is_site_log(array $log): bool
     {
         return isset($log['date_badge']); 
@@ -537,11 +500,10 @@ class PersoLogs extends BaseController
             'afternoon' => lang('tim_lang.rowAfternoon'),
             'time' => ucfirst(lang('tim_lang.workTime')),
             'offeredTime' => ucfirst(lang('tim_lang.offeredTime')),
-            # 'sumTime' => ucfirst(lang('tim_lang.timeTotal')),
-            # 'dueTime' => ucfirst(lang('tim_lang.dueTime')),
+            'sumTime' => ucfirst(lang('tim_lang.timeTotal')),
+            'dueTime' => ucfirst(lang('tim_lang.dueTime')),
             'balance' => ucfirst(lang('tim_lang.balance')),
         ];
-        # comments above have too many responsibility
         $data['rows2'] = [
             'time' => lang('tim_lang.time'),
             'firstEntry' => lang('tim_lang.firstEntry'),

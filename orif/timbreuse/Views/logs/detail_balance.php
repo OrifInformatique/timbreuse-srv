@@ -11,7 +11,7 @@
     <td colspan="1"><?= esc($sumTime) ?></td>
 </tr>
 <tr>
-    <th colspan="1"><?= esc(ucfirst(lang('tim_lang.dueTime'))) ?></th>
+    <th colspan="1" class='border-bottom'><?= esc(ucfirst(lang('tim_lang.dueTime'))) ?></th>
     <td colspan="1" class='border-bottom'><?=$offeredTime !== '–' ? '-': ''?><?= esc($dueTime) ?></td>
 </tr>
 <tr>

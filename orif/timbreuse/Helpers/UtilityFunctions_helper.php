@@ -42,7 +42,7 @@ function toSeconds(string $time): int
         $negative = true;
     }
     if (($time[0] === '-') or ($time[0] === '+')) {
-        $time = substr($time, 1, -1);
+        $time = substr($time, 1);
     }
     // $date = Time::parse($time);
     $date = parseDuration($time);
