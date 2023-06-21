@@ -596,7 +596,7 @@ class PersoLogs extends BaseController
         } else {
             $timUserId = session()->get('userIdAccess')
                 ?? $timUserIds[0]['id_user'];
-            $this->check_and_block_user();
+            $this->check_and_block_user($timUserId);
         }
         return $this->redirect_for_perso_time($timUserId, $day, $period);
     }
