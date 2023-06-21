@@ -533,7 +533,7 @@ class Plannings extends BaseController
 
     protected function get_default_planning_id(): int
     {
-        return config('\Timbreuse\Config\PlanningConfig')->defaultPlanningId;
+        return config('\Timbreuse\Config\TimbreuseConfig')->defaultPlanningId;
     }
 
     public function delete_planning(?int $planningId=null)
