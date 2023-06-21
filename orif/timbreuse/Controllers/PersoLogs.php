@@ -33,14 +33,13 @@ class PersoLogs extends BaseController
             return redirect()->to(current_url() . '/perso_time');
         }
 
-
     protected function get_last_monday(Time $day): Time
     {
         helper('UtilityFunctions');
         return get_last_monday($day);
     }
 
-    protected function get_month_week_array($timUserId, Time $date): array
+    protected function get_month_week_array(int $timUserId, Time $date): array
     {
         $weeks = array();
         $firstDay = Time::create($date->year, $date->month, 1);
@@ -102,7 +101,7 @@ class PersoLogs extends BaseController
      * calculate the time
      * to retest
      */
-    protected function get_time_array($logs): int
+    protected function get_time_array(array $logs): int
     {
         $dateIn = null;
         $invokeCalcule = function (?int $carry, array $log) use (&$dateIn)
@@ -117,7 +116,7 @@ class PersoLogs extends BaseController
     }
 
     protected function reduce_time_array(?int $carry, array $log,
-        ?string &$dateIn)
+        ?string &$dateIn): int
     {
         $isGoInside = boolval($log['inside']);
         $isOutside = $dateIn === null;
@@ -134,11 +133,11 @@ class PersoLogs extends BaseController
                 ->seconds);
             $dateIn = null;
         }
-        return $carry;
+        return $carry ?? 0;
     }
 
     /* for month view */
-    protected function get_day_week_array($timUserId, Time $date): array
+    protected function get_day_week_array(int $timUserId, Time $date): array
     {
         $model = model(LogsModel::class);
         $logs = $model->get_filtered_logs($timUserId, $date, 'week');
@@ -566,41 +565,44 @@ class PersoLogs extends BaseController
         }
     }
 
-    public function perso_time($day = null, $period = null)
+    protected function invoke_registered_user(array $timUserIds)
+    {
+            if (count($timUserIds) === 0) {
+                return $this->display_view('\User\errors\403error');
+            }
+            return $this->access_user_list();
+    }
+
+    protected function is_registered_user()
+    {
+        return session()->get('user_access')
+            === config('\User\Config\UserConfig')->access_lvl_registered;
+    }
+    public function perso_time(?string $day = null, ?string $period = null)
     {
         if ($this->is_admin()) {
             return $this->redirect_admin();
-        } elseif (session()->get('user_access')
-            !== config('\User\Config\UserConfig')->access_lvl_registered)
-        {
-            return;
         }
-        if (!(session()->has('userIdAccess'))) {
-            $model = model(AccessTimModel::class);
-            $timUserId = $model->get_access_users($this->get_ci_user_id());
-            switch (count($timUserId)) {
-                case 0:
-                    return $this->display_view('\User\errors\403error');
-                    break;
-                case 1:
-                    $timUserId = $timUserId[0]['id_user'];
-                    break;
-                default:
-                    return $this->access_user_list();
-                    break;
-            }
-        } elseif (($day === null) and ($period === null)) {
+        if (!$this->is_registered_user()) {
+            return $this->block_user();
+        }
+        if (($day === null) and ($period === null)){
             session()->remove('userIdAccess');
+        }
+        $model = model(AccessTimModel::class);
+        $timUserIds = $model->get_access_users($this->get_ci_user_id());
+        if ((!session()->has('userIdAccess')) and (count($timUserIds) !== 1)) {
+            return $this->invoke_registered_user($timUserIds);
         } else {
-            $model = model(AccessTimModel::class);
-            $timUserId = session()->get('userIdAccess');
+            $timUserId = session()->get('userIdAccess')
+                ?? $timUserIds[0]['id_user'];
             $this->check_and_block_user();
         }
         return $this->redirect_for_perso_time($timUserId, $day, $period);
     }
 
-    protected function redirect_for_perso_time(int $timUserId, ?string $day = null,
-        ?string $period = null)
+    protected function redirect_for_perso_time(int $timUserId,
+        ?string $day = null, ?string $period = null)
     {
         if (($day === null)) {
             return redirect()->to(current_url() . '/../perso_time/'
@@ -648,13 +650,13 @@ class PersoLogs extends BaseController
         }
     }
 
-    protected function is_admin()
+    protected function is_admin(): bool
     {
         helper('UtilityFunctions');
         return is_admin();
     }
 
-    protected function get_ci_user_id()
+    protected function get_ci_user_id(): ?int
     {
         helper('UtilityFunctions');
         return get_ci_user_id();
@@ -668,15 +670,14 @@ class PersoLogs extends BaseController
         return $this->display_view('\User\errors\403error');
     }
 
-    protected function check_and_block_user($id = null)
+    protected function check_and_block_user(?int $id = null)
     {
-        if (!($this->is_session_access($id))) {
+        if (!$this->is_session_access($id)) {
             return $this->block_user();
         }
     }
 
-
-    protected function create_time_links($day, $period)
+    protected function create_time_links(Time $day, string $period): array
     {
         switch ($period) {
             case 'day':
@@ -705,7 +706,8 @@ class PersoLogs extends BaseController
         return $buttons;
     }
 
-    protected function create_title(array $user, Time $day, $period)
+    protected function create_title(array $user, Time $day,
+        string $period): string
     {
         switch ($period) {
             case 'day':
@@ -725,7 +727,7 @@ class PersoLogs extends BaseController
         }
     }
 
-    protected function create_buttons($period)
+    protected function create_buttons(string $period): array
     {
         $data = array();
         array_push($data,
@@ -750,7 +752,7 @@ class PersoLogs extends BaseController
         return $data;
     }
 
-    protected function get_user_data($timUserId)
+    protected function get_user_data(int $timUserId): array
     {
         $badgesModel = model(BadgesModel::class);
         $logsModel = model(LogsModel::class);
@@ -761,7 +763,7 @@ class PersoLogs extends BaseController
         return $data;
     }
 
-    protected function filter_log_month($log, Time $day)
+    protected function filter_log_month(array $log, Time $day)
     {
         $logDay = Time::parse($log['date']);
         return $this->is_same_month($day, $logDay);
@@ -779,7 +781,7 @@ class PersoLogs extends BaseController
         return $this->is_same_day($day, $logDay);
     }
 
-    protected function is_same_month(Time $day1, Time $day2)
+    protected function is_same_month(Time $day1, Time $day2): bool
     {
         $bMonths = $day1->month === $day2->month;
         $bYears = $day1->year === $day2->year;
@@ -884,14 +886,11 @@ class PersoLogs extends BaseController
     {
         $model = model(AccessTimModel::class);
         $ciUserId = $this->get_ci_user_id();
-
         if ($model->is_access($ciUserId, $timUserId)) {
             session()->set('userIdAccess', $timUserId);
             $today = Time::today()->toDateString();
-            return redirect()->to(
-                current_url() . 
-                '/../../perso_time/' . $today . '/month'
-            );
+            return redirect()->to( current_url() .  '/../../perso_time/'
+                . $today . '/month');
         }
     }
 

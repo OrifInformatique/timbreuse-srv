@@ -1,12 +1,13 @@
 <?php
 use CodeIgniter\I18n\Time;
 
-function load_key() {
+function load_key(): string
+{
     $fileText = file_get_contents('../.key.json');
     return json_decode($fileText, true)['key'];
 }
 
-function create_token(string ...$texts)
+function create_token(string ...$texts): string
 {
     $concat_text = '';
     foreach ($texts as $text) {
@@ -18,7 +19,7 @@ function create_token(string ...$texts)
     return $token_text;
 }
 
-function is_admin()
+function is_admin(): bool
 {
     return session()->get('user_access') == config('\User\Config\UserConfig')
         ->access_lvl_admin;
