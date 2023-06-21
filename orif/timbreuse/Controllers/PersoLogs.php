@@ -584,7 +584,7 @@ class PersoLogs extends BaseController
             return $this->redirect_admin();
         }
         if (!$this->is_registered_user()) {
-            return $this->block_user();
+            return;
         }
         if (($day === null) and ($period === null)){
             session()->remove('userIdAccess');
