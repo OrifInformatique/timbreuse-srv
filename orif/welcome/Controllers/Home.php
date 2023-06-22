@@ -45,6 +45,7 @@ class Home extends BaseController
         $data['url_delete'] = "items_list/delete/";
         $data['url_create'] = "items_list/create/";
 
-		$this->display_view(['Common\Views\items_list','Welcome\welcome_message'], $data);
+        return $this->display_view(
+            ['Common\Views\items_list','Welcome\welcome_message'], $data);
 	}
 }

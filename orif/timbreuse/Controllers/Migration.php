@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Timbreuse\Controllers;
 
 use CodeIgniter\Config\Services;
@@ -9,7 +8,7 @@ class Migration extends \CodeIgniter\Controller
 {
     public function index()
     {
-        echo view("Timbreuse\migrationIndex");
+        return view("Timbreuse\migrationIndex");
     }
 
     public function init()
@@ -30,7 +29,8 @@ class Migration extends \CodeIgniter\Controller
         return $this->response->setStatusCode(200);
     }
 
-    protected function get_app_status($filePath) {
+    protected function get_app_status($filePath)
+    {
         if (file_exists($filePath)){
             $file = fopen($filePath, 'r');
             $initDatas = fread($file, 100);
@@ -42,13 +42,15 @@ class Migration extends \CodeIgniter\Controller
         return $appStatus;
     }
 
-    protected function delete_files() {
+    protected function delete_files()
+    {
         unlink((new \ReflectionClass(
             '\Timbreuse\Controllers\Migration'))->getFileName());
         unlink(ROOTPATH . 'orif/Timbreuse/Views/migrationindex.php');
     }
 
-    protected function invoke_migration(...$namespaces) {
+    protected function invoke_migration(...$namespaces)
+    {
         try {
             $migrate = Services::migrations();
             foreach ($namespaces as $namespace) {

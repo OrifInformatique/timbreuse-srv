@@ -3,7 +3,7 @@ return [
     'monday' => 'lundi',
     'tuesday' => 'mardi',
     'wednesday' => 'mercredi',
-    'thurday' => 'jeudi',
+    'thursday' => 'jeudi',
     'friday' => 'vendredi',
     'rowMorning' =>  '07:00 à 12:30',
     'rowAfternoon' =>  '12:30 à 17:45',
@@ -79,4 +79,34 @@ return [
     'confirmDeleteTimUser' => ' Cet utilisateur est attribué au badge ID « %s ».',
     'titleConfirmDeleteBadge' => 'Supprimer le badge ID %s',
     'titleconfirmDeleteTimUser' => 'Supprimer l’utilisateur « %s %s »',
+    'titlePlanning' => 'planning hebdomadaire %s',
+    'titleNewPlanning' => 'Nouveau planning hebdomadaire %s',
+    'dueTime' => 'temps exigé',
+    'offeredTime' => 'temps offert',
+    'titleList' => 'liste des plannings %s',
+    'dateBegin' => 'valable du',
+    'dateEnd' => 'au',
+    'dateColide' => 'Il y a un chevauchement entre un planning existant et les dates que vous avez saisies.',
+    'dateNotBefore' => 'La date de début est après la date de fin.',
+    'errorDate' => 'Une erreur est survenue avec une date.',
+    'planning' => 'planning',
+    'Defaultplanning' => 'Planning par défaut',
+    'confirmDeletePlanning' => 'Êtes-vous sûr·e de vouloir supprimer ce planning ?',
+    'titleConfirmDeletePlanning' => 'Supprimer le planning ID %s',
+    'confirmRestorePlanning' => 'Êtes-vous sûr·e de vouloir restaurer ce planning ?',
+    'titleConfirmRestorePlanning' => 'Restaurer le planning ID %s',
+    'dateColideRestore' => 'Il y a un chevauchement entre un planning existant et les dates du planning à restaurer.',
+    'monthDetail' => '1er au 31 du mois',
+    'balance' => 'balance',
+    'showDeletedPlanning' =>'Afficher les plannings supprimés',
+    'workTime' =>'Temps de travail',
+    'unDefineDate' => '–',
+    'planningExplanation1' => '<p>Le <strong>temps exigé</strong> correspond au temps de travail attendu. (temps à l’Orif + temps aux cours)<p> '
+        . '<p>Le <strong>temps offert</strong> correspond au temps qui est automatiquement ajouté à votre temps de travail, en plus vos heures timbrées. (temps des pauses + temps aux cours)</p> '
+        . '<p>Exemple pour une personne à 100 %  (41 heures sur 5 jours) : </p> ',
+    'planningExplanation2' => '<li>Pour une <em>journée de travail</em> à l’Orif, on devra indiquer 8:12 pour le <strong>temps exigé</strong> et on devra indiquer 0:30 pour le <strong>temps offert</strong> (deux pauses de 15 min.).</li> '
+        . '<li>Pour une <em>journée de cours</em>, on devra indiquer 8:12 pour le <strong>temps exigé</strong> et également 8:12 pour le <strong>temps offert</strong>.</li> '
+        . '<li>Pour un <em>jour férié</em>, on devra indiquer 00:00 pour le <strong>temps exigé</strong> et également 00:00 pour le <strong>temps offert</strong>.</li> ',
+    'help' => 'aide',
+
 ];

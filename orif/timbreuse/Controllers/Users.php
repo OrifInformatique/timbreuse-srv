@@ -51,7 +51,7 @@ class Users extends BaseController
         $data['url_update'] = 'Users/edit_tim_user/';
         $data['url_delete'] = 'Users/delete_tim_user/';
         // $data['url_create'] = "items_list/create/";
-        $this->display_view('Common\Views\items_list', $data);
+        return $this->display_view('Common\Views\items_list', $data);
     }
 
     protected function get_data_for_delete_tim_user($timUserId)
@@ -74,7 +74,7 @@ class Users extends BaseController
         }
         $data['text'] = sprintf(lang('tim_lang.confirmDeleteTimUser'),
             $badgeId, '');
-        $data['link'] = '.';
+        $data['link'] = '';
         $data['cancel_link'] = '..';
         $data['id'] = $timUserId;
         return $data;
@@ -82,14 +82,15 @@ class Users extends BaseController
 
     public function delete_tim_user($timUserId=null)
     {
-        if ($this->request->getMethod() === 'post' and $timUserId === null) {
+        if ($this->request->getMethod() === 'post') {
             $timUserId = $this->request->getPost('id');
             return $this->delete_timUser_post($timUserId);
         } elseif ($timUserId === null) {
             return $this->display_view('\User\errors\403error');
         }
         $data = $this->get_data_for_delete_tim_user($timUserId);
-        $this->display_view('Timbreuse\Views\confirm_delete_form', $data);
+        return $this->display_view('Timbreuse\Views\confirm_delete_form',
+            $data);
     }
 
     private function delete_timUser_post($timUserId)
@@ -102,44 +103,36 @@ class Users extends BaseController
             $timUserModel->delete($timUserId);
         }
         $timUserModel->db->transComplete();
-        return redirect()->to(current_url() . '/..');
+        return redirect()->to(current_url() . '/../..');
     }
 
-    public function ci_users_list($userId = 92)
+    public function ci_users_list($userId)
     {
         $model = model(AccessTimModel::class);
         $modelCi = model(User_model::class);
         $data['title'] = lang('tim_lang.webUsers');
 
-        $data['list_title'] = sprintf(
-            lang('tim_lang.ci_users_list_title'),
-            $this->get_username($userId)
-        );
-
+        $data['list_title'] = sprintf(lang('tim_lang.ci_users_list_title'),
+            $this->get_username($userId));
         $data['columns'] = [
             'id' => lang('tim_lang.id_site'),
             'username' => ucfirst(lang('tim_lang.username')),
             'access' => ucfirst(lang('tim_lang.access')),
         ];
-
-        $data['items'] = $modelCi->select('id, username')->findall();
+        $data['items'] = $modelCi->select('id, username')->orderBy('username')
+            ->findall();
         $access = $model->select('id_ci_user')->where('id_user=', $userId)
             ->findall();
-
-        $access = array_map(function ($access) {
-            return array_pop($access);
-        }, $access);
-
+        $access = array_map(fn ($access) => array_pop($access), $access);
         $data['items'] = array_map(function (array $item) use ($access) {
             $item['access'] = array_search($item['id'], $access) !== false ?
                 lang('tim_lang.yes') : lang('tim_lang.no');
             return $item;
         }, $data['items']);
-
         $data['primary_key_field']  = 'id';
         $data['url_update'] = 'Users/form_add_access/' . $userId . '/';
         $data['url_delete'] = 'Users/form_delete_access/' . $userId . '/';
-        $this->display_view('Common\Views\items_list', $data);
+        return $this->display_view('Common\Views\items_list', $data);
     }
     
     protected function get_usernames($userId, $ciUserId)
@@ -172,8 +165,8 @@ class Users extends BaseController
 
         $userNames = $this->get_usernames($userId, $ciUserId);
         $data = array();
-        $data['userId'] = $userId;
-        $data['ciUserId'] = $ciUserId;
+        $data['ids']['userId'] = $userId;
+        $data['ids']['ciUserId'] = $ciUserId;
         $data['link'] = '../../post_add_access';
         $data['cancel_link'] = '../../ci_users_list/' . $userId;
         $data['label_button'] = lang('tim_lang.add');
@@ -182,7 +175,7 @@ class Users extends BaseController
             $userNames['ciUserName'],
             $userNames['userName']
         );
-        $this->display_view('Timbreuse\Views\confirm_form', $data);
+        return $this->display_view('Timbreuse\Views\confirm_form', $data);
     }
 
     protected function add_access($userId, $ciUserId)
@@ -216,8 +209,8 @@ class Users extends BaseController
     {
         $userNames = $this->get_usernames($userId, $ciUserId);
         $data = array();
-        $data['userId'] = $userId;
-        $data['ciUserId'] = $ciUserId;
+        $data['ids']['userId'] = $userId;
+        $data['ids']['ciUserId'] = $ciUserId;
         $data['link'] = '../../post_delete_access';
         $data['cancel_link'] = '../../ci_users_list/' . $userId;
         $data['label_button'] = lang('tim_lang.delete');
@@ -226,7 +219,7 @@ class Users extends BaseController
             $userNames['ciUserName'],
             $userNames['userName']
         );
-        $this->display_view('Timbreuse\Views\confirm_form', $data);
+        return $this->display_view('Timbreuse\Views\confirm_form', $data);
     }
 
     public function post_delete_access()
@@ -293,9 +286,7 @@ class Users extends BaseController
 
     public function edit_tim_user($timUserId)
     {
-        /**
-        * show the edit formulaire, when is valited go to post_edit… method
-        */
+        #show the edit formulaire, when is valited go to post_edit… method
         if (($this->request->getMethod() === 'post') and $this->validate([
             'name' => 'required',
             'surname' => 'required',
@@ -306,11 +297,12 @@ class Users extends BaseController
             return $this->post_edit_tim_user();
         }
         $data = $this->get_data_for_edit_tim_user($timUserId);
-        $this->display_view('Timbreuse\Views\users\edit_tim_user', $data);
+        return $this->display_view('Timbreuse\Views\users\edit_tim_user',
+            $data);
     }
 
-    protected function update_user_and_badge($timUserId, $newBadgeId, $name, 
-            $surname)
+    protected function update_user_and_badge(int $timUserId, ?int $newBadgeId,
+        string $name, string $surname): bool
     {
         $userData['name'] = $name;
         $userData['surname'] = $surname;
@@ -338,49 +330,13 @@ class Users extends BaseController
         $surname = $this->request->getPost('surname');
         $timUserId = $this->request->getPost('timUserId');
         $newBadgeId = $this->request->getPost('badgeId');
+        $newBadgeId = $newBadgeId === '' ? null : $newBadgeId;
         if($this->update_user_and_badge($timUserId, $newBadgeId, $name, 
-                $surname)){
+                $surname)) {
             return redirect()->to(current_url() . '/../../..');
         } else {
             return redirect()->to(current_url() . '/../..');
         }
     }
 
-    /**
-     * @deprecated
-     */
-    public function old_delete_tim_user($timUserId)
-    {
-        trigger_error('Method ' . __METHOD__ . ' is deprecated',
-            E_USER_DEPRECATED);
-        $model = model(UsersModel::class);
-        $names = $model->select('name, surname')->find($timUserId);
-        $data['text'] = sprintf(lang('tim_lang.confirmDeleteTimUser'),
-                $names['name'], $names['surname']);
-        $data['link'] = '../confirm_delete_tim_user';
-        $data['label_button'] = ucfirst(lang('tim_lang.delete')); 
-        $data['title'] = lang('tim_lang.delete');
-        $data['cancel_link'] = '../edit_tim_user/' . $timUserId;
-        $data['userId'] = $timUserId;
-        $data['ciUserId'] = null;
-        $this->display_view('Timbreuse\Views\confirm_form', $data);
-    }
-
-    /**
-     * @deprecated
-     */
-    public function old_confirm_delete_tim_user()
-    {
-        trigger_error('Method ' . __METHOD__ . ' is deprecated',
-            E_USER_DEPRECATED);
-        if ($this->request->getMethod() !== 'post') {
-            return $this->display_view('\User\errors\403error');
-        }
-        $model = model(UsersModel::class);
-        $timUserId = $this->request->getPost('userId');
-        if ($timUserId !== null) {
-            $model->delete($timUserId);
-        }
-        return redirect()->to(current_url() . '/../../..');
-    }
 }

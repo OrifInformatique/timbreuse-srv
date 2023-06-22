@@ -24,13 +24,12 @@
 
     <!-- Icon -->
     <link rel="icon" type="image/png" href="<?= base_url("images/favicon.png"); ?>" />
-    <link rel="shortcut icon" type="image/png" href="<?= base_url("images/favicon.png"); ?>" />
 
     <!-- Bootstrap  -->
     <!-- Orif Bootstrap CSS personalized with https://bootstrap.build/app -->
     <link rel="stylesheet" href="<?= base_url("css/bootstrap.min.css"); ?>" />
     <!-- Bootstrap icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="<?= base_url("css/bootstrap-icons-1.10.5/font/bootstrap-icons.min.css"); ?>">
     <!-- jquery, popper and Bootstrap javascript -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>

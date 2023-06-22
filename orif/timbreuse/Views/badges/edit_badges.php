@@ -1,3 +1,9 @@
+<style>
+input:invalid {
+    border-color: #ae0000;
+    border-width: 2px;
+}
+</style>
 <section class="container">
     <h3><?= esc($h3title) ?></h3>
     <!-- <?= session()->getFlashdata('error') ?> -->
@@ -17,7 +23,7 @@
                     <button type='button' id='delete_user_id_text' class="btn input-group-text" ><?=esc($labels['erase'])?></button>
                     <input type="text" id="namesUser" disabled class="input-group-text" value="<?=esc($availableUsers[0]["name"])?> <?=esc($availableUsers[0]["surname"])?>">
                 </div>
-                <input id='timUserId'  class="form-control" list='userId_list' disabled autocomplete="off" value='<?=esc($availableUsers[0]['id_user'])?>'>
+                <input id='timUserId'  class="form-control" list='userId_list' disabled autocomplete="off" value='<?=esc($availableUsers[0]['id_user'])?>' pattern="^\d*$">
                 <datalist id='userId_list'>
                     <?php foreach ($availableUsers as $user):?>
                         <option value="<?=esc($user["id_user"])?>" label="<?=esc($user["name"])?> <?=esc($user["surname"])?>">
@@ -28,7 +34,7 @@
 
 
         <div class="form-group text-right">
-            <a href='<?=esc($returnUrl)?>' class="btn btn-link"><?=esc($labels['back'])?></a>
+            <a href='<?=esc($returnUrl)?>' class="btn btn-secondary"><?=esc($labels['back'])?></a>
             <input type='submit' value='<?=esc($labels['modify'])?>' class="btn btn-primary">
         </div>
         <a href='<?=esc($deleteUrl)?>' class="btn btn-danger"><?=esc($labels['delete'])?></a>

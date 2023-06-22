@@ -25,8 +25,6 @@ class BadgesAPI extends BaseController
     public function put($badgeId, $name, $surname, $token)
     {
         $model = model(BadgesModel::class);
-        # when is not a test ; 
-        # $token == $this->create_token($badgeId, $name, $surname)
         helper('UtilityFunctions');
         if ($token == create_token($badgeId, $name, $surname)) {
             if (($this->is_available($badgeId)) and ($model->

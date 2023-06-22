@@ -34,6 +34,7 @@ return[
     'btn_show_disabled'              => 'Afficher les éléments désactivés',
     'btn_delete'                     => 'Supprimer',
     'btn_search'                     => 'Rechercher',
+    'btn_restore'                    => 'Restaurer',
 
 // Other common texts
     'yes'                            => 'Oui',

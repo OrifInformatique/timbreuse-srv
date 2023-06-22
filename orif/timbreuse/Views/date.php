@@ -1,6 +1,6 @@
 <?php if (isset($date)) : ?>
     <div class="container py-1">
-            <input type='date' class='form-control' value='<?= esc($date) ?>'>
+            <input type='date' class='form-control' value='<?= esc($date) ?>' min="1948-04-17">
     </div>
     <script>
         function redirection() {
@@ -11,8 +11,14 @@
         }
         let date = document.getElementsByTagName('input');
         date = date[0];
-        date.onchange = function () {
-            setTimeout(redirection, 500);
+        let oldText = date.value;
+        //date.onchange = function () {
+        date.onfocusout = function () {
+            let newText = date.value;
+            if (newText !== oldText) {
+                redirection();
+            }
+            //setTimeout(redirection, 500);
             
         }
     </script>

@@ -14,12 +14,24 @@
                     <?php endforeach ?>
                 </tr>
             </thead>
+            <tbody>
             <?php foreach ($items as $item) : ?>
-                <tr>
-                    <th><a href="<?= esc($item['url']) ?>"><?= esc($item['label_week']) ?></a></th>
-                    <td><?= esc($item['time']) ?></td>
-                </tr>
+                    <tr>
+                        <th><a href="<?= esc($item['url']) ?>"><?= esc($item['label_week']) ?></a></th>
+                        <td><?= esc($item['time']) ?></td>
+                    </tr>
             <?php endforeach ?>
+            </tbody>
+            <tfoot class="table table-borderless">
+                <tr>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <th><?= esc(ucfirst(lang('tim_lang.monthDetail'))) ?></th>
+                </tr>
+                <?=view('Timbreuse\Views\logs\detail_balance', $this->data)?>
+            </tfoot>
         </table>
     </div>
 </div>

@@ -44,7 +44,7 @@ class LogsModel extends Model
     /**
      * prepare query to filtered with current user’s badge id 
      */
-    public function where_id_badge($userId)
+    public function where_id_badge(int $userId)
     {
         $modelBadge = model(BadgesModel::class);
         $this->whereIn('id_badge', function () use ($modelBadge, $userId) {
@@ -52,7 +52,7 @@ class LogsModel extends Model
         });
     }
 
-    public function limit_period($date, $period)
+    public function limit_period(Time $date, string $period)
     {
         if ($period == 'day') {
             $this->where('DAY(date)', $date->getDay());
@@ -64,17 +64,14 @@ class LogsModel extends Model
             $this->where('WEEKOFYEAR(date)', $date->getWeekOfYear());
         }
         $this->where('YEAR(date)', $date->getYear());
-        # if ($period != 'all') {
-        #     $this->where('YEAR(date)', $date->getYear());
-        # }
     }
 
-    public function limit_user($userId)
+    public function limit_user(int $timUserId)
     {
         if ($this->checkWithBadgeId) {
-            $this->where_id_badge($userId);
+            $this->where_id_badge($timUserId);
         } else {
-            $this->where('id_user', $userId);
+            $this->where('id_user', $timUserId);
         }
     }
 
@@ -87,9 +84,10 @@ class LogsModel extends Model
         return $this->findAll();
     }
 
-    public function get_filtered_logs($userId, $date, $period): array
+    public function get_filtered_logs(int $timUserId, time $date,
+        string $period): array
     {
-        $this->limit_user($userId);
+        $this->limit_user($timUserId);
         $this->limit_period($date, $period);
         $this->orderBy('date');
         return $this->findAll();

@@ -34,9 +34,20 @@ class UserModel extends Model
         return boolval($this->findAll());
     }
 
-    public function get_names($userId)
+    public function get_names(int $userId): array
     {
         return $this->select('name, surname')->find($userId);
+    }
+
+    public function get_available_users_info(): array
+    {
+        $data = $this->select('user_sync.id_user, name, surname')
+            ->join('badge_sync', 'user_sync.id_user = badge_sync.id_user',
+                'left')
+            ->where('id_badge', null)
+            ->orderBy('name')
+            ->findall();
+        return $data ?? array();
     }
 
 }

@@ -19,18 +19,25 @@
                 </tr>
             </thead>
             <tbody>
+                <?php # halfkey is morning afternoon sumtime offeredtime dueTime balance?>
                 <?php foreach ($rows as $halfKey => $row) : ?>
+                <?php # typeKey is time firstEntry lastOuting ?>
                     <?php foreach ($rows2 as $typeKey => $type) : ?>
-                        <?php if (!(($halfKey == array_key_last($rows)) and ($typeKey != array_key_first($rows2)))) : ?>
+                        <?php if (!(in_array($halfKey, $oneRowKey) and ($typeKey != array_key_first($rows2)))) : ?>
                             <tr>
                                 <th><?= $typeKey == array_key_first($rows2) ? esc($row) : '' ?></th>
-                                <td><?= $halfKey == array_key_last($rows) ? '' : esc(ucfirst($type)) ?></td>
+                                <td><?= in_array($halfKey, $oneRowKey) ? '' : esc(ucfirst($type)) ?></td>
                                 <?php foreach ($items as $item) : ?>
                                     <td>
-                                        <?php if (isset($item[$halfKey])) : ?>
-                                            <p><?= esc($item[$halfKey][$typeKey]) ?></p>
-                                        <?php elseif (isset($item['time'])) : ?>
-                                            <?= esc($item['time']) ?>
+                                        <?php if (isset($item[$halfKey][$typeKey])) : ?>
+                                            <?php # time or hour  ?>
+                                            <?= esc($item[$halfKey][$typeKey]) ?>
+                                        <?php elseif (isset($item[$halfKey]) and $halfKey !== 'balance') : ?>
+                                            <?php # time sums  ?>
+                                            <?= esc($item[$halfKey]) ?>
+                                        <?php elseif (isset($item['balance'])) : ?>
+                                            <?php # time sums balance ?>
+                                            <span class="text-<?= $item['balance'][0] === '+' ? 'success': 'danger font-weight-bold'?>"><?= esc($item['balance']) ?></span>
                                         <?php endif ?>
                                     </td>
                                 <?php endforeach ?>
@@ -39,11 +46,24 @@
                     <?php endforeach ?>
                 <?php endforeach ?>
             </tbody>
-            <tfoot>
+            <tfoot class="table table-borderless">
                 <tr>
-                    <th><?= esc(ucfirst(lang('tim_lang.weekTime'))) ?></th>
-                    <td><?= esc($sumTime) ?>
+                    <td></td>
+                    <th colspan="6"><?= esc(ucfirst(lang('tim_lang.week'))) ?></th>
                 </tr>
+                <tr>
+                    <th class="border-top"><?= esc(ucfirst(lang('tim_lang.timeTotal'))) ?></th>
+                    <td colspan="1" class="border-top"><?= esc($sumTime) ?></td>
+                </tr>
+                <tr>
+                    <th colspan="1" class='border-bottom'><?= esc(ucfirst(lang('tim_lang.dueTime'))) ?></th>
+                    <td colspan="1" class='border-bottom'><?=$offeredTime !== '–' ? '-': ''?><?= esc($dueTime) ?></td>
+                </tr>
+                <tr>
+                    <th><?= esc(ucfirst(lang('tim_lang.balance'))) ?></th>
+                    <td colspan="1" class="text-<?= $balance[0] === '+' ? 'success': 'danger font-weight-bold'?>"><?= esc($balance) ?></td>
+                </tr>
+
             </tfoot>
         </table>
     </div>
