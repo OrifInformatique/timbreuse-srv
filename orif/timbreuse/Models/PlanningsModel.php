@@ -438,7 +438,7 @@ class PlanningModel extends Model
     {
         switch ($period) {
         case 'day':
-            return $this->has_planning_day($timUserId, $date);
+            return $this->has_planning_day($timUserId, $date) ?? false;
             break;
         case 'week':
             return $this->has_planning_week($timUserId, $date);
