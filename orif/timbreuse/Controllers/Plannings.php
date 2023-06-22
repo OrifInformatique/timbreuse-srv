@@ -160,7 +160,7 @@ class Plannings extends BaseController
         }
         $data = $this->get_data_for_create_planning($timUserId, $model);
         return $this->display_view(
-            ['Timbreuse\Views\planning\edit_planning.php'], $data);
+            'Timbreuse\Views\planning\edit_planning.php', $data);
     }
 
     protected function get_data_for_create_planning(int $timUserId, 
@@ -262,6 +262,7 @@ class Plannings extends BaseController
             ?int $timUserId=null): string
     {
         if ($timUserId === $this->get_tim_user_id()) {
+            var_dump(current_url());
             return current_url() . '/../get_plannings_list';
         }
         return current_url() . "/../../get_plannings_list/$timUserId";
@@ -285,7 +286,7 @@ class Plannings extends BaseController
         if ($timUserId === $this->get_tim_user_id()) {
             return $txt;
         }
-        return  "$txt$timUserId";
+        return  "$txt/$timUserId";
     }
 
     // to rename, is also use after redirect when validate post
@@ -297,7 +298,7 @@ class Plannings extends BaseController
         }
         $timUserId = $this->get_tim_user_id($planningId);
         return $this->get_link_with_id_or_not(current_url()
-                . '/../../get_plannings_list/', $timUserId);
+                . '/../../get_plannings_list', $timUserId);
     }
 
     protected function get_data_for_edit_planning(int $planningId, 
@@ -452,7 +453,7 @@ class Plannings extends BaseController
         $data['items'] = $model->get_data_list_user_planning($timUserId,
                 $withDeleted);
         $data['url_create'] = $this->get_link_with_id_or_not(
-                'Plannings/create_planning/', $timUserId);
+                'Plannings/create_planning', $timUserId);
         $data['buttons'][0]['link'] =
                 "../../AdminLogs/time_list/$timUserId";
         $data['buttons'][0]['label'] = ucfirst(lang('tim_lang.back'));
