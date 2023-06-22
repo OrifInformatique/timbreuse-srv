@@ -1,1 +1,0 @@
-ALTER TABLE `badge_sync` ADD `rowid_badge` int(11) NOT NULL AUTO_INCREMENT UNIQUE;
