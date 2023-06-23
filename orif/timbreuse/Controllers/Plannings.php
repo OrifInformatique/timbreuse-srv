@@ -20,7 +20,7 @@ class Plannings extends BaseController
     # here common is beetween create and edit
     protected function get_common_rules(): array
     {
-        $rules['dateBegin'] = 'required|valid_date|cb_before_date[{dateEnd}]';
+        $rules['dateEnd'] = 'permit_empty';
         $rules['dueHoursMonday'] = 'greater_than_equal_to[0]'
             . '|less_than_equal_to[10]|required';
         $rules['dueMinutesMonday'] = 'greater_than_equal_to[0]'
@@ -70,17 +70,19 @@ class Plannings extends BaseController
         $model = model(PlanningsModel::class);
         $timUserId = $model->get_tim_user_id($planningId);
         if ($timUserId) {
-            $rules['dateEnd'] 
-                = "cb_available_date[$timUserId, $planningId]";
+            $rules['dateBegin'] 
+                = 'cb_available_date_begin[{timUserId}, {dateEnd}, '
+                . '{planningId}]';
         }
         $rules = array_merge($rules, $this->get_common_rules());
         return $rules;
     }
 
-    protected function get_create_rules(int $timUserId): array
+    protected function get_create_rules(): array
     {
         $rules['timUserId'] = 'required|integer';
-        $rules['dateEnd'] = "cb_available_date[$timUserId]";
+        $rules['dateBegin'] = 'required|valid_date|cb_before_date[{dateEnd}]'
+            .'|cb_available_date_begin[{timUserId}, {dateEnd}]';
         $rules = array_merge($rules, $this->get_common_rules());
         return $rules;
     }
@@ -150,8 +152,12 @@ class Plannings extends BaseController
     public function create_planning(?int $timUserId=null)
     {
         $timUserId = $timUserId ?? $this->get_tim_user_id(); 
+
+        # $post = $this->request->getPost();
+        # var_dump($post);
+
         if (($this->request->getMethod() === 'post')
-            and ($this->validate($this->get_create_rules($timUserId)))) {
+            and ($this->validate($this->get_create_rules()))) {
             return $this->post_create_planning();
         }
         $model = model(PlanningsModel::class);

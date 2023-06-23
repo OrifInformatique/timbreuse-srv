@@ -50,12 +50,31 @@ class TimbreuseRules
         return false;
     }
 
-    public function cb_available_date(string $newDateBegin,
-        string $params, array $data, &$error=null): bool
+    # public function cb_available_date_end(string $newDateEnd, string $params,
+    #     array $data, ?string &$error): bool
+    # {
+    #     try {
+    #         Time::parse($newDateEnd);
+    #     } catch (\Exception $e) {
+    #         $error = lang('tim_lang.errorDate');
+    #         return false;
+    #     }
+    #     $error = lang('tim_lang.dateColide');
+    #     $params = explode(',', $params);
+    #     $timUserId = $params[0];
+    #     $newDateBegin = $params[1];
+    #     $planningId = $params[2] ?? null;
+    #     $period['date_begin'] = $newDateBegin;
+    #     $period['date_end'] = $newDateEnd
+    #     $model = model(PlanningsModel::class);
+    #     return $model->is_available_period($timUserId, $period, $planningId);
+    # }
+
+    public function cb_available_date_begin(string $newDateBegin,
+        string $params, array $data, ?string &$error): bool
     {
         try {
             Time::parse($newDateBegin);
-            # to test in a real server
         } catch (\Exception $e) {
             $error = lang('tim_lang.errorDate');
             return false;
@@ -63,9 +82,10 @@ class TimbreuseRules
         $error = lang('tim_lang.dateColide');
         $params = explode(',', $params);
         $timUserId = $params[0];
-        $planningId = $params[1] ?? null;
-        $period['date_begin'] = $data['dateBegin'];
-        $period['date_end'] = $data['dateEnd'];
+        $newDateEnd = $params[1];
+        $planningId = $params[2] ?? null;
+        $period['date_begin'] = $newDateBegin;
+        $period['date_end'] = $newDateEnd;
         $model = model(PlanningsModel::class);
         return $model->is_available_period($timUserId, $period, $planningId);
     }
