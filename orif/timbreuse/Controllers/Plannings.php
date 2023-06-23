@@ -262,7 +262,6 @@ class Plannings extends BaseController
             ?int $timUserId=null): string
     {
         if ($timUserId === $this->get_tim_user_id()) {
-            var_dump(current_url());
             return current_url() . '/../get_plannings_list';
         }
         return current_url() . "/../../get_plannings_list/$timUserId";
