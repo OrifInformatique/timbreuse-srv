@@ -138,9 +138,6 @@ trait FeatureTestTrait
      * instance that can be used to run many assertions against.
      *
      * @return TestResponse
-     *
-     * @throws RedirectException
-     * @throws Exception
      */
     public function call(string $method, string $path, ?array $params = null)
     {
@@ -174,6 +171,9 @@ trait FeatureTestTrait
 
         // Make sure filters are reset between tests
         Services::injectMock('filters', Services::filters(null, false));
+
+        // Make sure validation is reset between tests
+        Services::injectMock('validation', Services::validation(null, false));
 
         $response = $this->app
             ->setContext('web')
@@ -286,7 +286,7 @@ trait FeatureTestTrait
     {
         $path    = URI::removeDotSegments($path);
         $config  = config(App::class);
-        $request = Services::request($config, true);
+        $request = Services::request($config, false);
 
         // $path may have a query in it
         $parts                   = explode('?', $path);

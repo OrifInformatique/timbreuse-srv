@@ -47,7 +47,7 @@ class CodeIgniter
     /**
      * The current version of CodeIgniter Framework
      */
-    public const CI_VERSION = '4.3.0';
+    public const CI_VERSION = '4.3.6';
 
     /**
      * App startup time.
@@ -310,8 +310,6 @@ class CodeIgniter
      * makes all of the pieces work together.
      *
      * @return ResponseInterface|void
-     *
-     * @throws RedirectException
      */
     public function run(?RouteCollectionInterface $routes = null, bool $returnResponse = false)
     {
