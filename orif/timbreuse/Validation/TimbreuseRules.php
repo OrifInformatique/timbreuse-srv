@@ -86,9 +86,6 @@ class TimbreuseRules
         $planningId = $params[2] ?? null;
         $period['date_begin'] = $newDateBegin;
         $period['date_end'] = $newDateEnd;
-        var_dump($timUserId);
-        var_dump($period);
-        var_dump($planningId);
         $model = model(PlanningsModel::class);
         return $model->is_available_period($timUserId, $period, $planningId);
     }
