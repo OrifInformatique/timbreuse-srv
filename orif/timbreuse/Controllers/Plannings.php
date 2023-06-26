@@ -71,7 +71,8 @@ class Plannings extends BaseController
         $timUserId = $model->get_tim_user_id($planningId);
         if ($timUserId) {
             $rules['dateBegin'] 
-                = "required|cb_available_date_begin[$timUserId, {dateEnd}, "
+                = 'required|valid_date|cb_before_date[{dateEnd}]|'
+                . "cb_available_date_begin[$timUserId, {dateEnd}, "
                 . '{planningId}]';
         }
         $rules = array_merge($rules, $this->get_common_rules());

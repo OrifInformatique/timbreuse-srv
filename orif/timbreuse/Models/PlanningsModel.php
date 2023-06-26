@@ -222,7 +222,7 @@ class PlanningModel extends Model
     public function is_available_period(int $timUserId, array $period,
             ?int $planningId=null): bool
     {
-        if (strlen($period['date_end']) == 0) {
+        if (strlen($period['date_end']) <= 1) {
             $period['date_end'] = '9999-12-31';
         }
         $unavailableDates = $this->get_unavailable_period($timUserId,
