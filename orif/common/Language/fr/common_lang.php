@@ -9,10 +9,12 @@
 
 return[
 // Application name
-    'app_title'                      => 'Titre de l\'application',
+    #'app_title'                      => 'Titre de l\'application',
+    'app_title'                      => 'Pointeuse',
 
 // Page titles
-    'page_prefix'                    => 'Packbase V4',
+    #'page_prefix'                    => 'Packbase V4',
+    'page_prefix'                    => 'Pointeuse',
 
 // Buttons
     'btn_admin'                      => 'Administration',
@@ -32,6 +34,7 @@ return[
     'btn_show_disabled'              => 'Afficher les éléments désactivés',
     'btn_delete'                     => 'Supprimer',
     'btn_search'                     => 'Rechercher',
+    'btn_restore'                    => 'Restaurer',
 
 // Other common texts
     'yes'                            => 'Oui',

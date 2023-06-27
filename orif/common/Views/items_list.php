@@ -72,7 +72,6 @@
 	 *	 return $this->display_view('Common\Views\items_list', $data);
      * }
      */
-
     // If no primary key field name is sent as parameter, suppose it is "id"
     if (!isset($primary_key_field)) {
         $primary_key_field = "id";
@@ -97,8 +96,13 @@
     if (!isset($url_getView)) {
         $url_getView = null;
     }
-?>
 
+?>
+<style>
+.not-underline {
+    text-decoration-line: none !important;
+}
+</style>
 <div class="items_list container">
     <div class="row mb-2">
         <div class="text-left col-12">
@@ -114,7 +118,7 @@
         <div class="col-sm-6 text-right">
             <!-- Display the "with_deleted" checkbox if with_deleted and url_getView variables are defined -->
             <?php if (isset($with_deleted) && isset($url_getView)) { ?>
-                <label class="btn btn-default form-check-label" for="toggle_deleted">
+                <label class="btn btn-secondary form-check-label" for="toggle_deleted">
                     <?= lang($display_deleted_label); ?>
                 </label>
                 <?= form_checkbox('toggle_deleted', '', $with_deleted, ['id' => 'toggle_deleted']); ?>
@@ -152,22 +156,26 @@
                     <td class="text-right">                        
                         <!-- Bootstrap details icon ("Card text"), redirect to url_detail, adding /primary_key as parameter -->
                         <?php if(isset($url_detail)) { ?>
-                            <a href="<?= site_url(esc($url_detail.$itemEntity[$primary_key_field])) ?>">
-                                <i class="bi-card-text" style="font-size: 20px;"></i>
+                            <a class="not-underline" href="<?= site_url(esc($url_detail.$itemEntity[$primary_key_field])) ?>">
+                                <i class="bi-card-text" style="font-size: 20px;" title="<?=lang('common_lang.btn_details') ?>" ></i>
                             </a>
                         <?php } ?>
 
                         <!-- Bootstrap edit icon ("Pencil"), redirect to url_update, adding /primary_key as parameter -->
                         <?php if(isset($url_update)) { ?>
-                            <a href="<?= site_url(esc($url_update.$itemEntity[$primary_key_field])) ?>">
-                                <i class="bi-pencil" style="font-size: 20px;"></i>
+                            <a class="not-underline" href="<?= site_url(esc($url_update.$itemEntity[$primary_key_field])) ?>">
+                                <i class="bi-pencil" style="font-size: 20px;" title="<?=lang('common_lang.btn_edit') ?>" ></i>
                             </a>
                         <?php } ?>
                         
                         <!-- Bootstrap delete icon ("Trash"), redirect to url_delete, adding /primary_key as parameter -->
                         <?php if(isset($url_delete)) { ?>
-                            <a href="<?= site_url(esc($url_delete.$itemEntity[$primary_key_field])) ?>">
-                                <i class="bi-trash" style="font-size: 20px;"></i>
+                            <a class="not-underline" href="<?= site_url(esc($url_delete.$itemEntity[$primary_key_field])) ?>">
+                                <?php if (!isset($itemEntity['date_delete'])) : ?>
+                                    <i class="bi bi-trash" style="font-size: 20px;" title="<?=lang('common_lang.btn_delete') ?>" ></i>
+                                <?php else : ?>
+                                <i class="bi bi-arrow-counterclockwise" style="font-size: 20px;" title="<?=lang('common_lang.btn_restore') ?>" ></i>
+                                <?php endif ?>
                             </a>
                         <?php } ?>
                     </td>
@@ -179,6 +187,7 @@
 </div>
 
 <!-- JQuery script to refresh items list after user action -->
+<?php if (isset($url_getView)): ?>
 <script>
 $(document).ready(function(){
 
@@ -194,3 +203,4 @@ $(document).ready(function(){
     });
 });
 </script>
+<?php endif; ?>

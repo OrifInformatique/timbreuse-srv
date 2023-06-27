@@ -21,7 +21,7 @@ helper("form");
             </a>
         </div>
         <div class="col-sm-9 text-right">
-            <label class="btn btn-default form-check-label" for="toggle_deleted">
+            <label class="form-check-label" for="toggle_deleted">
                 <?= lang('user_lang.field_deleted_users_display'); ?>
             </label>
             <?= form_checkbox('toggle_deleted', '', $with_deleted, [
@@ -47,7 +47,8 @@ helper("form");
                     <td><?= esc($user['email']); ?></td>
                     <td><?= $user_types[$user['fk_user_type']]; ?></td>
                     <td><?= lang($user['archive'] ? 'common_lang.no' : 'common_lang.yes'); ?></td>
-                    <td><a href="<?= base_url('user/admin/delete_user/'.$user['id']); ?>" class="close">×</td>
+                    <td><a href="<?= base_url('user/admin/delete_user/'.$user['id']); ?>" class=""><i class="bi-trash"
+                        style="font-size: 20px;" title="<?=lang('common_lang.btn_delete') ?>" ></i></td>
                 </tr>
             <?php } ?>
         </tbody>
