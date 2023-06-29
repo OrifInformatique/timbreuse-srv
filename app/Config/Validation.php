@@ -8,6 +8,7 @@ use CodeIgniter\Validation\StrictRules\FileRules;
 use CodeIgniter\Validation\StrictRules\FormatRules;
 use CodeIgniter\Validation\StrictRules\Rules;
 use User\Validation\CustomRules;
+use Timbreuse\Validation\TimbreuseRules;
 
 class Validation extends BaseConfig
 {
@@ -27,6 +28,7 @@ class Validation extends BaseConfig
         FileRules::class,
         CreditCardRules::class,
         CustomRules::class,
+        TimbreuseRules::class,
     ];
 
     /**

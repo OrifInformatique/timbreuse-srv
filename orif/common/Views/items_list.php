@@ -96,7 +96,7 @@
     if (!isset($url_getView)) {
         $url_getView = null;
     }
-
+helper('form');
 ?>
 <style>
 .not-underline {
@@ -118,7 +118,7 @@
         <div class="col-sm-6 text-right">
             <!-- Display the "with_deleted" checkbox if with_deleted and url_getView variables are defined -->
             <?php if (isset($with_deleted) && isset($url_getView)) { ?>
-                <label class="btn btn-secondary form-check-label" for="toggle_deleted">
+                <label class="form-check-label" for="toggle_deleted">
                     <?= lang($display_deleted_label); ?>
                 </label>
                 <?= form_checkbox('toggle_deleted', '', $with_deleted, ['id' => 'toggle_deleted']); ?>
