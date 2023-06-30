@@ -49,9 +49,10 @@ class Admin extends BaseController
     public function list_user($with_deleted = FALSE)
     {
         if ($with_deleted) {
-            $users = $this->user_model->withDeleted()->findAll();
+            $users = $this->user_model->orderBy('username')->withDeleted()
+                   ->findAll();
         } else {
-            $users = $this->user_model->findAll();
+            $users = $this->user_model->orderBy('username')->findAll();
         }
 
         //usertiarray is an array contained all usertype name and id
