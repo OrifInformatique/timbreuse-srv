@@ -30,7 +30,7 @@ helper("form");
         </div>
     </div>
     <div class="row mt-2">
-        <table class="table table-hover">
+        <table class="table table-striped table-hover">
         <thead>
             <tr>
                 <th><?= lang('user_lang.field_username'); ?></th>
