@@ -35,20 +35,29 @@ $validation=\Config\Services::validation();
     ]);
     ?>
         <!-- ERROR MESSAGES -->
-        <?php foreach ($errors as $error) { ?>
-            <div class="alert alert-danger" role="alert">
-                <?= $error ?>
-            </div>
-        <?php } ?>
+        <?php if (!empty($errors)) : ?>
+        <div class="alert alert-danger" role="alert">
+            <ul>
+                <?php foreach ($errors as $error): ?>
+                <li><?= $error ?></li>
+                <?php endforeach ?>
+            </ul>
+        </div>
+        <?php endif ?>
 
         <!-- USER FIELDS -->
         <div class="row">
             <div class="col-sm-6">
-                <div class="form-group">
+                <?php if ($update): ?>
+                    <div class="form-group was-validated">
+                <?php else: ?>
+                    <div class="form-group">
+                <?php endif ?>
                     <?= form_label(lang('user_lang.field_username'), 'user_name', ['class' => 'form-label']); ?>
                     <?= form_input('user_name', $user_name ?? $user['username'] ?? '', [
                         'maxlength' => config("\User\Config\UserConfig")->username_max_length,
-                        'class' => 'form-control', 'id' => 'user_name'
+                        'class' => ' form-control', 'id' => 'user_name', 'required' => ''
+ 
                     ]); ?>
                 </div>
                 <div class="form-group">
