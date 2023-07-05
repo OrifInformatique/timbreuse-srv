@@ -35,6 +35,7 @@ return[
     'btn_delete'                     => 'Supprimer',
     'btn_search'                     => 'Rechercher',
     'btn_restore'                    => 'Restaurer',
+    'btn_copy'                       => 'Dupliquer',
 
 // Other common texts
     'yes'                            => 'Oui',
