@@ -517,6 +517,7 @@ class Plannings extends BaseController
             'date_begin' =>ucfirst(lang('tim_lang.dateBegin')),
             'date_end' =>ucfirst(lang('tim_lang.dateEnd')),
             'due_time' =>ucfirst(lang('tim_lang.planning')),
+            'rate' => ucfirst(lang('tim_lang.rate')),
         ];
         $data['url_update'] = 'Plannings/edit_planning/';
         $data['url_delete'] = 'Plannings/delete_planning/';
@@ -579,7 +580,8 @@ class Plannings extends BaseController
 
     protected function get_default_planning_id(): int
     {
-        return config('\Timbreuse\Config\TimbreuseConfig')->defaultPlanningId;
+        $model = model(PlanningsModel::class);
+        return $model->get_default_planning_id();
     }
 
     public function delete_planning(?int $planningId=null)
@@ -657,18 +659,7 @@ class Plannings extends BaseController
         return redirect()->to($url);
     }
 
-    public function test()
-    {
-        $model = model(PlanningsModel::class);
-        $a = $model->get_planning_time_day('2023-06-08', 92);
-        var_dump($a);
-    }
 
-    public function test2()
-    {
-        $model = model(PlanningsModel::class);
-        $a = $model->get_column_day_names('2023-06-01');
-        var_dump($a);
-    }
+
 
 }
