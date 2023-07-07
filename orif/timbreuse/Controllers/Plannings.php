@@ -153,43 +153,54 @@ class Plannings extends BaseController
     public function create_planning(?int $timUserId=null)
     {
         $timUserId = $timUserId ?? $this->get_tim_user_id(); 
-
-        # $post = $this->request->getPost();
-        # var_dump($post);
-
         if (($this->request->getMethod() === 'post')
             and ($this->validate($this->get_create_rules()))) {
-            return $this->post_create_planning();
+            return $this->post_create_planning(
+                    'get_cancel_link_for_create_planning');
         }
         $model = model(PlanningsModel::class);
         if (!$this->is_access($timUserId)) {
             return $this->display_unauthorize();
         }
-        $data = $this->get_data_for_create_planning($timUserId, $model);
+        $data = $this->get_data_for_create_planning($timUserId);
         return $this->display_view(
             'Timbreuse\Views\planning\edit_planning.php', $data);
     }
 
-    protected function get_data_for_create_planning(int $timUserId, 
-        $model): array
+    protected function get_data_for_copy_planning(int $planningId): array
     {
-        $defaultPlanningId = $this ->get_default_planning_id();
-        $data = $this->get_planning_hours_minutes_or_old_post(
-                $defaultPlanningId, $model);
+        $timUserId = $this->get_tim_user_id($planningId); 
+        return $this->get_data_for_create_or_copy_planning($planningId,
+            $timUserId, 'get_cancel_link_for_copy_planning');
+    }
+
+    protected function get_data_for_create_or_copy_planning(int $planningId,
+        int $timUserId, string $cancelLinkFunc): array
+    {
+        $model = model(PlanningsModel::class);
+        $data = $this->get_planning_hours_minutes_or_old_post($planningId,
+            $model);
         $data = array_merge($data, $this->get_begin_end_dates_or_old_post(
-                $defaultPlanningId, $model));
+                $planningId, $model));
         $data['h3title'] = ucfirst(sprintf(lang('tim_lang.titleNewPlanning'),
             $this->get_tim_user_name($timUserId)));
         $data['title'] = $data['h3title'];
         $data['labels'] = $this->get_label_for_edit_planning();
         $data['action'] = '';
-        $data['cancelLink'] = $this->get_cancel_link_for_create_planning(
-            $timUserId);
         $data['timUserId'] = $timUserId;
+        $data['cancelLink'] = call_user_func_array(
+                array($this, $cancelLinkFunc), array($timUserId));
         return $data;
     }
 
-    protected function post_create_planning()
+    protected function get_data_for_create_planning(int $timUserId): array
+    {
+        $planningId = $this ->get_default_planning_id();
+        return $this->get_data_for_create_or_copy_planning($planningId,
+            $timUserId, 'get_cancel_link_for_create_planning');
+    }
+
+    protected function post_create_planning(string $cancelLinkFunc)
     {
         $post = $this->request->getPost();
         if (!$this->is_access($post['timUserId'])) {
@@ -202,9 +213,28 @@ class Plannings extends BaseController
             $model->insert_planning_times_and_dates($post['timUserId'],
                 $formatedTimeArray, $datesArray);
         }
-        $url = $this->get_redirect_link_for_create_planning(
-            $post['timUserId']);
-        return redirect()->to(current_url() . "/$url");
+        $url  = call_user_func_array(
+                array($this, $cancelLinkFunc), array($post['timUserId']));
+        d($url);
+        return redirect()->to($url);
+    }
+
+    public function copy_planning(?int $planningId=null)
+    {
+        if (($this->request->is('post'))
+            and ($this->validate($this->get_create_rules())))
+        {
+            return $this->post_create_planning(
+                    'get_cancel_link_for_copy_planning');
+        }
+        $timUserId = $this->get_tim_user_id($planningId); 
+        $model = model(PlanningsModel::class);
+        if (!$this->is_access($timUserId)) {
+            return $this->display_unauthorize();
+        }
+        $data = $this->get_data_for_copy_planning($planningId);
+        return $this->display_view(
+            'Timbreuse\Views\planning\edit_planning.php', $data);
     }
 
     protected function get_tim_user_name(int $timUserId): string
@@ -274,6 +304,16 @@ class Plannings extends BaseController
         return current_url() . "/../../get_plannings_list/$timUserId";
     }
 
+    protected function get_cancel_link_for_copy_planning(
+            ?int $timUserId=null): string
+    {
+        if ($timUserId === $this->get_tim_user_id()) {
+            return current_url() . '/../../get_plannings_list';
+        }
+        return current_url() . "/../../get_plannings_list/$timUserId";
+    }
+
+    # to delete
     protected function get_redirect_link_for_create_planning(
             ?int $timUserId=null): string
     {
@@ -463,10 +503,9 @@ class Plannings extends BaseController
         $data['buttons'][0]['link'] =
                 "../../AdminLogs/time_list/$timUserId";
         $data['buttons'][0]['label'] = ucfirst(lang('tim_lang.back'));
-        # $data['url_getView'] = $this->get_link_with_id_or_not_withDeleted(
-        #     $timUserId, 'Plannings/get_plannings_list/', $withDeleted);
         $data['url_getView'] =
                 "Plannings/get_plannings_list/$timUserId/$withDeleted";
+        $data['url_copy'] = 'Plannings/copy_planning/';
         return $data;
 
     }
@@ -478,6 +517,7 @@ class Plannings extends BaseController
             'date_begin' =>ucfirst(lang('tim_lang.dateBegin')),
             'date_end' =>ucfirst(lang('tim_lang.dateEnd')),
             'due_time' =>ucfirst(lang('tim_lang.planning')),
+            'rate' => ucfirst(lang('tim_lang.rate')),
         ];
         $data['url_update'] = 'Plannings/edit_planning/';
         $data['url_delete'] = 'Plannings/delete_planning/';
@@ -540,7 +580,8 @@ class Plannings extends BaseController
 
     protected function get_default_planning_id(): int
     {
-        return config('\Timbreuse\Config\TimbreuseConfig')->defaultPlanningId;
+        $model = model(PlanningsModel::class);
+        return $model->get_default_planning_id();
     }
 
     public function delete_planning(?int $planningId=null)
@@ -618,18 +659,7 @@ class Plannings extends BaseController
         return redirect()->to($url);
     }
 
-    public function test()
-    {
-        $model = model(PlanningsModel::class);
-        $a = $model->get_planning_time_day('2023-06-08', 92);
-        var_dump($a);
-    }
 
-    public function test2()
-    {
-        $model = model(PlanningsModel::class);
-        $a = $model->get_column_day_names('2023-06-01');
-        var_dump($a);
-    }
+
 
 }
