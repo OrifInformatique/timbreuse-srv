@@ -324,7 +324,11 @@ class PlanningModel extends Model
             $line['date_end'] = $this->format_date_planning($line['date_end']);
             return $line;
         }, $idsAndDates);
-        return array_map(array($this, 'add_due_string'), $idsAndFormatedDates);
+        $withRate = array_map(function($line) {
+            $line['rate'] = $this->get_rate($line['id_planning']);
+            return $line;
+        }, $idsAndFormatedDates);
+        return array_map(array($this, 'add_due_string'), $withRate);
     }
 
     public function format_date_planning(?string $date): string
@@ -632,6 +636,36 @@ class PlanningModel extends Model
             break;
         }
     }
+
+    public function get_rate_float(int $planningId): float
+    {
+        $defaultTime = $this->get_sum_due_time(
+                $this->get_default_planning_id());
+        $planningTime = $this->get_sum_due_time($planningId);
+        return $planningTime / $defaultTime * 100;
+    }
+
+    public function get_rate(int $planningId): string
+    {
+        $rateFloat = $this->get_rate_float($planningId);
+        return sprintf('%2.1f%%', $rateFloat);
+    }
+
+    public function get_sum_due_time(int $planningId): int
+    {
+        $dueTimeStrings = $this->get_due_plannings($planningId);
+        $dueTimeSeconds = array_map(array($this, 'toSeconds'),
+                $dueTimeStrings); 
+        return array_reduce($dueTimeSeconds,
+                fn($carry, $seconds) => $carry + $seconds);
+    }
+
+    public function get_default_planning_id(): int
+    {
+        return config('\Timbreuse\Config\TimbreuseConfig')->defaultPlanningId;
+    }
+
+
 
    
 
