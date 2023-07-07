@@ -124,6 +124,7 @@ class Plannings extends BaseController
         $data['save'] = ucfirst(lang('common_lang.btn_save'));
         $data['dateBegin'] = ucfirst(lang('tim_lang.dateBegin'));
         $data['dateEnd'] = lang('tim_lang.dateEnd');
+        $data['title'] = ucfirst(lang('tim_lang.title'));
         return $data;
 
     }
@@ -182,6 +183,8 @@ class Plannings extends BaseController
             $model);
         $data = array_merge($data, $this->get_begin_end_dates_or_old_post(
                 $planningId, $model));
+        // add here merge with title
+        $data['planningTitle'] =  $this->get_title_or_old_post($planningId);
         $data['h3title'] = ucfirst(sprintf(lang('tim_lang.titleNewPlanning'),
             $this->get_tim_user_name($timUserId)));
         $data['title'] = $data['h3title'];
@@ -359,10 +362,23 @@ class Plannings extends BaseController
     protected function get_planning_hours_minutes_or_old_post(int $planningId,
         Model $model): array
     {
-        if ($this->request->getMethod() === 'post') {
+        if ($this->request->is('post')) {
             return $this->format_post_old_times();
         } else {
             return $model->get_planning_hours_minutes($planningId);
+        }
+    }
+
+    /**
+        * get title planning from post or from the model
+    */
+    protected function get_title_or_old_post(int $planningId): string
+    {
+        if ($this->request->is('post')) {
+            return $this->request->getPost('title');
+        } else {
+            $model = model(PlanningsModel::class);
+            return $model->get_title($planningId);
         }
     }
 
@@ -372,7 +388,7 @@ class Plannings extends BaseController
     protected function get_begin_end_dates_or_old_post(int $planningId,
         Model $model): array
     {
-        if ($this->request->getMethod() === 'post') {
+        if ($this->request->is('post')) {
             return $this->format_post_old_dates();
         } else {
             return $model->get_begin_end_dates($planningId, true);
@@ -387,6 +403,7 @@ class Plannings extends BaseController
         $data['date_end'] = $post['dateEnd'];
         return $data;
     }
+
     protected function format_post_old_times(): array
     {
         $names = $this->get_array_for_format_post_old();

@@ -1,183 +1,7 @@
 <?php
 // to rename, this view is also use to create planning
 ?>
-<style>
-
-input:invalid {
-    border-color: #ae0000;
-    border-width: 2px;
-}
-
-.grid-input-center {
-    text-align: center;
-    justify-items: center;
-    align-items: center;
-}
-
-.grid-hour-input {
-    display: grid;
-    grid-template-columns: repeat(3, auto);
-    grid-template-rows: auto;
-}
-
-.grid-container {
-    display: grid;
-    /* this template when big windows*/
-    grid-template-columns: repeat(6, auto);
-    grid-template-rows: repeat(5, auto);
-    gap: 20px;
-    padding: 10px;
-}
-
-#dateBeginEnd {
-    display: grid;
-    grid-template-columns: repeat(4, auto);
-    grid-template-rows: repeat(1, auto);
-    text-align: center;
-    grid-area: 1 / 1 / span 1 / span 6 ;
-}
-
-#mondayLabel {
-    grid-area: 2 / 2 / span 1 / span 1 ;
-    text-align: center;
-}
-
-#tuesdayLabel {
-    grid-area: 2 / 3 / span 1 / span 1 ;
-    text-align: center;
-}
-
-#wednesdayLabel {
-    grid-area: 2 / 4 / span 1 / span 1;
-    text-align: center;
-}
-
-#thursdayLabel {
-    grid-area: 2 / 5 / span 1 / span 1;
-    text-align: center;
-}
-
-#fridayLabel {
-    grid-area: 2 / 6 / span 1 / span 1;
-    text-align: center;
-}
-
-#dueTimeLabel { grid-area: 3 / 1 / span 1 / span 1; }
-
-#offeredTimeLabel { grid-area: 4 / 1 / span 1 / span 1; }
-
-#mondayDueTimeInput {
-    grid-area: 3 / 2 / span 1 / span 1;
-}
-
-#tuesdayDueTimeInput {
-    grid-area: 3 / 3 / span 1 / span 1;
-}
-
-#wednesdayDueTimeInput {
-    grid-area: 3 / 4 / span 1 / span 1;
-}
-
-#thursdayDueTimeInput {
-    grid-area: 3 / 5 / span 1 / span 1;
-}
-
-#fridayDueTimeInput {
-    grid-area: 3 / 6 / span 1 / span 1;
-}
-
-#mondayOfferedTimeInput {
-    grid-area: 4 / 2 / span 1 / span 1;
-}
-
-#tuesdayOfferedTimeInput {
-    grid-area: 4 / 3 / span 1 / span 1;
-}
-
-#wednesdayOfferedTimeInput {
-    grid-area: 4 / 4 / span 1 / span 1;
-}
-
-#thursdayOfferedTimeInput {
-    grid-area: 4 / 5 / span 1 / span 1;
-}
-
-#fridayOfferedTimeInput {
-    grid-area: 4 / 6 / span 1 / span 1;
-}
-
-#buttonsSpace {
-    grid-area: 5 / 1 / span 1 / span 6; 
-    text-align: right;
-}
-
-@media only screen and (max-width: 992px) {
-    .grid-container {
-        display: grid;
-        /* this template when small windows*/
-        grid-template-columns: repeat(2, auto);
-        grid-template-rows: repeat(12, auto);
-        gap: 20px;
-        padding: 10px;
-    }
-
-    #dateBeginEnd {
-        display: grid;
-        grid-template-columns: repeat(1, auto);
-        grid-template-rows: repeat(4, auto);
-        text-align: center;
-        grid-area: 1 / 1 / span 4 / span 2 ;
-    }
-    #mondayLabel { grid-area: 6 / 1 / span 1 / span 2 ; }
-    #tuesdayLabel { grid-area: 8 / 1 / span 1 / span 2 ; }
-    #wednesdayLabel { grid-area: 10 / 1 / span 1 / span 2; }
-    #thursdayLabel { grid-area: 12 / 1 / span 1 / span 2; }
-    #fridayLabel { grid-area: 14 / 1 / span 1 / span 2; }
-    #dueTimeLabel {
-        grid-area: 5 / 1 / span 1 / span 1;
-        text-align: center;
-    }
-    #offeredTimeLabel {
-        grid-area: 5 / 2 / span 1 / span 1;
-        text-align: center;
-    }
-    #mondayDueTimeInput {
-        grid-area: 7 / 1 / span 1 / span 1;
-    }
-    #tuesdayDueTimeInput {
-        grid-area: 9 / 1 / span 1 / span 1;
-    }
-    #wednesdayDueTimeInput {
-        grid-area: 11 / 1 / span 1 / span 1;
-    }
-    #thursdayDueTimeInput {
-        grid-area: 13 / 1 / span 1 / span 1;
-    }
-    #fridayDueTimeInput {
-        grid-area: 15 / 1 / span 1 / span 1;
-    }
-    #mondayOfferedTimeInput {
-        grid-area: 7 / 2 / span 1 / span 1;
-    }
-    #tuesdayOfferedTimeInput {
-        grid-area: 9 / 2 / span 1 / span 1;
-    }
-    #wednesdayOfferedTimeInput {
-        grid-area: 11 / 2 / span 1 / span 1;
-    }
-    #thursdayOfferedTimeInput {
-        grid-area: 13 / 2 / span 1 / span 1;
-    }
-    #fridayOfferedTimeInput {
-        grid-area: 15 / 2 / span 1 / span 1;
-    }
-    #buttonsSpace {
-        grid-area: 16 / 1 / span 1 / span 2;
-        text-align: right;
-    }
-}
-
-</style>
+<?= view('Timbreuse\Views\planning\edit_planning_style') ?>
 <section class="container">
     <h3><?= esc($h3title) ?></h3>
     <?php if (! empty(service('validation')->getErrors())) : ?>
@@ -193,6 +17,12 @@ input:invalid {
                 <input id="dateBegin" class="form-control" type="date" name="dateBegin" value="<?=$date_begin?>" required min="1948-04-17">
                 <label id="dateBeginLabel" for="dateEnd"><?=$labels['dateEnd']?></label>
                 <input id="dateEnd" class="form-control" type="date" name="dateEnd" value="<?=$date_end?>" min="1948-04-17">
+            <?php endif ?>
+        </div>
+        <div id="titlePlanning" class="form-group">
+            <?php if (!(isset($defaultPlanning) and $defaultPlanning)): ?>
+                <label id="" for="titlePlanning"><?=$labels['title']?></label>
+                <input id="titlePlanning" class="form-control" type="text" name="title" value="<?=$planningTitle?>">
             <?php endif ?>
         </div>
         <div id="mondayLabel">
