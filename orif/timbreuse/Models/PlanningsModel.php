@@ -45,6 +45,14 @@ class PlanningModel extends Model
                     ->find($planningId);
     }
 
+    public function get_title(int $planningId): string
+    {
+        $this->select('title');
+        $this->join_planning_and_user_planning();
+        return $this->withDeleted()
+                    ->find($planningId)['title'] ?? '';
+    }
+
     public function get_plannings_user(int $timUserId): array
     {
         return $this->select_time()->join_tim_user_and_planning()
@@ -328,7 +336,11 @@ class PlanningModel extends Model
             $line['rate'] = $this->get_rate($line['id_planning']);
             return $line;
         }, $idsAndFormatedDates);
-        return array_map(array($this, 'add_due_string'), $withRate);
+        $withTitle = array_map(function($line) {
+            $line['title'] = $this->get_title($line['id_planning']);
+            return $line;
+        }, $withRate);
+        return array_map(array($this, 'add_due_string'), $withTitle);
     }
 
     public function format_date_planning(?string $date): string

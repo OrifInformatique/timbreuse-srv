@@ -516,6 +516,7 @@ class Plannings extends BaseController
         $data['columns'] = [
             'date_begin' =>ucfirst(lang('tim_lang.dateBegin')),
             'date_end' =>ucfirst(lang('tim_lang.dateEnd')),
+            'title' => ucfirst(lang('tim_lang.title')),
             'due_time' =>ucfirst(lang('tim_lang.planning')),
             'rate' => ucfirst(lang('tim_lang.rate')),
         ];

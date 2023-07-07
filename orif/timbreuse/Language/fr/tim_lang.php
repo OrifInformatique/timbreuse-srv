@@ -109,5 +109,6 @@ return [
         . '<li>Pour un <em>jour férié</em>, on devra indiquer 00:00 pour le <strong>temps exigé</strong> et également 00:00 pour le <strong>temps offert</strong>.</li> ',
     'help' => 'aide',
     'rate' => 'taux',
+    'title' => 'titre',
 
 ];
