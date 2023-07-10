@@ -10,7 +10,7 @@
 ?>
 
 <!-- Script to update favicon in some browsers -->
-<script defer type="text/javascript">
+<script>
     let icolink=document.querySelector("link:first-of-type");
     document.getElementsByTagName("head")[0].append(icolink);
 </script>

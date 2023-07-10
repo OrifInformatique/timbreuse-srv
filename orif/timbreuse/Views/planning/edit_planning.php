@@ -11,18 +11,14 @@
     <?php endif ?>
     <form class="grid-container" method="post">
         <?= csrf_field() ?>
-        <div id="dateBeginEnd" class="form-group">
+        <div id="dateBeginEnd" class="form-group grid-4-cols-to-1-col">
             <?php if (!(isset($defaultPlanning) and $defaultPlanning)): ?>
-                <label id="dateBeginLabel" for="dateBegin"><?=$labels['dateBegin']?></label>
-                <input id="dateBegin" class="form-control" type="date" name="dateBegin" value="<?=$date_begin?>" required min="1948-04-17">
-                <label id="dateBeginLabel" for="dateEnd"><?=$labels['dateEnd']?></label>
-                <input id="dateEnd" class="form-control" type="date" name="dateEnd" value="<?=$date_end?>" min="1948-04-17">
-            <?php endif ?>
-        </div>
-        <div id="titlePlanning" class="form-group">
-            <?php if (!(isset($defaultPlanning) and $defaultPlanning)): ?>
-                <label id="" for="titlePlanning"><?=$labels['title']?></label>
-                <input id="titlePlanning" class="form-control" type="text" name="title" value="<?=$planningTitle?>">
+                <label id="dateBeginLabel" for="dateBegin"><?=esc($labels['dateBegin'])?></label>
+                <input id="dateBegin" class="form-control" type="date" name="dateBegin" value="<?=esc($date_begin)?>" required min="1948-04-17">
+                <label id="dateEndLabel" for="dateEnd"><?=$labels['dateEnd']?></label>
+                <input id="dateEnd" class="form-control" type="date" name="dateEnd" value="<?=esc($date_end)?>" min="1948-04-17">
+                <label id="titlePlanningLabel" for="titlePlanning"><?=esc($labels['title'])?></label>
+                <input id="titlePlanning" class="form-control" type="text" name="title" value="<?=esc($planningTitle)?>">
             <?php endif ?>
         </div>
         <div id="mondayLabel">

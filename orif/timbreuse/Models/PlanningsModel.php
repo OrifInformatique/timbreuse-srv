@@ -337,7 +337,7 @@ class PlanningModel extends Model
             return $line;
         }, $idsAndFormatedDates);
         $withTitle = array_map(function($line) {
-            $line['title'] = $this->get_title($line['id_planning']);
+            $line['title'] = esc($this->get_title($line['id_planning']));
             return $line;
         }, $withRate);
         return array_map(array($this, 'add_due_string'), $withTitle);

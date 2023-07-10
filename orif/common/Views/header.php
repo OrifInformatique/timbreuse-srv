@@ -10,7 +10,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <!-- Copied from Bootstrap model https://getbootstrap.com/docs/4.6/getting-started/introduction/) -->
 
@@ -21,14 +21,13 @@
             echo lang('common_lang.page_prefix').' - '.$title;
         }
     ?></title>
-
     <!-- Icon -->
-    <link rel="icon" type="image/png" href="<?= base_url("images/favicon.png"); ?>" />
-    <link rel="shortcut icon" type="image/png" href="<?= base_url("images/favicon.png"); ?>" />
+    <link rel="icon" type="image/png" href="<?= base_url("images/favicon.png"); ?>">
+    <link rel="shortcut icon" type="image/png" href="<?= base_url("images/favicon.png"); ?>">
 
     <!-- Bootstrap  -->
     <!-- Orif Bootstrap CSS personalized with https://bootstrap.build/app -->
-    <link rel="stylesheet" href="<?= base_url("css/bootstrap.min.css"); ?>" />
+    <link rel="stylesheet" href="<?= base_url("css/bootstrap.min.css"); ?>">
     <!-- Bootstrap icons -->
     <link rel="stylesheet" href="<?= base_url("css/bootstrap-icons-1.10.5/font/bootstrap-icons.min.css"); ?>">
     <!-- jquery, popper and Bootstrap javascript -->
@@ -45,7 +44,7 @@
     <![endif]-->
 
     <!-- Application styles -->
-    <link rel="stylesheet" href="<?= base_url("css/MY_styles.css"); ?>" />
+    <link rel="stylesheet" href="<?= base_url("css/MY_styles.css"); ?>">
 </head>
 <body>
     <?php

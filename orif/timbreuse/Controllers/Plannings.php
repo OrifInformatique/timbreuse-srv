@@ -218,7 +218,6 @@ class Plannings extends BaseController
         }
         $url  = call_user_func_array(
                 array($this, $cancelLinkFunc), array($post['timUserId']));
-        d($url);
         return redirect()->to($url);
     }
 
@@ -294,6 +293,7 @@ class Plannings extends BaseController
         $data['action'] = '';
         $data['cancelLink'] = $this->get_cancel_link_for_edit_planning(
                 $planningId);
+        $data['planningTitle'] = $model->get_title($planningId);
         return $data;
     }
 
@@ -469,10 +469,14 @@ class Plannings extends BaseController
         $formatedArray = array();
         $formatedArray['date_begin'] = $formArray['dateBegin'] ?? null;
         $formatedArray['date_end'] = $formArray['dateEnd'] ?? null;
+        $formatedArray['title'] = $formArray['title'] ?? null;
         $formatedArray['date_begin'] = $formatedArray['date_begin'] !== '' ?
                 $formatedArray['date_begin']: null;
         $formatedArray['date_end'] = $formatedArray['date_end'] !== '' ?
                 $formatedArray['date_end']: null;
+        $formatedArray['title'] = $formatedArray['title'] !== '' ?
+                $formatedArray['title']: null;
+
         return $formatedArray;
     }
 
@@ -675,6 +679,16 @@ class Plannings extends BaseController
         $model->onlyDeleted()->update($post['planningId'], $updateArray);
         $url = $this->get_cancel_link_for_edit_planning($post['planningId']);
         return redirect()->to($url);
+    }
+
+    public function test()
+    {
+        # return  view('Timbreuse\Views\planning\edit_planning_style');
+        # return $this->setResponseFormat('json')->respond(file_get_contents(ROOTPATH. 'orif/Timbreuse/Views/planning/edit_planning.css'));
+        # header('Location:'.ROOTPATH. 'orif/Timbreuse/Views/planning/edit_planning.css'); 
+        # header('Content-Type: text/css');
+        # return file_get_contents(ROOTPATH. 'orif/Timbreuse/Views/planning/edit_planning.css');
+        # readfile
     }
 
 

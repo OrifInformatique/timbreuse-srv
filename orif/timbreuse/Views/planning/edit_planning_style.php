@@ -26,88 +26,97 @@ input:invalid {
     padding: 10px;
 }
 
-#dateBeginEnd {
+.grid-4-cols-to-1-col {
     display: grid;
     grid-template-columns: repeat(4, auto);
     grid-template-rows: repeat(1, auto);
     text-align: center;
-    grid-area: 1 / 1 / span 1 / span 6 ;
+    gap: 20px;
+}
+
+#titlePlanningLabel {
+    grid-area: 2 / 1 / span 1 / span 1 ;
 }
 
 #titlePlanning {
-    grid-area: 2 / 1 / span 1 / span 6 ;
+    grid-area: 2 / 2 / span 1 / span 3 ;
 }
+
+#dateBeginEnd {
+    grid-area: 1 / 1 / span 1 / span 6 ;
+}
+
 #mondayLabel {
-    grid-area: 3 / 2 / span 1 / span 1 ;
+    grid-area: 2 / 2 / span 1 / span 1 ;
     text-align: center;
 }
 
 #tuesdayLabel {
-    grid-area: 3 / 3 / span 1 / span 1 ;
+    grid-area: 2 / 3 / span 1 / span 1 ;
     text-align: center;
 }
 
 #wednesdayLabel {
-    grid-area: 3 / 4 / span 1 / span 1;
+    grid-area: 2 / 4 / span 1 / span 1;
     text-align: center;
 }
 
 #thursdayLabel {
-    grid-area: 3 / 5 / span 1 / span 1;
+    grid-area: 2 / 5 / span 1 / span 1;
     text-align: center;
 }
 
 #fridayLabel {
-    grid-area: 3 / 6 / span 1 / span 1;
+    grid-area: 2 / 6 / span 1 / span 1;
     text-align: center;
 }
 
-#dueTimeLabel { grid-area: 4 / 1 / span 1 / span 1; }
+#dueTimeLabel { grid-area: 3 / 1 / span 1 / span 1; }
 
-#offeredTimeLabel { grid-area: 5 / 1 / span 1 / span 1; }
+#offeredTimeLabel { grid-area: 4 / 1 / span 1 / span 1; }
 
 #mondayDueTimeInput {
-    grid-area: 4 / 2 / span 1 / span 1;
+    grid-area: 3 / 2 / span 1 / span 1;
 }
 
 #tuesdayDueTimeInput {
-    grid-area: 4 / 3 / span 1 / span 1;
+    grid-area: 3 / 3 / span 1 / span 1;
 }
 
 #wednesdayDueTimeInput {
-    grid-area: 4 / 4 / span 1 / span 1;
+    grid-area: 3 / 4 / span 1 / span 1;
 }
 
 #thursdayDueTimeInput {
-    grid-area: 4 / 5 / span 1 / span 1;
+    grid-area: 3 / 5 / span 1 / span 1;
 }
 
 #fridayDueTimeInput {
-    grid-area: 4 / 6 / span 1 / span 1;
+    grid-area: 3 / 6 / span 1 / span 1;
 }
 
 #mondayOfferedTimeInput {
-    grid-area: 5 / 2 / span 1 / span 1;
+    grid-area: 4 / 2 / span 1 / span 1;
 }
 
 #tuesdayOfferedTimeInput {
-    grid-area: 5 / 3 / span 1 / span 1;
+    grid-area: 4 / 3 / span 1 / span 1;
 }
 
 #wednesdayOfferedTimeInput {
-    grid-area: 5 / 4 / span 1 / span 1;
+    grid-area: 4 / 4 / span 1 / span 1;
 }
 
 #thursdayOfferedTimeInput {
-    grid-area: 5 / 5 / span 1 / span 1;
+    grid-area: 4 / 5 / span 1 / span 1;
 }
 
 #fridayOfferedTimeInput {
-    grid-area: 5 / 6 / span 1 / span 1;
+    grid-area: 4 / 6 / span 1 / span 1;
 }
 
 #buttonsSpace {
-    grid-area: 6 / 1 / span 1 / span 6; 
+    grid-area: 5 / 1 / span 1 / span 6; 
     text-align: right;
 }
 
@@ -121,11 +130,14 @@ input:invalid {
         padding: 10px;
     }
 
-    #dateBeginEnd {
-        display: grid;
-        grid-template-columns: repeat(1, auto);
-        grid-template-rows: repeat(4, auto);
+    .grid-4-cols-to-1-col {
+        display: flex;
+        flex-direction: column;
         text-align: center;
+        gap:5px;
+    }
+
+    #dateBeginEnd {
         grid-area: 1 / 1 / span 4 / span 2 ;
     }
     #mondayLabel { grid-area: 6 / 1 / span 1 / span 2 ; }
