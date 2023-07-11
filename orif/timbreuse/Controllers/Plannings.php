@@ -13,9 +13,11 @@ use Timbreuse\Models\UsersModel;
 use CodeIgniter\Model;
 
 use CodeIgniter\I18n\Time;
+use CodeIgniter\API\ResponseTrait;
 
 class Plannings extends BaseController
 {
+    use ResponseTrait; # API Response Trait
     # to rename, common it is confus, 
     # here common is beetween create and edit
     protected function get_common_rules(): array
@@ -689,6 +691,16 @@ class Plannings extends BaseController
         # header('Content-Type: text/css');
         # return file_get_contents(ROOTPATH. 'orif/Timbreuse/Views/planning/edit_planning.css');
         # readfile
+    }
+
+    public function test2()
+    {
+        if ($this->request->is('post')) {
+            $post = $this->request->getPost();
+            $planning = $this->format_form_time_array($post);
+            $data = $this->get_sum_due_time_by_planning_array($planning);
+            return $this->respond(json_encode($data));
+        }
     }
 
 

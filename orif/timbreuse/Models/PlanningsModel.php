@@ -663,11 +663,18 @@ class PlanningModel extends Model
         return sprintf('%2.1f%%', $rateFloat);
     }
 
+    # to do get_rate_by_planning_array
+
     public function get_sum_due_time(int $planningId): int
     {
         $dueTimeStrings = $this->get_due_plannings($planningId);
+        return $this->get_sum_due_time_by_planning_array($dueTimeStrings);
+    }
+
+    public function get_sum_due_time_by_planning_array(array $planning): int
+    {
         $dueTimeSeconds = array_map(array($this, 'toSeconds'),
-                $dueTimeStrings); 
+                $planning); 
         return array_reduce($dueTimeSeconds,
                 fn($carry, $seconds) => $carry + $seconds);
     }

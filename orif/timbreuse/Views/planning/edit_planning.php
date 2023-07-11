@@ -126,4 +126,5 @@
         </ul>
     </details>
 </section>
+<?= view('Timbreuse\Views\planning\edit_planning_script') ?>
 
