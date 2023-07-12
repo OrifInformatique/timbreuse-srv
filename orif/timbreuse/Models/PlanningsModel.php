@@ -660,10 +660,33 @@ class PlanningModel extends Model
     public function get_rate(int $planningId): string
     {
         $rateFloat = $this->get_rate_float($planningId);
-        return sprintf('%2.1f%%', $rateFloat);
+        return $this->formatRate($rateFloat);
     }
 
-    # to do get_rate_by_planning_array
+    public function get_rate_float_by_planning_array(array $planning): float
+    {
+        $defaultTime = $this->get_sum_due_time(
+                $this->get_default_planning_id());
+        $planningTime = $this->get_sum_due_time_by_planning_array($planning);
+        return $planningTime / $defaultTime * 100;
+    }
+
+    public function get_rate_by_planning_array(array $planning): string
+    {
+        $rateFloat = $this->get_rate_float_by_planning_array($planning);
+        return $this->formatRate($rateFloat);
+    }
+
+    public function formatRate(float $rate): string
+    {
+        if (($rate == 100) or ($rate == 0)) {
+            return sprintf('%2d%%', $rate);
+        } 
+        // elseif ($rate < 99.95) {
+        //     return sprintf('%2.2f%%', $rate);
+        // }
+        return sprintf('%2.2f%%', $rate);
+    }
 
     public function get_sum_due_time(int $planningId): int
     {

@@ -1,55 +1,51 @@
 <script>
+window.onload = function() {
+    const form = document.querySelector('form'); 
+    //let rate = getRate(formData);
+    //showDebug(rate);
+    const inputs = document.querySelectorAll('input');
+    for(input of inputs) {
+        input.onblur = updateInputRate;
+        input.onmouseout = updateInputRate;
+    }
+    updateInputRate();
 
-let form = document.querySelector('form'); 
-let formData = new FormData(form);
-// alert(formData.get('dueHoursMonday')); 
+    //test();
+}
 
+async function test() {
+    let form = document.querySelector('form'); 
+    let formData = new FormData(form);
+    alert(await invokeRequestRate(formData));
+}
 
-//let form = document.querySelector('form').elements; 
-
-// alert(json);
-
-//let o = {};
-//for (const i in form) {
-//    o[form[i].name] = form[i].value;
-//}
-
-//let json = JSON.stringify(o);
-// let jsonEncode = encodeURIComponent(json);
-
-//     fetch("<?= base_url('migration/init')?>", { method:'POST', body:formdata,})
-
-
-async function test(formData) {
-    let url = '<?= base_url('Plannings/test2')?>';
+async function invokeRequestRate(formData) {
+    const url = '<?= base_url('Plannings/test2')?>';
     let request = {};
     request['method'] = 'POST';
     request['body'] = formData;
-    // header['method'] = 'POST';
-    // header['mode'] = 'cors';
-    // header['cache'] = 'no-cache';
-    // header['credentials'] = 'same-origin';
-    // header['headers'] = {};
-    // header['headers']['Content-Type'] = 'application/json';
-    // header['redirect'] = 'follow';
-    // header['referrerPolicy'] = 'no-referrer';
-    // header['body'] = json;
-
-    //header['body'] = JSON.stringify({a: 2, b:3});
-    // header = {method:'POST', body:json};
-    // let formdata = new FormData();
-    // formdata.append('a', 'b');
-    // header['body'] = formdata;
-    //let reponse =  await fetch("<?= base_url('Plannings/test2')?>", header);
     let reponse =  await fetch(url, request);
-    let reponseText = await reponse.text();
-    //return await reponse.text();
-    return reponseText.split('\n')[0];
+    let reponseText = reponse.text();
+    return reponseText;
 }
-let rate = test(formData);
 
-async function test2(rate) {
+async function getRate(formData) {
+    let reponseText = await invokeRequestRate(formData);
+    let json = reponseText.split('\n')[0];
+    let rate = JSON.parse(json)['rate'];
+    return rate;
+}
+
+async function updateInputRate() {
+    let form = document.querySelector('form'); 
+    let formData = new FormData(form);
+    let rate = await getRate(formData);
+    let rateInput = document.querySelector('#rate');
+    rateInput.value = rate;
+}
+
+async function showDebug(rate) {
     alert(await rate);
 }
-test2(rate);
+
 </script>

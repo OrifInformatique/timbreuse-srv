@@ -115,8 +115,14 @@ input:invalid {
     grid-area: 4 / 6 / span 1 / span 1;
 }
 
+#rateSpace {
+    grid-area: 5 / 1 / span 1 / span 2; 
+    display: flex;
+    gap: 20px;
+}
+
 #buttonsSpace {
-    grid-area: 5 / 1 / span 1 / span 6; 
+    grid-area: 5 / 5 / span 1 / span 2; 
     text-align: right;
 }
 
@@ -183,8 +189,13 @@ input:invalid {
     #fridayOfferedTimeInput {
         grid-area: 15 / 2 / span 1 / span 1;
     }
+
+    #rateSpace {
+        grid-area: 16 / 1 / span 1 / span 1; 
+    }
+
     #buttonsSpace {
-        grid-area: 16 / 1 / span 1 / span 2;
+        grid-area: 16 / 2 / span 1 / span 1;
         text-align: right;
     }
 }

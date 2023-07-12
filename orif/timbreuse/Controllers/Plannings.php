@@ -447,6 +447,26 @@ class Plannings extends BaseController
         return $names;
     }
 
+    protected function get_due_time_key(): array
+    {
+        $keys[0] = 'due_time_monday';
+        $keys[1] = 'due_time_tuesday';
+        $keys[2] = 'due_time_wednesday';
+        $keys[3] = 'due_time_thursday';
+        $keys[4] = 'due_time_friday';
+        return $keys;
+    }
+
+    protected function filter_by_due_time_key(array $arr): array
+    {
+        $keys = $this->get_due_time_key();
+        $returnArray = array();
+        foreach ($keys as $key) {
+            $returnArray[$key] = $arr[$key];
+        }
+        return $returnArray;
+    }
+
 
 
     protected function post_edit_planning()
@@ -698,7 +718,9 @@ class Plannings extends BaseController
         if ($this->request->is('post')) {
             $post = $this->request->getPost();
             $planning = $this->format_form_time_array($post);
-            $data = $this->get_sum_due_time_by_planning_array($planning);
+            $duePlanning = $this->filter_by_due_time_key($planning);
+            $model = model(PlanningsModel::class);
+            $data['rate'] = $model->get_rate_by_planning_array($duePlanning);
             return $this->respond(json_encode($data));
         }
     }

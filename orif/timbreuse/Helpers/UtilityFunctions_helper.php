@@ -62,14 +62,19 @@ function parseDuration(string $duration): array
     $endHour = strpos($duration, ':') - 1;
     $beginMinute = $endHour + 2;
     $endMinute = strpos($duration, ':', $beginMinute) - 1;
+    $endMinute = $endMinute === -1 ? strlen($duration) - 1: $endMinute;
     $beginSecond = $endMinute + 2;
     $endSecond = strlen($duration) - 1;
     $return['hour'] = substr($duration, $beginHour,
             $endHour - $beginHour + 1);
     $return['minute'] = substr($duration, $beginMinute,
             $endMinute - $beginMinute + 1);
-    $return['second'] = substr($duration, $beginSecond,
-            $endSecond - $beginSecond + 1);
+    if ($beginSecond < strlen($duration)) {
+        $return['second'] = substr($duration, $beginSecond,
+                $endSecond - $beginSecond + 1);
+    } else {
+        $return['second'] = '';
+    }
     return array_map('intval', $return);
 }
 
