@@ -1,7 +1,11 @@
+<?= $this->extend('Common\Views\default') ?>
+<?= $this->section('head') ?>
+    <?= view('Timbreuse\Views\planning\edit_planning_style') ?>
+<?= $this->endSection() ?>
+<?= $this->section('content') ?>
 <?php
 // to rename, this view is also use to create planning
 ?>
-<?= view('Timbreuse\Views\planning\edit_planning_style') ?>
 <section class="container">
     <h3><?= esc($h3title) ?></h3>
     <?php if (! empty(service('validation')->getErrors())) : ?>
@@ -130,5 +134,8 @@
         </ul>
     </details>
 </section>
-<?= view('Timbreuse\Views\planning\edit_planning_script') ?>
+<?= $this->endSection() ?>
+<?= $this->section('javascript') ?>
+    <?= view('Timbreuse\Views\planning\edit_planning_script') ?>
+<?= $this->endSection() ?>
 

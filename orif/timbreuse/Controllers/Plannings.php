@@ -166,8 +166,7 @@ class Plannings extends BaseController
             return $this->display_unauthorize();
         }
         $data = $this->get_data_for_create_planning($timUserId);
-        return $this->display_view(
-            'Timbreuse\Views\planning\edit_planning.php', $data);
+        return view('Timbreuse\Views\planning\edit_planning.php', $data);
     }
 
     protected function get_data_for_copy_planning(int $planningId): array
@@ -238,8 +237,7 @@ class Plannings extends BaseController
             return $this->display_unauthorize();
         }
         $data = $this->get_data_for_copy_planning($planningId);
-        return $this->display_view(
-            'Timbreuse\Views\planning\edit_planning.php', $data);
+        return view('Timbreuse\Views\planning\edit_planning.php', $data);
     }
 
     protected function get_tim_user_name(int $timUserId): string
@@ -265,8 +263,7 @@ class Plannings extends BaseController
             return $this->display_unauthorize();
         }
         $data = $this->get_data_for_edit_planning($planningId, $model);
-        return $this->display_view(
-            ['Timbreuse\Views\planning\edit_planning.php'], $data);
+        return view('Timbreuse\Views\planning\edit_planning.php', $data);
     }
 
     public function edit_planning(?int $planningId=null): string|Response

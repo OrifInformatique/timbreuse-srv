@@ -47,5 +47,4 @@ async function updateInputRate() {
 async function showDebug(rate) {
     alert(await rate);
 }
-
 </script>
