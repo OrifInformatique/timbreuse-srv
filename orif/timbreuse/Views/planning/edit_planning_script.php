@@ -20,7 +20,7 @@ async function test() {
 }
 
 async function invokeRequestRate(formData) {
-    const url = '<?= base_url('Plannings/test2')?>';
+    const url = '<?= base_url('Plannings/get_rate')?>';
     let request = {};
     request['method'] = 'POST';
     request['body'] = formData;

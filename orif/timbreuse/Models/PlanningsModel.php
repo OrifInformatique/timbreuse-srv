@@ -679,13 +679,14 @@ class PlanningModel extends Model
 
     public function formatRate(float $rate): string
     {
+        $rate = floor($rate * 10) / 10;
         if (($rate == 100) or ($rate == 0)) {
             return sprintf('%2d%%', $rate);
         } 
         // elseif ($rate < 99.95) {
         //     return sprintf('%2.2f%%', $rate);
         // }
-        return sprintf('%2.2f%%', $rate);
+        return sprintf('%2.1f%%', $rate);
     }
 
     public function get_sum_due_time(int $planningId): int

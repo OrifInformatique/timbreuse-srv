@@ -130,38 +130,41 @@ abstract class BaseController extends Controller
      * @param  $view_parts : single view or array of view parts to display
      *         $data : data array to send to the view
      */
-    public function display_view($view_parts, $data = NULL)
+    public function display_view(string|array $view_parts,
+        ?array $data = NULL): string
     {
+        $textView = '';
         // If not defined in $data, set page title to empty string
         if (!isset($data['title'])) {
             $data['title'] = '';
         }
 
         // Display common headers
-        echo view('Common\header', $data);
+        $textView .=  view('Common\header', $data);
 
         // Display login bar
-        echo view('Common\login_bar');
+        $textView .= view('Common\login_bar');
 
         // Display admin menu if appropriate
         foreach (config('Common\Config\AdminPanelConfig')->tabs as $tab){
             if (strstr(current_url(),$tab['pageLink'])) {
-                echo view('\Common\adminMenu');
+                $textView .= view('\Common\adminMenu');
             }
         }
 
         if (is_array($view_parts)) {
             // Display multiple view parts
             foreach ($view_parts as $view_part) {
-                echo view($view_part, $data);
+                $textView .= view($view_part, $data);
             }
         }
         elseif (is_string($view_parts)) {
             // Display unique view part
-            echo view($view_parts, $data);
+            $textView .= view($view_parts, $data);
         }
 
         // Display common footer
-        echo view('Common\footer');
+        $textView .= view('Common\footer');
+        return $textView;
     }
 }
