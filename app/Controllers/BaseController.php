@@ -58,7 +58,8 @@ abstract class BaseController extends Controller
     /**
      * Constructor.
      */
-    public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
+    public function initController(RequestInterface $request,
+        ResponseInterface $response, LoggerInterface $logger)
     {
         // Do Not Edit This Line
         parent::initController($request, $response, $logger);
@@ -69,7 +70,7 @@ abstract class BaseController extends Controller
         
         // Check permission on construct
         if (!$this->check_permission()) {
-            $this->display_view('\User\errors\403error');
+            echo $this->display_view('\User\errors\403error');
             exit();
             //throw new \Exception("some message here",403);
             //show_error(lang('msg_err_access_denied_message'), 403, lang('msg_err_access_denied_header'));
@@ -85,7 +86,8 @@ abstract class BaseController extends Controller
     * @return bool : true if user level is equal or higher than required level,
     *                false else
     */
-    protected function check_permission($required_level = NULL)
+    protected function check_permission(
+        ?int $required_level = NULL): bool|Response
     {
         if (!isset($_SESSION['logged_in'])) {
             // Tests can accidentally delete $_SESSION,

@@ -107,6 +107,11 @@
         $url_getView = null;
     }
 
+    // If no deleted_field variable is sent as parameter, set it to date_delete
+    if (!isset($deleted_field)) {
+        $deleted_field = 'date_delete';
+    }
+
     // for form_checkbox
     helper('form');
 
@@ -120,18 +125,18 @@
         </div>
         <div class="col-sm-6 text-left">
             <!-- Display the "create" button if url_create is defined -->
-            <?php if(isset($url_create)) { ?>
+            <?php if(isset($url_create)): ?>
                 <a class="btn btn-primary" href="<?= site_url(esc($url_create)) ?>"><?= esc($btn_create_label) ?></a>
-            <?php } ?>
+            <?php endif ?>
         </div>
         <div class="col-sm-6 text-right">
             <!-- Display the "with_deleted" checkbox if with_deleted and url_getView variables are defined -->
-            <?php if (isset($with_deleted) && isset($url_getView)) { ?>
+            <?php if (isset($with_deleted) && isset($url_getView)): ?>
                 <label class="form-check-label" for="toggle_deleted">
                     <?= lang($display_deleted_label); ?>
                 </label>
                 <?= form_checkbox('toggle_deleted', '', $with_deleted, ['id' => 'toggle_deleted']); ?>
-            <?php } ?>
+            <?php endif ?>
         </div>
     </div>
 
@@ -145,9 +150,9 @@
                     <?php endforeach ?>
 
                     <!-- Add the "action" column (for detail/update/delete links) -->
-                    <?php if(isset($url_detail) || isset($url_update) || isset($url_delete)) { ?>
+                    <?php if(isset($url_detail) || isset($url_update) || isset($url_delete)): ?>
                         <th class="text-right" scope="col"></th>
-                    <?php } ?>
+                    <?php endif ?>
                 </tr>
             </thead>
             <tbody>
@@ -191,7 +196,7 @@
 
                         <!-- Bootstrap delete icon ("Trash"), redirect to url_delete, adding /primary_key as parameter -->
                         <?php if(isset($url_delete)): ?>
-                            <?php if (!isset($itemEntity['date_delete'])) : ?>
+                            <?php if (!isset($itemEntity[$deleted_field])) : ?>
                             <a href="<?= site_url(esc($url_delete.$itemEntity[$primary_key_field])) ?>"
                                     class="text-decoration-none" title="<?=lang('common_lang.btn_delete') ?>" >
                                 <i class="bi bi-trash" style="font-size: 20px;"></i>
@@ -217,7 +222,7 @@
 <!-- JQuery script to refresh items list after user action -->
 <?php if (isset($url_getView)): ?>
 <script>
-$(document).ready(function(){
+$(document).ready(function() {
 
     // "Display disabled items" checkbox value change
     $('#toggle_deleted').change(e => {

@@ -665,7 +665,7 @@ class PersoLogs extends BaseController
     protected function block_user()
     {
         session()->remove('userIdAccess');
-        $this->display_view('\User\errors\403error');
+        echo $this->display_view('\User\errors\403error');
         exit();
         return $this->display_view('\User\errors\403error');
     }

@@ -9,7 +9,8 @@ use Psr\Log\LoggerInterface;
 
 class Home extends BaseController
 {
-    public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
+    public function initController(RequestInterface $request,
+        ResponseInterface $response, LoggerInterface $logger): void
     {
         parent::initController($request, $response, $logger);
         $this->session=\Config\Services::session();
@@ -17,12 +18,12 @@ class Home extends BaseController
         helper('form');
     }
 
-	public function index()
+	public function index(): string
 	{
 		return view('Welcome\welcome_message');
 	}
 
-    public function display_items($with_deleted = false)
+    public function display_items($with_deleted = false): string
     {
         $data['list_title'] = "Test de la liste items_list";
 

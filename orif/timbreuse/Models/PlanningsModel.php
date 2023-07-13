@@ -1,4 +1,5 @@
 <?php
+
 namespace Timbreuse\Models;
 
 use CodeIgniter\Model;

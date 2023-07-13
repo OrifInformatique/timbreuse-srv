@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Timbreuse\Controllers;
 
 use App\Controllers\BaseController;
@@ -536,7 +535,7 @@ class Plannings extends BaseController
     }
 
     protected function get_user_data_for_plannings_list(int $timUserId,
-            bool $withDeleted):array
+            bool $withDeleted): array
     {
         $data['list_title'] = ucfirst(sprintf(lang('tim_lang.titleList'),
                 $this->get_tim_user_name($timUserId)));
