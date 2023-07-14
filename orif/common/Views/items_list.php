@@ -1,5 +1,5 @@
 <?php
-   /** @author      Orif, section informatique (ViDi, AeDa)
+   /** @author      Orif, section informatique (ViDi, AeDa, PoMa)
      * @link        https://github.com/OrifInformatique
      * @copyright   Copyright (c), Orif (https://www.orif.ch)
      * 
@@ -34,13 +34,11 @@
      *                     It should call a method that returns the view's content.
      *                     If not set, the "Display disabled items" checkbox won't be displayed.
      * @param url_restore: Link to the controller method that restore the item.
-     *                     If not set, take the value of url_delete
+     *                     If not set, no "restore" button will be displayed.
      * @param deleted_field:
-     *                     String with the the name of the field if is set
-     *                     and not null mean the item is deleted
-     *                     If the field in the item array is set the line is
-     *                     not visible without check the checkbox and the
-     *                     delete button will become read 
+     *                     String with the the name of the field if is set and not null mean the item is deleted
+     *                     If the field in the item array is set the line is not visible without check the checkbox
+     *                     and the button will become read 
      * @param url_copy:    Link to the controller method that displays a form to create a new item with the data of
      *                     the item already inserted in the form.
      *                     If not set, no "copy" button will be displayed.
@@ -202,27 +200,27 @@
                         <?php endif ?>
 
                         <!-- Bootstrap delete icon ("Trash"), redirect to url_delete, adding /primary_key as parameter -->
-                        <?php if(isset($url_delete)): ?>
-                            <?php if (!isset($itemEntity[$deleted_field])) : ?>
+                        <?php if ((isset($url_delete)) and (!isset($itemEntity[$deleted_field]))): ?>
                             <a href="<?= site_url(esc($url_delete.$itemEntity[$primary_key_field])) ?>"
                                     class="text-decoration-none" title="<?=lang('common_lang.btn_delete') ?>" >
                                 <i class="bi bi-trash" style="font-size: 20px;"></i>
                             </a>
-                            <?php else : ?>
-                            <!-- Bootstrap restore icon "arrow-counterclockwise", redirect to url_restore,
+                        <?php endif ?>
+                        <!-- Bootstrap restore icon "arrow-counterclockwise", redirect to url_restore,
                                 adding/primary_key as parameter -->
+                        <?php if ((isset($url_restore)) and (isset($itemEntity[$deleted_field]))) : ?>
                             <a href="<?= site_url(esc($url_restore . $itemEntity[$primary_key_field])) ?>"
                                     class="text-decoration-none" title="<?=lang('common_lang.btn_restore') ?>" >
                                 <i class="bi bi-arrow-counterclockwise" style="font-size: 20px;"></i>
                             </a>
-
+                        <?php endif ?>
+                        <?php if ((isset($url_delete)) and (isset($itemEntity[$deleted_field]))) : ?>
+                            <!-- Bootstrap delete icon ("Trash") with red color, redirect to url_delete, adding /primary_key as parameter -->
                             <a href="<?= site_url(esc($url_delete.$itemEntity[$primary_key_field])) ?>"
                                     class="text-decoration-none" title="<?=lang('common_lang.btn_delete') ?>" >
                                 <i class="bi bi-trash text-danger" style="font-size: 20px;"></i>
                             </a>
-                            <?php endif ?>
                         <?php endif ?>
-
                     </td>
                 </tr>
                 <?php endforeach ?>
