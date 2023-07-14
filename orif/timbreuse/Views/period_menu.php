@@ -10,7 +10,7 @@
                 echo 'active';
             }
             ?>'>
-                <?= $button['label'] ?>
+                <?= esc($button['label']) ?>
             </a>
             </li>
         <?php endforeach ?>

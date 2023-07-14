@@ -35,9 +35,12 @@
      *                     If not set, the "Display disabled items" checkbox won't be displayed.
      * @param url_restore: Link to the controller method that restore the item.
      *                     If not set, take the value of url_delete
-     * @param date_delete: String with the date of deleted of the date    
-     *                     If set the line is not visible without check the checkbox
-     *                     and"restore" button will displays intead of delete button
+     * @param deleted_field:
+     *                     String with the the name of the field if is set
+     *                     and not null mean the item is deleted
+     *                     If the field in the item array is set the line is
+     *                     not visible without check the checkbox and the
+     *                     delete button will become read 
      * @param url_copy:    Link to the controller method that displays a form to create a new item with the data of
      *                     the item already inserted in the form.
      *                     If not set, no "copy" button will be displayed.
@@ -107,9 +110,9 @@
         $url_getView = null;
     }
 
-    // If no deleted_field variable is sent as parameter, set it to date_delete
+    // If no deleted_field variable is sent as parameter, set it to null
     if (!isset($deleted_field)) {
-        $deleted_field = 'date_delete';
+        $deleted_field = null;
     }
 
     // for form_checkbox
@@ -162,7 +165,11 @@
                     <!-- Only display item's properties wich are listed in "columns" variable in the order of the columns -->
                     <?php foreach ($columns as $columnKey => $column): ?>
                         <?php if (array_key_exists($columnKey, $itemEntity)) : ?>
-                            <td><?= $itemEntity[$columnKey] ?></td>
+                            <?php if (!isset($itemEntity[$deleted_field])) : ?>
+                                <td><?= esc($itemEntity[$columnKey]) ?></td>
+                            <?php else: ?>
+                                <td><del><?= esc($itemEntity[$columnKey]) ?></del></td>
+                            <?php endif ?>
                         <?php else: ?>
                             <td></td>
                         <?php endif ?>
@@ -202,11 +209,16 @@
                                 <i class="bi bi-trash" style="font-size: 20px;"></i>
                             </a>
                             <?php else : ?>
-                            <!-- Bootstrap restore icon "arrow-counterclockwise", redirect to url_restore
-                                or url_delete if url_resotre is not set , adding /primary_key as parameter -->
-                            <a href="<?= site_url(esc($url_restore ?? $url_delete.$itemEntity[$primary_key_field])) ?>"
+                            <!-- Bootstrap restore icon "arrow-counterclockwise", redirect to url_restore,
+                                adding/primary_key as parameter -->
+                            <a href="<?= site_url(esc($url_restore . $itemEntity[$primary_key_field])) ?>"
                                     class="text-decoration-none" title="<?=lang('common_lang.btn_restore') ?>" >
                                 <i class="bi bi-arrow-counterclockwise" style="font-size: 20px;"></i>
+                            </a>
+
+                            <a href="<?= site_url(esc($url_delete.$itemEntity[$primary_key_field])) ?>"
+                                    class="text-decoration-none" title="<?=lang('common_lang.btn_delete') ?>" >
+                                <i class="bi bi-trash text-danger" style="font-size: 20px;"></i>
                             </a>
                             <?php endif ?>
                         <?php endif ?>
