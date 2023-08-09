@@ -24,7 +24,7 @@
             </tbody>
             <tfoot class="table table-borderless">
                 <tr>
-                    <td></td>
+                    <td colspan='2' ></td>
                 </tr>
                 <tr>
                     <td></td>

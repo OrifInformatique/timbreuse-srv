@@ -10,6 +10,7 @@ use Timbreuse\Models\PlanningsModel;
 use Timbreuse\Controllers\Plannings;
 
 use CodeIgniter\I18n\Time;
+use CodeIgniter\HTTP\Response;
 
 class DefaultPlannings extends Plannings
 {
@@ -73,19 +74,19 @@ class DefaultPlannings extends Plannings
         $this->session = \Config\Services::session();
     }
 
-    public function index()
+    public function index(): string|Response
     {
         return $this->edit_planning();
         # return redirect()->to(current_url() . '/' . 'edit_planning/');
     }
 
-    public function edit_planning($n=null)
+    public function edit_planning(?int $n=null): string|Response
     {
         return parent::edit_user_planning($this->get_default_planning_id());
 
     }
 
-    protected function post_edit_planning()
+    protected function post_edit_planning(): string|Response
     {
         $model = model(PlanningsModel::class);
         $post = $this->request->getPost();

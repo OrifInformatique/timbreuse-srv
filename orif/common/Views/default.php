@@ -21,7 +21,7 @@
     <?= view('Common\Views\login_bar', $this->data) ?>
     <?php foreach (config('Common\Config\AdminPanelConfig')->tabs as $tab) {
             if (strstr(current_url(),$tab['pageLink'])) {
-                $textView .= view('\Common\adminMenu');
+                echo view('\Common\adminMenu');
             }
         }
     ?>

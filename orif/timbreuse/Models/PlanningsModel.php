@@ -292,6 +292,15 @@ class PlanningModel extends Model
         $this->db->transComplete();
     }
 
+    public function delete_planning_and_user_planning(int $planningId): void
+    {
+        $this->db->transStart();
+        $this->db->table('user_planning')
+                 ->where('id_planning = ', $planningId)->delete();
+        $this->delete($planningId, true);
+        $this->db->transComplete();
+    }
+
     public function get_day_string(?string $carry, string $time): string
     {
         return $carry . '%s ' . substr($time, 0, 5) . ' ';

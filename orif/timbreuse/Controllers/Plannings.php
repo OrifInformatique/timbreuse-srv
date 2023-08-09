@@ -106,7 +106,7 @@ class Plannings extends BaseController
     }
 
 
-    public function index(): Response
+    public function index(): string|Response
     {
         return redirect()->to(current_url() . '/' . 'get_plannings_list/');
     }
@@ -153,7 +153,7 @@ class Plannings extends BaseController
         return $model->get_tim_user_id($planningId);
     }
 
-    public function create_planning(?int $timUserId=null): string
+    public function create_planning(?int $timUserId=null): string|Response
     {
         $timUserId = $timUserId ?? $this->get_tim_user_id(); 
         if (($this->request->getMethod() === 'post')
@@ -563,9 +563,12 @@ class Plannings extends BaseController
         ];
         $data['url_update'] = 'Plannings/edit_planning/';
         $data['url_delete'] = 'Plannings/delete_planning/';
+        $data['url_restore'] = 'Plannings/restore_planning/';
         $data['primary_key_field'] = 'id_planning';
         $data['with_deleted'] = $withDeleted;
         $data['display_deleted_label'] = lang('tim_lang.showDeletedPlanning');
+        $data['deleted_field'] = 'date_delete';
+        
         return $data;
     }
 
@@ -629,12 +632,9 @@ class Plannings extends BaseController
     public function delete_planning(?int $planningId=null): string|Response
     {
         $model = model(PlanningsModel::class);
-        if ($model->is_deleted($planningId)) {
-            return redirect()->to(current_url()
-                    . "/../../restore_planning/$planningId");
-        }
-        if ($this->request->getMethod() === 'post') {
-            return $this->post_delete_planning();
+        $purge = $model->is_deleted($planningId);
+        if ($this->request->is('post')) {
+            return $this->post_delete_planning($purge);
         }
         if (!$this->is_access_planning($planningId)) {
             return $this->display_unauthorize();
@@ -643,7 +643,12 @@ class Plannings extends BaseController
         $data['h3title'] = ucfirst(sprintf(lang(
                 'tim_lang.titleConfirmDeletePlanning'), $planningId));
         $data['title'] = $data['h3title'];
-        $data['text'] = ucfirst(lang('tim_lang.confirmDeletePlanning'));
+        if (!$purge) {
+            $data['text'] = ucfirst(lang('tim_lang.confirmDeletePlanning'));
+        } else {
+            $data['text'] = ucfirst(
+                lang('tim_lang.confirmPurgeDeletePlanning'));
+        }
         $data['link'] = '';
         $data['cancel_link'] = $this->get_cancel_link_for_edit_planning(
                 $planningId);
@@ -653,7 +658,7 @@ class Plannings extends BaseController
 
     public function restore_planning(?int $planningId=null): string|Response
     {
-        if (($this->request->getMethod() === 'post') and ($this->validate(
+        if (($this->request->is('post')) and ($this->validate(
                 $this->get_restore_rules()))) {
             return $this->post_restore_planning();
         }
@@ -675,7 +680,8 @@ class Plannings extends BaseController
                 $data);
     }
 
-    protected function post_delete_planning(): string|Response
+    protected function post_delete_planning(
+        ?bool $purge=false): string|Response
     {
         $post = $this->request->getPost();
         if (!$this->is_access_planning($post['id'])) {
@@ -683,7 +689,11 @@ class Plannings extends BaseController
         }
         $url = $this->get_cancel_link_for_edit_planning($post['id']);
         $model = model(PlanningsModel::class);
-        $model->delete($post['id']);
+        if (!$purge) {
+            $model->delete($post['id'], $purge);
+        } else {
+            $model->delete_planning_and_user_planning($post['id']);
+        }
         return redirect()->to($url);
     }
 

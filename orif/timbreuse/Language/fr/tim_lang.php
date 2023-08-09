@@ -92,6 +92,7 @@ return [
     'planning' => 'planning',
     'Defaultplanning' => 'Planning par défaut',
     'confirmDeletePlanning' => 'Êtes-vous sûr·e de vouloir supprimer ce planning ?',
+    'confirmPurgeDeletePlanning' => 'Êtes-vous sûr·e de vouloir supprimer définitivement ce planning ?',
     'titleConfirmDeletePlanning' => 'Supprimer le planning ID %s',
     'confirmRestorePlanning' => 'Êtes-vous sûr·e de vouloir restaurer ce planning ?',
     'titleConfirmRestorePlanning' => 'Restaurer le planning ID %s',
