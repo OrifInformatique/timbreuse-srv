@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Timbreuse\Controllers;
 
 use App\Controllers\BaseController;
@@ -13,9 +12,12 @@ use Timbreuse\Models\UsersModel;
 use CodeIgniter\Model;
 
 use CodeIgniter\I18n\Time;
+use CodeIgniter\API\ResponseTrait;
+use CodeIgniter\HTTP\Response;
 
 class Plannings extends BaseController
 {
+    use ResponseTrait; # API Response Trait
     # to rename, common it is confus, 
     # here common is beetween create and edit
     protected function get_common_rules(): array
@@ -88,7 +90,7 @@ class Plannings extends BaseController
         return $rules;
     }
 
-    protected function get_restore_rules():array
+    protected function get_restore_rules(): array
     {
         $rules['planningId'] = 'required|integer|cb_restore_planning';
         return $rules;
@@ -104,7 +106,7 @@ class Plannings extends BaseController
     }
 
 
-    public function index()
+    public function index(): Response
     {
         return redirect()->to(current_url() . '/' . 'get_plannings_list/');
     }
@@ -124,6 +126,7 @@ class Plannings extends BaseController
         $data['save'] = ucfirst(lang('common_lang.btn_save'));
         $data['dateBegin'] = ucfirst(lang('tim_lang.dateBegin'));
         $data['dateEnd'] = lang('tim_lang.dateEnd');
+        $data['title'] = ucfirst(lang('tim_lang.title'));
         return $data;
 
     }
@@ -150,7 +153,7 @@ class Plannings extends BaseController
         return $model->get_tim_user_id($planningId);
     }
 
-    public function create_planning(?int $timUserId=null)
+    public function create_planning(?int $timUserId=null): string
     {
         $timUserId = $timUserId ?? $this->get_tim_user_id(); 
         if (($this->request->getMethod() === 'post')
@@ -163,8 +166,7 @@ class Plannings extends BaseController
             return $this->display_unauthorize();
         }
         $data = $this->get_data_for_create_planning($timUserId);
-        return $this->display_view(
-            'Timbreuse\Views\planning\edit_planning.php', $data);
+        return view('Timbreuse\Views\planning\edit_planning.php', $data);
     }
 
     protected function get_data_for_copy_planning(int $planningId): array
@@ -182,6 +184,8 @@ class Plannings extends BaseController
             $model);
         $data = array_merge($data, $this->get_begin_end_dates_or_old_post(
                 $planningId, $model));
+        // add here merge with title
+        $data['planningTitle'] =  $this->get_title_or_old_post($planningId);
         $data['h3title'] = ucfirst(sprintf(lang('tim_lang.titleNewPlanning'),
             $this->get_tim_user_name($timUserId)));
         $data['title'] = $data['h3title'];
@@ -200,7 +204,8 @@ class Plannings extends BaseController
             $timUserId, 'get_cancel_link_for_create_planning');
     }
 
-    protected function post_create_planning(string $cancelLinkFunc)
+    protected function post_create_planning(
+        string $cancelLinkFunc):string|Response
     {
         $post = $this->request->getPost();
         if (!$this->is_access($post['timUserId'])) {
@@ -215,11 +220,10 @@ class Plannings extends BaseController
         }
         $url  = call_user_func_array(
                 array($this, $cancelLinkFunc), array($post['timUserId']));
-        d($url);
         return redirect()->to($url);
     }
 
-    public function copy_planning(?int $planningId=null)
+    public function copy_planning(?int $planningId=null): string|Response
     {
         if (($this->request->is('post'))
             and ($this->validate($this->get_create_rules())))
@@ -233,8 +237,7 @@ class Plannings extends BaseController
             return $this->display_unauthorize();
         }
         $data = $this->get_data_for_copy_planning($planningId);
-        return $this->display_view(
-            'Timbreuse\Views\planning\edit_planning.php', $data);
+        return view('Timbreuse\Views\planning\edit_planning.php', $data);
     }
 
     protected function get_tim_user_name(int $timUserId): string
@@ -245,7 +248,7 @@ class Plannings extends BaseController
         return "$data[surname] $data[name]";
     }
 
-    public function edit_user_planning(?int $planningId=null)
+    public function edit_user_planning(?int $planningId=null): string|Response
     {
         if (($this->request->getMethod() === 'post')
                 and ($this->validate($this->get_edit_rules($planningId)))) {
@@ -260,11 +263,10 @@ class Plannings extends BaseController
             return $this->display_unauthorize();
         }
         $data = $this->get_data_for_edit_planning($planningId, $model);
-        return $this->display_view(
-            ['Timbreuse\Views\planning\edit_planning.php'], $data);
+        return view('Timbreuse\Views\planning\edit_planning.php', $data);
     }
 
-    public function edit_planning(?int $planningId=null)
+    public function edit_planning(?int $planningId=null): string|Response
     {
         if ($planningId == $this->get_default_planning_id()) {
 
@@ -291,6 +293,7 @@ class Plannings extends BaseController
         $data['action'] = '';
         $data['cancelLink'] = $this->get_cancel_link_for_edit_planning(
                 $planningId);
+        $data['planningTitle'] = $model->get_title($planningId);
         return $data;
     }
 
@@ -359,10 +362,23 @@ class Plannings extends BaseController
     protected function get_planning_hours_minutes_or_old_post(int $planningId,
         Model $model): array
     {
-        if ($this->request->getMethod() === 'post') {
+        if ($this->request->is('post')) {
             return $this->format_post_old_times();
         } else {
             return $model->get_planning_hours_minutes($planningId);
+        }
+    }
+
+    /**
+        * get title planning from post or from the model
+    */
+    protected function get_title_or_old_post(int $planningId): string
+    {
+        if ($this->request->is('post')) {
+            return $this->request->getPost('title');
+        } else {
+            $model = model(PlanningsModel::class);
+            return $model->get_title($planningId);
         }
     }
 
@@ -372,7 +388,7 @@ class Plannings extends BaseController
     protected function get_begin_end_dates_or_old_post(int $planningId,
         Model $model): array
     {
-        if ($this->request->getMethod() === 'post') {
+        if ($this->request->is('post')) {
             return $this->format_post_old_dates();
         } else {
             return $model->get_begin_end_dates($planningId, true);
@@ -387,6 +403,7 @@ class Plannings extends BaseController
         $data['date_end'] = $post['dateEnd'];
         return $data;
     }
+
     protected function format_post_old_times(): array
     {
         $names = $this->get_array_for_format_post_old();
@@ -428,9 +445,29 @@ class Plannings extends BaseController
         return $names;
     }
 
+    protected function get_due_time_key(): array
+    {
+        $keys[0] = 'due_time_monday';
+        $keys[1] = 'due_time_tuesday';
+        $keys[2] = 'due_time_wednesday';
+        $keys[3] = 'due_time_thursday';
+        $keys[4] = 'due_time_friday';
+        return $keys;
+    }
+
+    protected function filter_by_due_time_key(array $arr): array
+    {
+        $keys = $this->get_due_time_key();
+        $returnArray = array();
+        foreach ($keys as $key) {
+            $returnArray[$key] = $arr[$key];
+        }
+        return $returnArray;
+    }
 
 
-    protected function post_edit_planning()
+
+    protected function post_edit_planning(): string|Response
     {
         $model = model(PlanningsModel::class);
         $post = $this->request->getPost();
@@ -452,10 +489,14 @@ class Plannings extends BaseController
         $formatedArray = array();
         $formatedArray['date_begin'] = $formArray['dateBegin'] ?? null;
         $formatedArray['date_end'] = $formArray['dateEnd'] ?? null;
+        $formatedArray['title'] = $formArray['title'] ?? null;
         $formatedArray['date_begin'] = $formatedArray['date_begin'] !== '' ?
                 $formatedArray['date_begin']: null;
         $formatedArray['date_end'] = $formatedArray['date_end'] !== '' ?
                 $formatedArray['date_end']: null;
+        $formatedArray['title'] = $formatedArray['title'] !== '' ?
+                $formatedArray['title']: null;
+
         return $formatedArray;
     }
 
@@ -475,7 +516,7 @@ class Plannings extends BaseController
 
     }
 
-    protected function display_unauthorize()
+    protected function display_unauthorize(): string
     {
         return $this->display_view('\User\errors\403error');
     }
@@ -491,7 +532,7 @@ class Plannings extends BaseController
     }
 
     protected function get_user_data_for_plannings_list(int $timUserId,
-            bool $withDeleted):array
+            bool $withDeleted): array
     {
         $data['list_title'] = ucfirst(sprintf(lang('tim_lang.titleList'),
                 $this->get_tim_user_name($timUserId)));
@@ -516,6 +557,7 @@ class Plannings extends BaseController
         $data['columns'] = [
             'date_begin' =>ucfirst(lang('tim_lang.dateBegin')),
             'date_end' =>ucfirst(lang('tim_lang.dateEnd')),
+            'title' => ucfirst(lang('tim_lang.title')),
             'due_time' =>ucfirst(lang('tim_lang.planning')),
             'rate' => ucfirst(lang('tim_lang.rate')),
         ];
@@ -562,7 +604,7 @@ class Plannings extends BaseController
     }
 
     public function get_plannings_list(?int $timUserId=null,
-            ?bool $withDeleted=false)
+            ?bool $withDeleted=false): string
     {
         $timUserId = $timUserId ?? $this->get_tim_user_id();
         if (!$this->is_access($timUserId))
@@ -584,7 +626,7 @@ class Plannings extends BaseController
         return $model->get_default_planning_id();
     }
 
-    public function delete_planning(?int $planningId=null)
+    public function delete_planning(?int $planningId=null): string|Response
     {
         $model = model(PlanningsModel::class);
         if ($model->is_deleted($planningId)) {
@@ -609,7 +651,7 @@ class Plannings extends BaseController
                 $data);
     }
 
-    public function restore_planning(?int $planningId=null)
+    public function restore_planning(?int $planningId=null): string|Response
     {
         if (($this->request->getMethod() === 'post') and ($this->validate(
                 $this->get_restore_rules()))) {
@@ -633,7 +675,7 @@ class Plannings extends BaseController
                 $data);
     }
 
-    protected function post_delete_planning()
+    protected function post_delete_planning(): string|Response
     {
         $post = $this->request->getPost();
         if (!$this->is_access_planning($post['id'])) {
@@ -645,7 +687,7 @@ class Plannings extends BaseController
         return redirect()->to($url);
     }
 
-    protected function post_restore_planning()
+    protected function post_restore_planning(): string|Response
     {
         $post = $this->request->getPost();
         if (!$this->is_access_planning($post['planningId'])) {
@@ -658,6 +700,30 @@ class Plannings extends BaseController
         $url = $this->get_cancel_link_for_edit_planning($post['planningId']);
         return redirect()->to($url);
     }
+
+    public function get_rate(): string|Response
+    {
+        if (!$this->request->is('post')) {
+            return $this->display_unauthorize();
+        }
+        $post = $this->request->getPost();
+        $planning = $this->format_form_time_array($post);
+        $duePlanning = $this->filter_by_due_time_key($planning);
+        $model = model(PlanningsModel::class);
+        $data['rate'] = $model->get_rate_by_planning_array($duePlanning);
+        return $this->respond(json_encode($data));
+    }
+
+    public function test()
+    {
+        # return  view('Timbreuse\Views\planning\edit_planning_style');
+        # return $this->setResponseFormat('json')->respond(file_get_contents(ROOTPATH. 'orif/Timbreuse/Views/planning/edit_planning.css'));
+        # header('Location:'.ROOTPATH. 'orif/Timbreuse/Views/planning/edit_planning.css'); 
+        # header('Content-Type: text/css');
+        # return file_get_contents(ROOTPATH. 'orif/Timbreuse/Views/planning/edit_planning.css');
+        # readfile
+    }
+
 
 
 

@@ -8,6 +8,7 @@ use CodeIgniter\HTTP\IncomingRequest;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
+use CodeIgniter\HTTP\Response;
 
 /**
  * Class BaseController
@@ -58,7 +59,8 @@ abstract class BaseController extends Controller
     /**
      * Constructor.
      */
-    public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
+    public function initController(RequestInterface $request,
+        ResponseInterface $response, LoggerInterface $logger)
     {
         // Do Not Edit This Line
         parent::initController($request, $response, $logger);
@@ -69,7 +71,7 @@ abstract class BaseController extends Controller
         
         // Check permission on construct
         if (!$this->check_permission()) {
-            $this->display_view('\User\errors\403error');
+            echo $this->display_view('\User\errors\403error');
             exit();
             //throw new \Exception("some message here",403);
             //show_error(lang('msg_err_access_denied_message'), 403, lang('msg_err_access_denied_header'));
@@ -85,7 +87,8 @@ abstract class BaseController extends Controller
     * @return bool : true if user level is equal or higher than required level,
     *                false else
     */
-    protected function check_permission($required_level = NULL)
+    protected function check_permission(
+        ?int $required_level = NULL): bool|Response
     {
         if (!isset($_SESSION['logged_in'])) {
             // Tests can accidentally delete $_SESSION,
@@ -130,38 +133,41 @@ abstract class BaseController extends Controller
      * @param  $view_parts : single view or array of view parts to display
      *         $data : data array to send to the view
      */
-    public function display_view($view_parts, $data = NULL)
+    public function display_view(string|array $view_parts,
+        ?array $data = NULL): string
     {
+        $textView = '';
         // If not defined in $data, set page title to empty string
         if (!isset($data['title'])) {
             $data['title'] = '';
         }
 
         // Display common headers
-        echo view('Common\header', $data);
+        $textView .=  view('Common\header', $data);
 
         // Display login bar
-        echo view('Common\login_bar');
+        $textView .= view('Common\login_bar');
 
         // Display admin menu if appropriate
         foreach (config('Common\Config\AdminPanelConfig')->tabs as $tab){
             if (strstr(current_url(),$tab['pageLink'])) {
-                echo view('\Common\adminMenu');
+                $textView .= view('\Common\adminMenu');
             }
         }
 
         if (is_array($view_parts)) {
             // Display multiple view parts
             foreach ($view_parts as $view_part) {
-                echo view($view_part, $data);
+                $textView .= view($view_part, $data);
             }
         }
         elseif (is_string($view_parts)) {
             // Display unique view part
-            echo view($view_parts, $data);
+            $textView .= view($view_parts, $data);
         }
 
         // Display common footer
-        echo view('Common\footer');
+        $textView .= view('Common\footer');
+        return $textView;
     }
 }

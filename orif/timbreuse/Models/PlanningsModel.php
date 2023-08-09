@@ -1,4 +1,5 @@
 <?php
+
 namespace Timbreuse\Models;
 
 use CodeIgniter\Model;
@@ -43,6 +44,14 @@ class PlanningModel extends Model
         return $this->select_due_time()
                     ->withDeleted()
                     ->find($planningId);
+    }
+
+    public function get_title(int $planningId): string
+    {
+        $this->select('title');
+        $this->join_planning_and_user_planning();
+        return $this->withDeleted()
+                    ->find($planningId)['title'] ?? '';
     }
 
     public function get_plannings_user(int $timUserId): array
@@ -328,7 +337,11 @@ class PlanningModel extends Model
             $line['rate'] = $this->get_rate($line['id_planning']);
             return $line;
         }, $idsAndFormatedDates);
-        return array_map(array($this, 'add_due_string'), $withRate);
+        $withTitle = array_map(function($line) {
+            $line['title'] = esc($this->get_title($line['id_planning']));
+            return $line;
+        }, $withRate);
+        return array_map(array($this, 'add_due_string'), $withTitle);
     }
 
     public function format_date_planning(?string $date): string
@@ -648,14 +661,45 @@ class PlanningModel extends Model
     public function get_rate(int $planningId): string
     {
         $rateFloat = $this->get_rate_float($planningId);
-        return sprintf('%2.1f%%', $rateFloat);
+        return $this->formatRate($rateFloat);
+    }
+
+    public function get_rate_float_by_planning_array(array $planning): float
+    {
+        $defaultTime = $this->get_sum_due_time(
+                $this->get_default_planning_id());
+        $planningTime = $this->get_sum_due_time_by_planning_array($planning);
+        return $planningTime / $defaultTime * 100;
+    }
+
+    public function get_rate_by_planning_array(array $planning): string
+    {
+        $rateFloat = $this->get_rate_float_by_planning_array($planning);
+        return $this->formatRate($rateFloat);
+    }
+
+    public function formatRate(float $rate): string
+    {
+        $rate = floor($rate * 10) / 10;
+        if (($rate == 100) or ($rate == 0)) {
+            return sprintf('%2d%%', $rate);
+        } 
+        // elseif ($rate < 99.95) {
+        //     return sprintf('%2.2f%%', $rate);
+        // }
+        return sprintf('%2.1f%%', $rate);
     }
 
     public function get_sum_due_time(int $planningId): int
     {
         $dueTimeStrings = $this->get_due_plannings($planningId);
+        return $this->get_sum_due_time_by_planning_array($dueTimeStrings);
+    }
+
+    public function get_sum_due_time_by_planning_array(array $planning): int
+    {
         $dueTimeSeconds = array_map(array($this, 'toSeconds'),
-                $dueTimeStrings); 
+                $planning); 
         return array_reduce($dueTimeSeconds,
                 fn($carry, $seconds) => $carry + $seconds);
     }
