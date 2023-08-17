@@ -33,6 +33,7 @@ return[
     'btn_reactivate'                 => 'Réactiver',
     'btn_show_disabled'              => 'Afficher les éléments désactivés',
     'btn_delete'                     => 'Supprimer',
+    'btn_hard_delete'                => 'Supprimer définitivement',
     'btn_search'                     => 'Rechercher',
     'btn_restore'                    => 'Restaurer',
     'btn_copy'                       => 'Dupliquer',

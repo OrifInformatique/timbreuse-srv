@@ -33,14 +33,12 @@
      * @param url_getView: Link used to dynamically update the view's content with javascript.
      *                     It should call a method that returns the view's content.
      *                     If not set, the "Display disabled items" checkbox won't be displayed.
-     * @param url_restore: Link to the controller method that restore the item.
+     * @param url_restore: Link to the controller method that restores a soft deleted item.
      *                     If not set, no "restore" button will be displayed.
-     * @param deleted_field:
-     *                     String with the the name of the field if is set and not null mean the item is deleted
-     *                     If the field in the item array is set the line is not visible without check the checkbox
-     *                     and the button will become read 
-     * @param url_copy:    Link to the controller method that displays a form to create a new item with the data of
-     *                     the item already inserted in the form.
+     * @param deleted_field: Name of the field that is used as a "soft delete key".
+     *                     If the field is not empty, the item is soft deleted and will be displayed
+     *                     only if "show deleted" checkbox is checked. 
+     * @param url_duplicate: Link to the controller method that gives the possibility to duplicate an item.
      *                     If not set, no "copy" button will be displayed.
      * 
      * 
@@ -56,28 +54,31 @@
      * 
      *   // Assume these are active items
      *   $data['items'] = [
-     *       ['id' => '1', 'name' => 'Item 1', 'inventory_nb' => 'ITM0001', 'buying_date' => '01/01/2020', 'warranty_duration' => '12 months'],
-     *       ['id' => '2', 'name' => 'Item 2', 'inventory_nb' => 'ITM0002', 'buying_date' => '01/02/2020', 'warranty_duration' => '12 months'],
-     *       ['id' => '3', 'name' => 'Item 3', 'inventory_nb' => 'ITM0003', 'buying_date' => '01/03/2020', 'warranty_duration' => '12 months']
+     *       ['id' => '1', 'name' => 'Item 1', 'inventory_nb' => 'ITM0001', 'buying_date' => '01/01/2020', 'warranty_duration' => '12 months', 'deleted' => ''],
+     *       ['id' => '2', 'name' => 'Item 2', 'inventory_nb' => 'ITM0002', 'buying_date' => '01/02/2020', 'warranty_duration' => '12 months', 'deleted' => ''],
+     *       ['id' => '3', 'name' => 'Item 3', 'inventory_nb' => 'ITM0003', 'buying_date' => '01/03/2020', 'warranty_duration' => '12 months', 'deleted' => '']
      *   ];
      * 
      *   if ($with_deleted) {
      *       // Assume these are soft_deleted items
      *       $data['items'] = array_merge($data['items'], [
-     *           ['id' => '10', 'name' => 'Item 10', 'inventory_nb' => 'ITM0010', 'buying_date' => '01/01/2020', 'warranty_duration' => '12 months'],
-     *           ['id' => '11', 'name' => 'Item 11', 'inventory_nb' => 'ITM0011', 'buying_date' => '01/02/2020', 'warranty_duration' => '12 months'],
-     *           ['id' => '12', 'name' => 'Item 12', 'inventory_nb' => 'ITM0012', 'buying_date' => '01/03/2020', 'warranty_duration' => '12 months']
+     *           ['id' => '10', 'name' => 'Item 10', 'inventory_nb' => 'ITM0010', 'buying_date' => '01/01/2020', 'warranty_duration' => '12 months', 'deleted' => '2000-01-01'],
+     *           ['id' => '11', 'name' => 'Item 11', 'inventory_nb' => 'ITM0011', 'buying_date' => '01/02/2020', 'warranty_duration' => '12 months', 'deleted' => '2000-01-01'],
+     *           ['id' => '12', 'name' => 'Item 12', 'inventory_nb' => 'ITM0012', 'buying_date' => '01/03/2020', 'warranty_duration' => '12 months', 'deleted' => '2000-01-01']
      *       ]);
      *   }
      *
      *   $data['primary_key_field']  = 'id';
      *   $data['btn_create_label']   = 'Add an item';
      *   $data['with_deleted']       = $with_deleted;
+     *   $data['deleted_field']      = 'deleted';
      *   $data['url_detail'] = "items_list/detail/";
      *   $data['url_update'] = "items_list/update/";
      *   $data['url_delete'] = "items_list/delete/";
      *   $data['url_create'] = "items_list/create/";
-     *   $data['url_getView'] = "items_list/display_items";
+     *   $data['url_getView'] = "items_list/display_item/";
+     *   $data['url_restore'] = "items_list/restore_item/";
+     *   $data['url_duplicate'] = "items_list/duplicate_item/";
      *
 	 *	 return $this->display_view('Common\Views\items_list', $data);
      * }
@@ -108,14 +109,23 @@
         $url_getView = null;
     }
 
+    // If no url_restore variable is sent as parameter, set it to null
+    if (!isset($url_restore)) {
+        $url_restore = null;
+    }
+
     // If no deleted_field variable is sent as parameter, set it to null
     if (!isset($deleted_field)) {
         $deleted_field = null;
     }
 
+    // If no url_duplicate variable is sent as parameter, set it to null
+    if (!isset($url_duplicate)) {
+        $url_duplicate = null;
+    }
+
     // for form_checkbox
     helper('form');
-
 ?>
 
 <div class="items_list container">
@@ -163,7 +173,7 @@
                     <!-- Only display item's properties wich are listed in "columns" variable in the order of the columns -->
                     <?php foreach ($columns as $columnKey => $column): ?>
                         <?php if (array_key_exists($columnKey, $itemEntity)) : ?>
-                            <?php if (!isset($itemEntity[$deleted_field])) : ?>
+                            <?php if (!isset($itemEntity[$deleted_field]) || empty($itemEntity[$deleted_field])) : ?>
                                 <td><?= esc($itemEntity[$columnKey]) ?></td>
                             <?php else: ?>
                                 <td><del><?= esc($itemEntity[$columnKey]) ?></del></td>
@@ -191,16 +201,16 @@
                             </a>
                         <?php endif ?>
                         
-                        <!-- Bootstrap copy icon "files" , redirect to url_copy, adding /primary_key as parameter -->
-                        <?php if(isset($url_copy)): ?>
-                            <a href="<?= site_url(esc($url_copy.$itemEntity[$primary_key_field])) ?>"
+                        <!-- Bootstrap copy icon "files" , redirect to url_duplicate, adding /primary_key as parameter -->
+                        <?php if(isset($url_duplicate)): ?>
+                            <a href="<?= site_url(esc($url_duplicate.$itemEntity[$primary_key_field])) ?>"
                                     class="text-decoration-none" title="<?=lang('common_lang.btn_copy') ?>" >
                                 <i class="bi bi-files" style="font-size: 20px;"></i>
                             </a>
                         <?php endif ?>
 
                         <!-- Bootstrap delete icon ("Trash"), redirect to url_delete, adding /primary_key as parameter -->
-                        <?php if ((isset($url_delete)) and (!isset($itemEntity[$deleted_field]))): ?>
+                        <?php if ((isset($url_delete)) and (!isset($itemEntity[$deleted_field]) || empty($itemEntity[$deleted_field]))): ?>
                             <a href="<?= site_url(esc($url_delete.$itemEntity[$primary_key_field])) ?>"
                                     class="text-decoration-none" title="<?=lang('common_lang.btn_delete') ?>" >
                                 <i class="bi bi-trash" style="font-size: 20px;"></i>
@@ -208,16 +218,16 @@
                         <?php endif ?>
                         <!-- Bootstrap restore icon "arrow-counterclockwise", redirect to url_restore,
                                 adding/primary_key as parameter -->
-                        <?php if ((isset($url_restore)) and (isset($itemEntity[$deleted_field]))) : ?>
+                        <?php if ((isset($url_restore)) and (isset($itemEntity[$deleted_field]) &&  !empty($itemEntity[$deleted_field]))) : ?>
                             <a href="<?= site_url(esc($url_restore . $itemEntity[$primary_key_field])) ?>"
                                     class="text-decoration-none" title="<?=lang('common_lang.btn_restore') ?>" >
                                 <i class="bi bi-arrow-counterclockwise" style="font-size: 20px;"></i>
                             </a>
                         <?php endif ?>
-                        <?php if ((isset($url_delete)) and (isset($itemEntity[$deleted_field]))) : ?>
+                        <?php if ((isset($url_delete)) and (isset($itemEntity[$deleted_field]) &&  !empty($itemEntity[$deleted_field]))) : ?>
                             <!-- Bootstrap delete icon ("Trash") with red color, redirect to url_delete, adding /primary_key as parameter -->
                             <a href="<?= site_url(esc($url_delete.$itemEntity[$primary_key_field])) ?>"
-                                    class="text-decoration-none" title="<?=lang('common_lang.btn_delete') ?>" >
+                                    class="text-decoration-none" title="<?=lang('common_lang.btn_hard_delete') ?>" >
                                 <i class="bi bi-trash text-danger" style="font-size: 20px;"></i>
                             </a>
                         <?php endif ?>
