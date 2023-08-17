@@ -546,7 +546,7 @@ class Plannings extends BaseController
         $data['buttons'][0]['label'] = ucfirst(lang('tim_lang.back'));
         $data['url_getView'] =
                 "Plannings/get_plannings_list/$timUserId/$withDeleted";
-        $data['url_copy'] = 'Plannings/copy_planning/';
+        $data['url_duplicate'] = 'Plannings/copy_planning/';
         return $data;
 
     }
