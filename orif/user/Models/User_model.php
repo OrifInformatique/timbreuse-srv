@@ -11,7 +11,7 @@ use CodeIgniter\Database\ConnectionInterface;
 use CodeIgniter\Validation\ValidationInterface;
 
 class User_model extends \CodeIgniter\Model{
-    protected $table='ci_user';
+    protected $table='user';
     protected $primaryKey='id';
     protected $allowedFields=['archive','date_creation','email','username','password','fk_user_type'];
     protected $useSoftDeletes=true;

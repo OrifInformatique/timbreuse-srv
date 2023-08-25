@@ -13,6 +13,6 @@ class AddUserDatas extends \CodeIgniter\Database\Seeder
             ['fk_user_type'=>2,'username'=>'utilisateur','password'=>'$2y$10$11wIuR3FnfWwTpfyJ9WCz.E3KErvb.i.Q2Wef6XMUZHTXUlW0FhJm']
         ];
         foreach($data as $row)
-        $this->db->table('ci_user')->insert($row);
+        $this->db->table('user')->insert($row);
     }
 }
