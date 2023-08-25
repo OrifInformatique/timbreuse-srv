@@ -10,6 +10,28 @@
 <div class="container">
     <div class="row">
         <div class="col-md-6 col-sm-10 well">
+            <legend><?= lang('user_lang.title_page_login'); ?></legend>
+            <?php 
+                $attributes = array("class" => "form-horizontal",
+                                    "id" => "azureloginform",
+                                    "name" => "azureloginform");
+                echo form_open("user/auth/login", $attributes);
+            ?>
+            <fieldset>
+                <div class="form-group">
+                    <div class="row colbox">
+                        <div class="col-sm-4">
+                            <label for="username" class="control-label">Microsoft Login</label>
+                        </div>
+                        <div class="col-sm-8">
+                            <button type="submit" name="btn_login_microsoft" style="border: none; background: none;">
+                                <img src="https://learn.microsoft.com/en-us/azure/active-directory/develop/media/howto-add-branding-in-apps/ms-symbollockup_signin_light.svg" alt="Submit" />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+            <?= form_close(); ?>
             <?php
             $session=\Config\Services::session();
             $validation=\Config\Services::validation();
@@ -19,13 +41,10 @@
                 echo form_open("user/auth/login", $attributes);
             ?>
             <fieldset>
-                <legend><?= lang('user_lang.title_page_login'); ?></legend>
-                
                 <!-- Status messages -->
                 <?php if(!is_null($session->getFlashdata('message-danger'))){ ?>
                     <div class="alert alert-danger text-center"><?= $session->getFlashdata('message-danger'); ?></div>
                 <?php } ?>
-                
                 <div class="form-group">
                     <div class="row colbox">
                         <div class="col-sm-4">
@@ -52,7 +71,7 @@
                                   
                 <div class="form-group">
                     <div class="col-sm-12 text-right">
-                        <a hidden id="btn_cancel" class="btn btn-secondary" href="<?= base_url(); ?>"><?= lang('common_lang.btn_cancel'); ?></a>
+                        <a id="btn_cancel" class="btn btn-secondary" href="<?= base_url(); ?>"><?= lang('common_lang.btn_cancel'); ?></a>
                         <input id="btn_login" name="btn_login" type="submit" class="btn btn-primary" value="<?= lang('user_lang.btn_login'); ?>" />
                     </div>
                 </div>

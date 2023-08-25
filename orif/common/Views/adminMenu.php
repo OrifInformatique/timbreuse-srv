@@ -1,11 +1,11 @@
 <div id="admin-menu" class="container">
-    <nav>
-        <div class="nav nav-pills">
-            <?php foreach (config('\Common\Config\AdminPanelConfig')->tabs as $tab): ?>
-                <a href="<?=base_url($tab['pageLink'])?>" class="nav-link adminnav" ><?=lang($tab['label'])?></a>
-            <?php endforeach ?>
+    <div class="row">
+        <div class="col">
+            <?php foreach (config('\Common\Config\AdminPanelConfig')->tabs as $tab){?>
+                <a href="<?=base_url($tab['pageLink'])?>" class="btn btn-primary adminnav" ><?=lang($tab['label'])?></a>
+            <?php } ?>
         </div>
-    </nav>
+    </div>
 </div>
 <script defer>
     document.querySelectorAll('.adminnav').forEach((nav)=>{

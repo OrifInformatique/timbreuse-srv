@@ -44,7 +44,7 @@ class AddUser extends \CodeIgniter\Database\Migration
         ]);
         $this->forge->addKey('id',true);
         $this->forge->addForeignKey('fk_user_type','user_type','id');
-        $this->forge->createTable('ci_user',true);
+        $this->forge->createTable('user',true);
         $seeder=\Config\Database::seeder();
         $seeder->call('\User\Database\Seeds\AddUserDatas');
     }
@@ -54,6 +54,6 @@ class AddUser extends \CodeIgniter\Database\Migration
      */
     public function down()
     {
-        $this->forge->dropTable('ci_user');
+        $this->forge->dropTable('user');
     }
 }
