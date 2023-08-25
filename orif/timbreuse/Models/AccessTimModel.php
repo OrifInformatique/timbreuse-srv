@@ -24,16 +24,6 @@ class AccessTimModel extends Model
             ->findall();
     }
 
-    #old
-    public function __get_access_users_with_info(int $ciUserId)
-    {
-        return $this->select('access_tim_user.id_user, name, surname')
-        ->from('user')
-        ->where('id_ci_user=', $ciUserId)
-            ->where('user.id_user=access_tim_user.id_user')
-            ->findall();
-    }
-
     public function is_access(int $ciIdUser, int $timUserId): bool
     {
         $access = $this->select('id_user')

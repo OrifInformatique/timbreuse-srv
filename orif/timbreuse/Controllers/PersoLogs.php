@@ -958,8 +958,8 @@ class PersoLogs extends BaseController
     protected function get_site_username($ciUserId)
     {
         $model = model(UsersModel::class);
-        $userName = $model->select('ci_user.username')->from('ci_user')
-            ->where('ci_user.id', $ciUserId)->findAll();
+        $userName = $model->select('user.username')->from('user')
+            ->where('user.id', $ciUserId)->findAll();
         if (isset($userName[0]['username'])) {
             return $userName[0]['username'];
         }
