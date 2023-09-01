@@ -568,7 +568,8 @@ class PersoLogs extends BaseController
     protected function invoke_registered_user(array $timUserIds)
     {
             if (count($timUserIds) === 0) {
-                return $this->display_view('\User\errors\403error');
+                $output['message'] = lang('tim_lang.errorNoTimAccess');
+                return $this->display_view('User\Views\errors\403Error', $output);
             }
             return $this->access_user_list();
     }

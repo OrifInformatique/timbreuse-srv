@@ -89,6 +89,7 @@ return [
     'dateColide' => 'Il y a un chevauchement entre un planning existant et les dates que vous avez saisies.',
     'dateNotBefore' => 'La date de début est après la date de fin.',
     'errorDate' => 'Une erreur est survenue avec une date.',
+    'errorNoTimAccess' => 'Votre compte n\'est pas relié à un utilisateur de la timbreuse, merci de contacter un administrateur.',
     'planning' => 'planning',
     'Defaultplanning' => 'Planning par défaut',
     'confirmDeletePlanning' => 'Êtes-vous sûr·e de vouloir supprimer ce planning ?',
