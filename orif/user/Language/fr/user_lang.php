@@ -52,8 +52,14 @@ return[
 'msg_err_invalid_password'       => 'L\'identifiant et le mot de passe ne sont pas valides',
 'msg_err_invalid_old_password'   => 'L\'ancien mot de passe n\'est pas valide',
 'msg_err_password_not_matches'   => 'Le mot de passe ne coïncide pas avec la confirmation du mot de passe.',
+'msg_err_azure_unauthorized'     => 'La connexion avec Microsoft Azure est indisponible. Veuillez vérifier la validité du secret client',
+'msg_err_default'                => 'Une erreur est survenue',
+'msg_err_azure_no_token'         => 'Azure n\'a pas répondu',
+'msg_err_azure_mismatch'         => 'Les tokens ne correspondent pas',
 
 // Error code messages
+'azure_error'                    => 'Azure',
+'code_error_401'                 => '401 - Non autorisé',
 'code_error_403'                 => '403 - Accès refusé',
 
 // Other texts

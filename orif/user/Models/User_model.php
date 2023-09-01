@@ -124,8 +124,12 @@ class User_model extends \CodeIgniter\Model{
             $this->user_type_model=new User_type_model();
 
         }
-        $user->access_level=$this->user_type_model->getWhere(['id'=>$user->fk_user_type])->getRow()->access_level;
-        return $user->access_level;
-
+        if (is_array($user) ){
+            $user["access_level"] = $this->user_type_model->getWhere(['id'=>$user["fk_user_type"]])->getRow()->access_level;
+            return $user["access_level"];
+        } else {
+            $user->access_level = $this->user_type_model->getWhere(['id'=>$user->fk_user_type])->getRow()->access_level;
+            return $user->access_level;
+        }
     }
 }
