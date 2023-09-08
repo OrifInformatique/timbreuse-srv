@@ -571,6 +571,7 @@ class PersoLogs extends BaseController
                 $output['message'] = lang('tim_lang.errorNoTimAccess');
                 return $this->display_view('User\Views\errors\403error', $output);
             }
+            
             return $this->access_user_list();
     }
 
