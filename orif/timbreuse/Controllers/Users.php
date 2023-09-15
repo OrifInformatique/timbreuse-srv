@@ -37,9 +37,9 @@ class Users extends BaseController
         $data['list_title'] = ucfirst(lang('tim_lang.timUsers'));
 
         $data['columns'] = [
-            'id_user' =>ucfirst(lang('tim_lang.id')),
+            //'id_user' =>ucfirst(lang('tim_lang.id')),
+            'surname' =>ucfirst(lang('tim_lang.surname')),
             'name' =>ucfirst(lang('tim_lang.name')),
-            'surname' =>ucfirst(lang('tim_lang.surname'))
         ];
         $data['items'] = $model->get_users();
 
