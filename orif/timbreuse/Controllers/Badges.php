@@ -40,8 +40,8 @@ class Badges extends BaseController
 
         $data['columns'] = [
             'id_badge' =>ucfirst(lang('tim_lang.badgeId')),
+            'surname' =>ucfirst(lang('tim_lang.surname')),
             'name' =>ucfirst(lang('tim_lang.name')),
-            'surname' =>ucfirst(lang('tim_lang.surname'))
         ];
         $data['items'] = $model->get_badges_and_user_info();
 

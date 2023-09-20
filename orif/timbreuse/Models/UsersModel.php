@@ -45,7 +45,7 @@ class UserModel extends Model
             ->join('badge_sync', 'user_sync.id_user = badge_sync.id_user',
                 'left')
             ->where('id_badge', null)
-            ->orderBy('name')
+            ->orderBy('surname')
             ->findall();
         return $data ?? array();
     }
