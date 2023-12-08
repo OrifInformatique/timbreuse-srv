@@ -5,7 +5,10 @@ This module provides common header, footer and login bar for every application's
 It also provides a generic "items_list" view which can display any set of items in a table format, optionally with CRUD links.
 
 
-## Version 4.3
+## Version 4.4
+
+### 4.4
+- Add copy and undelete functionnalities to generic items_list
 
 ### 4.3
 - Add display_deleted functionnality to generic items_list

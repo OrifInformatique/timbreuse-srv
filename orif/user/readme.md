@@ -4,7 +4,11 @@ This module provides login, logout and change password functionalities for all u
 
 For users who have administrator access rights, it also provides functionalities to administrate users : Create, Read, Update, Delete
 
-## Version 4.1 ##
+## Version 4.2 ##
+
+### 4.2 ###
+
+- Add Azure authentication
 
 ### 4.1 ###
 

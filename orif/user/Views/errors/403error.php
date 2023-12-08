@@ -2,7 +2,7 @@
 /**
  * 403 Access denied error view
  *
- * @author      Orif (ViDi,HeMa)
+ * @author      Orif (ViDi,MoDa)
  * @link        https://github.com/OrifInformatique
  * @copyright   Copyright (c), Orif (https://www.orif.ch)
  */

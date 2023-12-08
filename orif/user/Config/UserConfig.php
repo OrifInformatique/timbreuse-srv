@@ -19,7 +19,7 @@ class UserConfig extends BaseConfig
 
     /* Default access level for Azure logged in users */
     public $azure_default_access_lvl    =   2;
-        
+    
     /* Validation rules */
     public $username_min_length         =   3;
     public $username_max_length         =   45;
