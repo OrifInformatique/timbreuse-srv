@@ -22,35 +22,35 @@ class Users extends BaseController
         $this->session = \Config\Services::session();
     }
 
-    public function index()
-    {
-        return $this->users_list();
-    }
-
-    public function users_list()
+    public function index(bool $with_deleted = false)
     {
         $model = model(UsersModel::class);
         $data['title'] = lang('tim_lang.users');
-
-        # Display a test of the generic "items_list" view (defined in common
-        # module)
         $data['list_title'] = ucfirst(lang('tim_lang.timUsers'));
 
         $data['columns'] = [
-            //'id_user' =>ucfirst(lang('tim_lang.id')),
             'surname' =>ucfirst(lang('tim_lang.surname')),
             'name' =>ucfirst(lang('tim_lang.name')),
+            'username' => ucfirst(lang('user_lang.field_username')),
+            'email' => ucfirst(lang('user_lang.field_email')),
+            'user_type' => ucfirst(lang('user_lang.field_usertype')),
+            'archive' => ucfirst(lang('user_lang.field_user_active')),
         ];
-        $data['items'] = $model->get_users();
+        $data['items'] = $model->get_users($with_deleted);
 
+        foreach($data['items'] as $i => $item) {
+            $data['items'][$i]['archive'] =  lang($item['archive'] ? 'common_lang.no' : 'common_lang.yes');
+        }
 
         $data['primary_key_field']  = 'id_user';
-        // $data['btn_create_label']   = 'Add an item';
-        #$data['url_detail'] = "PersoLogs/time_list/";
+        $data['btn_create_label']  = lang('common_lang.btn_new_m');;
         $data['url_detail'] = "AdminLogs/time_list/";
         $data['url_update'] = 'Users/edit_tim_user/';
         $data['url_delete'] = 'Users/delete_tim_user/';
-        // $data['url_create'] = "items_list/create/";
+        $data['with_deleted'] = $with_deleted;
+        $data['url_getView'] = 'Users/index/';
+        $data['url_create'] = 'user/admin/save_user';
+
         return $this->display_view('Common\Views\items_list', $data);
     }
 

@@ -18,13 +18,20 @@ class UserModel extends Model
     protected $deletedField  = 'date_delete';
     protected $dateFormat = 'datetime';
 
-    public function get_users($userId=null)
+    public function get_user($userId)
     {
-        if ($userId === null) {
-            $this->orderBy('surname');
-            return $this->findAll();
-        } 
         return $this->find($userId);
+    }
+
+    public function get_users(bool $with_deleted = false)
+    {
+        $this->orderBy('surname');
+        return $this->select('user_sync.id_user, surname, user_sync.name, username, email, fk_user_type, archive, user_type.name AS user_type')
+                    ->join('access_tim_user', 'user_sync.id_user = access_tim_user.id_user', 'inner')
+                    ->join('user', 'user.id = access_tim_user.id_ci_user', 'inner')
+                    ->join('user_type', 'user.fk_user_type = user_type.id', 'inner')
+                    ->withDeleted($with_deleted)
+                    ->findAll();
     }
 
     public function is_replicate(string $name, string $surname): bool

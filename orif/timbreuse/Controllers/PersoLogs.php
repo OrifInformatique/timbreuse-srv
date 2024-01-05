@@ -161,7 +161,7 @@ class PersoLogs extends BaseController
     protected function get_page_title_for_log_views($timUserId, $day, $period)
     {
         $usersModel = model(UsersModel::class);
-        $user = $usersModel->get_users($timUserId);
+        $user = $usersModel->get_user($timUserId);
         $data['list_title'] = $this->create_title($user, $day, $period);
         return $data;
     }
@@ -761,7 +761,7 @@ class PersoLogs extends BaseController
         $usersModel = model(UsersModel::class);
         $badgeId = $badgesModel->get_badges($timUserId);
         $data['logs'] = $logsModel->get_logs($badgeId);
-        $data['user'] = $usersModel->get_users($timUserId);
+        $data['user'] = $usersModel->get_user($timUserId);
         return $data;
     }
 
