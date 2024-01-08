@@ -27,9 +27,9 @@ class UserModel extends Model
     {
         $this->orderBy('surname');
         return $this->select('user_sync.id_user, surname, user_sync.name, username, email, fk_user_type, archive, user_type.name AS user_type')
-                    ->join('access_tim_user', 'user_sync.id_user = access_tim_user.id_user', 'inner')
-                    ->join('user', 'user.id = access_tim_user.id_ci_user', 'inner')
-                    ->join('user_type', 'user.fk_user_type = user_type.id', 'inner')
+                    ->join('access_tim_user', 'user_sync.id_user = access_tim_user.id_user', 'left')
+                    ->join('user', 'user.id = access_tim_user.id_ci_user', 'left')
+                    ->join('user_type', 'user.fk_user_type = user_type.id', 'left')
                     ->withDeleted($with_deleted)
                     ->findAll();
     }

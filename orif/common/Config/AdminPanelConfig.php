@@ -18,8 +18,6 @@ class AdminPanelConfig extends \CodeIgniter\Config\BaseConfig
      *  Syntax : ['label'=>'tab label','pageLink'=>'tab link']
     */
     public $tabs=[
-        ['label'=>'tim_lang.webUsersList', 'title'=>
-            'tim_lang.webUsersList', 'pageLink'=>'user/admin/list_user'],
         ['label'=>'tim_lang.timUsersList', 'title'=>
             'tim_lang.timUsersList', 'pageLink'=>'Users'],
         ['label'=>'tim_lang.badgesList', 'title'=>
