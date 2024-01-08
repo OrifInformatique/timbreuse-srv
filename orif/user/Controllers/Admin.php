@@ -39,7 +39,6 @@ class Admin extends BaseController
         $this->user_type_model = new User_type_model();
         //get db instance
         $this->db = \CodeIgniter\Database\Config::connect();
-
     }
 
     /**
@@ -197,7 +196,7 @@ class Admin extends BaseController
      * @param integer $user_id = ID of the user to update
      * @return void
      */
-    public function password_change_user(int $user_id): string|Response
+    public function password_change_user(int $user_id): Response|string
     {
         // Get user from DB, redirect if user doesn't exist
         $user = $this->user_model->withDeleted()->find($user_id);
