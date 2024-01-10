@@ -2,8 +2,10 @@
 namespace Timbreuse\Models;
 
 use CodeIgniter\Model;
+use CodeIgniter\Database\ConnectionInterface;
+use CodeIgniter\Validation\ValidationInterface;
 
-class UserModel extends Model 
+class UsersModel extends Model
 {
     protected $table = 'user_sync';
     protected $primaryKey ='id_user';
@@ -18,6 +20,24 @@ class UserModel extends Model
     protected $deletedField  = 'date_delete';
     protected $dateFormat = 'datetime';
 
+    public function __construct(ConnectionInterface &$db = null, ValidationInterface $validation = null)
+    {
+        $this->validationRules = [
+            'name' => [
+                'label' => lang('tim_lang.surname'),
+                'rules' => 'required|trim|'
+            ],
+            'surname' => [
+                'label' => lang('tim_lang.surname'),
+                'rules' => 'required|trim|'
+            ],
+        ];
+
+        $this->validationMessages = [];
+
+        parent::__construct($db, $validation);
+    }
+
     public function get_user($userId)
     {
         return $this->find($userId);
@@ -25,11 +45,11 @@ class UserModel extends Model
 
     public function get_users(bool $with_deleted = false)
     {
-        $this->orderBy('surname');
         return $this->select('user_sync.id_user, surname, user_sync.name, username, email, fk_user_type, archive, user_type.name AS user_type')
                     ->join('access_tim_user', 'user_sync.id_user = access_tim_user.id_user', 'left')
                     ->join('user', 'user.id = access_tim_user.id_ci_user', 'left')
                     ->join('user_type', 'user.fk_user_type = user_type.id', 'left')
+                    ->orderBy('surname')
                     ->withDeleted($with_deleted)
                     ->findAll();
     }

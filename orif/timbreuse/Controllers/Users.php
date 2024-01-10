@@ -10,6 +10,7 @@ use Timbreuse\Models\UsersModel;
 use Timbreuse\Models\AccessTimModel;
 use User\Models\User_model;
 use Timbreuse\Models\BadgesModel;
+use User\Models\User_type_model;
 
 class Users extends BaseController
 {
@@ -245,7 +246,12 @@ class Users extends BaseController
     protected function get_url_for_edit_tim_user($timUserId)
     {
         $userModel = model(UsersModel::class);
-        $urls = $userModel->select('id_user, name, surname')->find($timUserId);
+        $urls = $userModel->select('user_sync.id_user, user_sync.name, user_sync.surname, user.id, user.fk_user_type, user.username, user.email')
+            ->join('access_tim_user', 'user_sync.id_user = access_tim_user.id_user', 'left')
+            ->join('user', 'user.id = access_tim_user.id_ci_user', 'left')
+            ->join('user_type', 'user.fk_user_type = user_type.id', 'left')
+            ->withDeleted(true)
+            ->find($timUserId);
         $urls['editUrl'] = '../edit_tim_user/' . $timUserId;
         $urls['siteAccountUrl'] = '../ci_users_list/'. $timUserId;
         $urls['returnUrl'] = '..';
@@ -276,6 +282,8 @@ class Users extends BaseController
 
     protected function get_data_for_edit_tim_user($timUserId)
     {
+        $userTypeModel = model(User_type_model::class);
+        $data['userTypes'] = $userTypeModel->findAll();
         $data['h3title'] = lang('tim_lang.timUserEdit');
         $labels = $this->get_label_for_edit_tim_user();
         $urls = $this->get_url_for_edit_tim_user($timUserId);
@@ -284,59 +292,63 @@ class Users extends BaseController
         return $data;
     }
 
-    public function edit_tim_user($timUserId)
+    public function edit_tim_user(int $timUserId)
     {
-        #show the edit formulaire, when is valited go to post_edit… method
-        if (($this->request->getMethod() === 'post') and $this->validate([
-            'name' => 'required',
-            'surname' => 'required',
-            'timUserId' => 'required|integer',
-            'badgeId' =>
-                "regex_match[/^\d*$/]|cb_available_badge[$timUserId]"
-        ])) {
-            return $this->post_edit_tim_user();
-        }
         $data = $this->get_data_for_edit_tim_user($timUserId);
-        return $this->display_view('Timbreuse\Views\users\edit_tim_user',
-            $data);
-    }
+        $data['errors'] = [];
 
-    protected function update_user_and_badge(int $timUserId, ?int $newBadgeId,
-        string $name, string $surname): bool
-    {
-        $userData['name'] = $name;
-        $userData['surname'] = $surname;
-        $userModel = model(UsersModel::class);
-        $badgeModel = model(BadgesModel::class);
-        $userModel->db->transBegin();
-        $userModel->update($timUserId, $userData);
-        
-        if ($badgeModel->deallocate_and_reallocate_badge($timUserId,
-                $newBadgeId)) {
-            $userModel->db->transCommit();
-            return true;
-        } else {
-            $userModel->db->transRollback();
-            return false;
-        }
-    }
+        if ($this->request->getMethod() === 'post') {
+            $userModel = model(User_model::class);
+            $userSyncModel = model(UsersModel::class);
+            $badgeModel = model(BadgesModel::class);
 
-    protected function post_edit_tim_user()
-    {
-        if ($this->request->getMethod() !== 'post') {
-            return $this->display_view('\User\errors\403error');
-        }
-        $name = $this->request->getPost('name');
-        $surname = $this->request->getPost('surname');
-        $timUserId = $this->request->getPost('timUserId');
-        $newBadgeId = $this->request->getPost('badgeId');
-        $newBadgeId = $newBadgeId === '' ? null : $newBadgeId;
-        if($this->update_user_and_badge($timUserId, $newBadgeId, $name, 
-                $surname)) {
-            return redirect()->to(current_url() . '/../../..');
-        } else {
-            return redirect()->to(current_url() . '/../..');
-        }
-    }
+            $userId = intval($this->request->getPost('userId'));
+            $badgeId =  $this->request->getPost('badgeId');
+            $userType = $this->request->getPost('fk_user_type');
+            $password = $this->request->getPost('password');
+            $passwordAgain = $this->request->getPost('user_password_again');
 
+            $updateTimUser = [
+                'name' => $this->request->getPost('name'),
+                'surname' => $this->request->getPost('surname')
+            ];
+            $updateBadge = [
+                'id_badge' => $badgeId,
+                'id_user' => $timUserId
+            ];
+
+            if (!empty($userId)) {
+                $updateUser = [
+                    'id' => $userId,
+                    'username' => $this->request->getPost('username'),
+                    'email' => $this->request->getPost('email'),
+                ];
+    
+                if ($userId !== $_SESSION['user_id']) {
+                    $updateUser['fk_user_type'] = $userType;
+                }
+    
+                if (!empty($password) || !empty($passwordAgain)) {
+                    $updateUser['password'] = $password;
+                    $updateUser['password_confirm'] = $passwordAgain;
+                }
+
+                $userModel->save($updateUser);
+            }
+
+            $badgeModel->set_user_id_to_null($timUserId);
+
+            $userSyncModel->update($timUserId, $updateTimUser);
+            $badgeModel->update($badgeId, $updateBadge);
+
+            if ($userModel->errors() == null && $userSyncModel->errors() == null && $badgeModel->errors() == null) {
+                return redirect()->to(base_url('Users'));
+            } else {
+                $allErrors = [...$userModel->errors(), ...$userSyncModel->errors(), ...$badgeModel->errors()];
+                $data['errors'] = $allErrors;
+            }
+        }
+
+        return $this->display_view('Timbreuse\Views\users\edit_tim_user', $data);
+    }
 }

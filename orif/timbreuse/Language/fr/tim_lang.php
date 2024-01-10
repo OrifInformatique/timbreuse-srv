@@ -50,6 +50,7 @@ return [
     'record' => 'pointer',
     'confirmDelete' => 'Êtes-vous sûr·e de vouloir supprimer ce pointage.',
     'badgeId' => 'Numéro du badge',
+    'userId' => 'Numéro de l\'utilisateur',
     'idLog' => 'Identifiant du pointage',
     'badgeDate' => 'date de pointage physique sur une pointeuse',
     'deleteDate' => 'date de suppression',
