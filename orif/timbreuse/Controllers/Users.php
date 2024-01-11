@@ -109,30 +109,33 @@ class Users extends BaseController
 
     public function ci_users_list($userId)
     {
-        $model = model(AccessTimModel::class);
-        $modelCi = model(User_model::class);
+        $accessTimModel = model(AccessTimModel::class);
+        $userModel = model(User_model::class);
+
         $data['title'] = lang('tim_lang.webUsers');
 
-        $data['list_title'] = sprintf(lang('tim_lang.ci_users_list_title'),
-            $this->get_username($userId));
+        $data['list_title'] = sprintf(lang('tim_lang.ci_users_list_title'), $this->get_username($userId));
+
         $data['columns'] = [
             'id' => lang('tim_lang.id_site'),
             'username' => ucfirst(lang('tim_lang.username')),
             'access' => ucfirst(lang('tim_lang.access')),
         ];
-        $data['items'] = $modelCi->select('id, username')->orderBy('username')
-            ->findall();
-        $access = $model->select('id_ci_user')->where('id_user=', $userId)
-            ->findall();
+
+        $data['items'] = $userModel->select('id, username')->orderBy('username')->findall();
+        $access = $accessTimModel->select('id_ci_user')->where('id_user=', $userId)->findall();
         $access = array_map(fn ($access) => array_pop($access), $access);
+
         $data['items'] = array_map(function (array $item) use ($access) {
             $item['access'] = array_search($item['id'], $access) !== false ?
                 lang('tim_lang.yes') : lang('tim_lang.no');
             return $item;
         }, $data['items']);
+        
         $data['primary_key_field']  = 'id';
         $data['url_update'] = 'Users/form_add_access/' . $userId . '/';
         $data['url_delete'] = 'Users/form_delete_access/' . $userId . '/';
+
         return $this->display_view('Common\Views\items_list', $data);
     }
     
@@ -163,7 +166,6 @@ class Users extends BaseController
 
     public function form_add_access($userId, $ciUserId)
     {
-
         $userNames = $this->get_usernames($userId, $ciUserId);
         $data = array();
         $data['ids']['userId'] = $userId;
@@ -176,6 +178,7 @@ class Users extends BaseController
             $userNames['ciUserName'],
             $userNames['userName']
         );
+
         return $this->display_view('Timbreuse\Views\confirm_form', $data);
     }
 
@@ -191,6 +194,7 @@ class Users extends BaseController
 
     public function post_add_access()
     {
+        // Todo: prevent adding multiple link between one site user and a tim user
         return $this->add_access($this->request->getPostGet('userId'), 
                 $this->request ->getPostGet('ciUserId'));
     }
@@ -298,54 +302,60 @@ class Users extends BaseController
         $data['errors'] = [];
 
         if ($this->request->getMethod() === 'post') {
-            $userModel = model(User_model::class);
-            $userSyncModel = model(UsersModel::class);
-            $badgeModel = model(BadgesModel::class);
-
-            $userId = intval($this->request->getPost('userId'));
-            $badgeId =  $this->request->getPost('badgeId');
-            $userType = $this->request->getPost('fk_user_type');
-            $password = $this->request->getPost('password');
-            $passwordAgain = $this->request->getPost('user_password_again');
-
-            $updateTimUser = [
-                'name' => $this->request->getPost('name'),
-                'surname' => $this->request->getPost('surname')
-            ];
-            $updateBadge = [
-                'id_badge' => $badgeId,
-                'id_user' => $timUserId
-            ];
-
-            if (!empty($userId)) {
-                $updateUser = [
-                    'id' => $userId,
-                    'username' => $this->request->getPost('username'),
-                    'email' => $this->request->getPost('email'),
+            if ($this->validate([
+                'badgeId' => "regex_match[/^\d*$/]|cb_available_badge[$timUserId]"
+            ])) {
+                $userModel = model(User_model::class);
+                $userSyncModel = model(UsersModel::class);
+                $badgeModel = model(BadgesModel::class);
+    
+                $userId = intval($this->request->getPost('userId'));
+                $badgeId =  $this->request->getPost('badgeId');
+                $userType = $this->request->getPost('fk_user_type');
+                $password = $this->request->getPost('password');
+                $passwordAgain = $this->request->getPost('user_password_again');
+    
+                $updateTimUser = [
+                    'name' => $this->request->getPost('name'),
+                    'surname' => $this->request->getPost('surname')
                 ];
     
-                if ($userId !== $_SESSION['user_id']) {
-                    $updateUser['fk_user_type'] = $userType;
+                $updateBadge = [
+                    'id_user' => $timUserId
+                ];
+    
+                if (!empty($userId)) {
+                    $updateUser = [
+                        'id' => $userId,
+                        'username' => $this->request->getPost('username'),
+                        'email' => $this->request->getPost('email'),
+                    ];
+        
+                    if ($userId !== $_SESSION['user_id']) {
+                        $updateUser['fk_user_type'] = $userType;
+                    }
+        
+                    if (!empty($password) || !empty($passwordAgain)) {
+                        $updateUser['password'] = $password;
+                        $updateUser['password_confirm'] = $passwordAgain;
+                    }
+    
+                    $userModel->save($updateUser);
                 }
     
-                if (!empty($password) || !empty($passwordAgain)) {
-                    $updateUser['password'] = $password;
-                    $updateUser['password_confirm'] = $passwordAgain;
+                $badgeModel->set_user_id_to_null($timUserId);
+    
+                $userSyncModel->update($timUserId, $updateTimUser);
+                $badgeModel->update($badgeId, $updateBadge);
+    
+                if ($userModel->errors() == null && $userSyncModel->errors() == null && $badgeModel->errors() == null) {
+                    return redirect()->to(base_url('Users'));
+                } else {
+                    $allModelsErrors = [...$userModel->errors(), ...$userSyncModel->errors(), ...$badgeModel->errors()];
+                    $data['errors'] = $allModelsErrors;
                 }
-
-                $userModel->save($updateUser);
-            }
-
-            $badgeModel->set_user_id_to_null($timUserId);
-
-            $userSyncModel->update($timUserId, $updateTimUser);
-            $badgeModel->update($badgeId, $updateBadge);
-
-            if ($userModel->errors() == null && $userSyncModel->errors() == null && $badgeModel->errors() == null) {
-                return redirect()->to(base_url('Users'));
             } else {
-                $allErrors = [...$userModel->errors(), ...$userSyncModel->errors(), ...$badgeModel->errors()];
-                $data['errors'] = $allErrors;
+                $data['errors'] = service('validation')->getErrors();
             }
         }
 

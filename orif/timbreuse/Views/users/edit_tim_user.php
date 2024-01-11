@@ -23,10 +23,17 @@ input:invalid {
 
         <?php if (isset($id)): ?>
         <div class="form-row">
-            <div class="form-group col-md-6">
-                <label for='username'><?= lang('user_lang.field_username') ?></label>
-                <input class="form-control" id='username' value='<?= isset($username) ? esc($username) : '' ?>' name='username'>
-                <span class="text-danger"><?= isset($errors['surname']) ? $errors['surname']: ''; ?></span>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for='username'><?= lang('user_lang.field_username') ?></label>
+                    <input class="form-control" id='username' value='<?= isset($username) ? esc($username) : '' ?>' name='username'>
+                    <span class="text-danger"><?= isset($errors['surname']) ? $errors['surname']: ''; ?></span>
+                </div>
+                <div class="form-group">
+                    <label for='email'><?= lang('user_lang.field_email') ?></label>
+                    <input class="form-control" id='email' name='email' value='<?= isset($email) ? esc($email) : '' ?>'>
+                    <span class="text-danger"><?= isset($errors['email']) ? $errors['email']: ''; ?></span>
+                </div>
             </div>
             <div class="form-group col-md-6">
                 <label for='userType'><?= lang('user_lang.field_usertype') ?></label>
@@ -39,14 +46,6 @@ input:invalid {
                     <?php endforeach ?>
                 </select>
                 <span class="text-danger"><?= isset($errors['fk_user_type']) ? $errors['fk_user_type']: ''; ?></span>
-            </div>
-        </div>
-
-        <div class="form-row">
-            <div class="form-group col-md-6">
-                <label for='email'><?= lang('user_lang.field_email') ?></label>
-                <input class="form-control" id='email' name='email' value='<?= isset($email) ? esc($email) : '' ?>'>
-                <span class="text-danger"><?= isset($errors['email']) ? $errors['email']: ''; ?></span>
             </div>
         </div>
         
@@ -75,21 +74,25 @@ input:invalid {
                 <button type='button' id='delete_badge_id_text' class="btn input-group-text" ><?=esc($eraseLabel)?></button>
             </div>
 
-
             <input id='badgeId'  class="form-control"  list='badgeId_list' disabled autocomplete="off" value='<?=esc($badgeId)?>' pattern="^\d*$">
-                <datalist id='badgeId_list'>
-                    <?php foreach ($availableBadges as $badge):?>
-                        <option value='<?=esc($badge)?>'>
-                    <?php endforeach?>
-                </datalist>
+            <datalist id='badgeId_list'>
+                <?php foreach ($availableBadges as $badge):?>
+                    <option value='<?=esc($badge)?>'>
+                <?php endforeach?>
+            </datalist>
         </div>
-        <br>
-        <p><a href='<?=esc($siteAccountUrl)?>'><?=esc($siteAccountLabel)?></a></p>
-        <div class="form-group text-right">
-            <a href='<?=esc($returnUrl)?>' class="btn btn-secondary"><?=esc($backLabel)?></a>
+        <span class="text-danger"><?= isset($errors['badgeId']) ? $errors['badgeId']: ''; ?></span>
+
+        <div class="pt-3 pb-3">
+            <a href='<?=esc($siteAccountUrl)?>'><?=esc($siteAccountLabel)?></a>
+        </div>
+
+        <div class="d-flex mb-3">
+            <a href='<?=esc($deleteUrl)?>' class="btn btn-danger mr-auto"><?=esc($deleteLabel)?></a>
+            <a href='<?=esc($returnUrl)?>' class="btn btn-secondary mr-1"><?=esc($backLabel)?></a>
             <input type='submit' value='<?=esc($modifyLabel)?>' class="btn btn-primary">
         </div>
-        <a href='<?=esc($deleteUrl)?>' class="btn btn-danger"><?=esc($deleteLabel)?></a>
+
         <input type="hidden" name="timUserId" value="<?=esc($id_user)?>"/>
         <input type="hidden" name="userId" value="<?=esc($id)?>"/>
         <input id='hiddenBadgeId' type="hidden" name="badgeId" value="<?=esc($badgeId)?>"/>
