@@ -25,11 +25,11 @@ class UsersModel extends Model
         $this->validationRules = [
             'name' => [
                 'label' => lang('tim_lang.surname'),
-                'rules' => 'required|trim|'
+                'rules' => 'required|trim'
             ],
             'surname' => [
                 'label' => lang('tim_lang.surname'),
-                'rules' => 'required|trim|'
+                'rules' => 'required|trim'
             ],
         ];
 
@@ -40,12 +40,18 @@ class UsersModel extends Model
 
     public function get_user($userId)
     {
-        return $this->find($userId);
+        return $this->select('user_sync.id_user, surname, user_sync.name, date_delete, user.id, username, email, fk_user_type, archive, user_type.name AS user_type')
+                    ->join('access_tim_user', 'user_sync.id_user = access_tim_user.id_user', 'left')
+                    ->join('user', 'user.id = access_tim_user.id_ci_user', 'left')
+                    ->join('user_type', 'user.fk_user_type = user_type.id', 'left')
+                    ->orderBy('surname')
+                    ->withDeleted(true)
+                    ->find($userId);
     }
 
     public function get_users(bool $with_deleted = false)
     {
-        return $this->select('user_sync.id_user, surname, user_sync.name, username, email, fk_user_type, archive, user_type.name AS user_type')
+        return $this->select('user_sync.id_user, surname, user_sync.name, date_delete, user.id, username, email, fk_user_type, archive, user_type.name AS user_type')
                     ->join('access_tim_user', 'user_sync.id_user = access_tim_user.id_user', 'left')
                     ->join('user', 'user.id = access_tim_user.id_ci_user', 'left')
                     ->join('user_type', 'user.fk_user_type = user_type.id', 'left')

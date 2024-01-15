@@ -4,12 +4,16 @@ namespace Timbreuse\Controllers;
 
 use App\Controllers\BaseController;
 use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\HTTP\Response;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Timbreuse\Models\UsersModel;
 use Timbreuse\Models\AccessTimModel;
 use User\Models\User_model;
 use Timbreuse\Models\BadgesModel;
+use Timbreuse\Models\LogsModel;
+use Timbreuse\Models\PlanningsModel;
+use Timbreuse\Models\UserPlanningsModel;
 use User\Models\User_type_model;
 
 class Users extends BaseController
@@ -40,7 +44,7 @@ class Users extends BaseController
         $data['items'] = $model->get_users($with_deleted);
 
         foreach($data['items'] as $i => $item) {
-            $data['items'][$i]['archive'] =  lang($item['archive'] ? 'common_lang.no' : 'common_lang.yes');
+            $data['items'][$i]['archive'] =  lang($item['archive'] || $item['date_delete'] ? 'common_lang.no' : 'common_lang.yes');
         }
 
         $data['primary_key_field']  = 'id_user';
@@ -81,30 +85,50 @@ class Users extends BaseController
         return $data;
     }
 
-    public function delete_tim_user($timUserId=null)
+    /**
+     * Archive or delete user and tim user
+     *
+     * @param  mixed $timUserId
+     * @param  mixed $action
+     * @return void
+     */
+    public function delete_tim_user($timUserId, $action = 0)
     {
-        if ($this->request->getMethod() === 'post') {
-            $timUserId = $this->request->getPost('id');
-            return $this->delete_timUser_post($timUserId);
-        } elseif ($timUserId === null) {
-            return $this->display_view('\User\errors\403error');
-        }
-        $data = $this->get_data_for_delete_tim_user($timUserId);
-        return $this->display_view('Timbreuse\Views\confirm_delete_form',
-            $data);
-    }
-
-    private function delete_timUser_post($timUserId)
-    {
-        $timUserModel = model(UsersModel::class);
+        $userSyncModel = model(UsersModel::class);
+        $userModel = model(User_model::class);
+        $AccessTimModel = model(AccessTimModel::class);
         $badgeModel = model(BadgesModel::class);
-        $timUserModel->db->transStart();
-        if (!is_null($timUserId)) {
-            $badgeModel->set_user_id_to_null($timUserId);
-            $timUserModel->delete($timUserId);
+        $logSyncModel = model(LogsModel::class);
+        $planningModel = model(PlanningsModel::class);
+        $userPlanningModel = model(UserPlanningsModel::class);
+
+        $user = $userSyncModel->get_user($timUserId);
+
+        switch ($action) {
+            case 0:
+                return $this->display_view('Timbreuse\Views\users\delete_user', $user);
+                break;
+
+            case 1:
+                is_null($user['id']) ?: $userModel->delete($user['id']);
+                $userSyncModel->delete($timUserId);
+                break;
+            
+            case 2:
+                $userPlannings = $userPlanningModel->where('id_user', $timUserId)->findAll();
+                $AccessTimModel->where('id_user', $timUserId)->where('id_ci_user', $user['id'])->delete(null, true);
+                is_null($user['id']) ?: $userModel->delete($user['id'], true);
+                $badgeModel->set_user_id_to_null($timUserId);
+                $logSyncModel->where('id_user', $timUserId)->delete(null, true);
+                $userPlanningModel->where('id_user', $timUserId)->delete(null, true);
+                foreach($userPlannings as $userPlanning) {
+                    $planningModel->delete($userPlanning['id_planning'], true);
+                }
+                $userSyncModel->delete($timUserId, true);
+                break;
         }
-        $timUserModel->db->transComplete();
-        return redirect()->to(current_url() . '/../..');
+
+        return redirect()->to(base_url('Users'));
     }
 
     public function ci_users_list($userId)
@@ -153,7 +177,7 @@ class Users extends BaseController
     protected function get_username($userId)
     {
         $model = model(UsersModel::class);
-        $userName = $model->select('name, surname')->find($userId);
+        $userName = $model->select('name, surname')->withDeleted(true)->find($userId);
         $userName = $userName['name'].' '.$userName['surname'];
         return $userName;
     }
@@ -185,16 +209,19 @@ class Users extends BaseController
     protected function add_access($userId, $ciUserId)
     {
         $model = model(AccessTimModel::class);
+        $userAccess = $model->where('id_user', $userId)->first();
         $data = array();
-        $data['id_user'] = $userId;
-        $data['id_ci_user'] = $ciUserId;
-        $model->save($data);
+        if (is_null($userAccess)) {
+            $data['id_user'] = $userId;
+            $data['id_ci_user'] = $ciUserId;
+            $model->save($data);
+        }
+
         return redirect()->to(current_url() . '/../ci_users_list/' . $userId);
     }
 
     public function post_add_access()
     {
-        // Todo: prevent adding multiple link between one site user and a tim user
         return $this->add_access($this->request->getPostGet('userId'), 
                 $this->request ->getPostGet('ciUserId'));
     }
@@ -284,21 +311,30 @@ class Users extends BaseController
         return $badgeIds;
     }
 
-    protected function get_data_for_edit_tim_user($timUserId)
+    protected function get_user_data($timUserId)
     {
-        $userTypeModel = model(User_type_model::class);
-        $data['userTypes'] = $userTypeModel->findAll();
-        $data['h3title'] = lang('tim_lang.timUserEdit');
+        $userSyncModel = model(UsersModel::class);
+
+        $userSync = $userSyncModel->get_user($timUserId);
+
         $labels = $this->get_label_for_edit_tim_user();
-        $urls = $this->get_url_for_edit_tim_user($timUserId);
         $badgeIds = $this->get_badge_id_for_edit_tim_user($timUserId);
-        $data = array_merge($data, $urls, $labels, $badgeIds);
+        $data = array_merge($userSync, $labels, $badgeIds);
         return $data;
     }
 
+    /**
+     * Edit user and userSync
+     *
+     * @param  int $timUserId
+     * @return string|Response
+     */
     public function edit_tim_user(int $timUserId)
     {
-        $data = $this->get_data_for_edit_tim_user($timUserId);
+        $userTypeModel = model(User_type_model::class);
+
+        $data = $this->get_user_data($timUserId);
+        $data['userTypes'] = $userTypeModel->findAll();
         $data['errors'] = [];
 
         if ($this->request->getMethod() === 'post') {
@@ -360,5 +396,27 @@ class Users extends BaseController
         }
 
         return $this->display_view('Timbreuse\Views\users\edit_tim_user', $data);
+    }
+
+    /**
+     * Reactivate a disabled user.
+     *
+     * @param int $timUserId = ID of the user to affect
+     * @return Response
+     */
+    public function reactivate_user(int $timUserId): Response
+    {
+        $userSyncModel = model(UsersModel::class);
+        $userModel = model(User_model::class);
+
+        $user = $userSyncModel->get_user($timUserId);
+
+        if (is_null($user)) {
+            return redirect()->to(base_url('Users'));
+        } else {
+            $userSyncModel->update($timUserId, ['date_delete' => null]);
+            is_null($user['id']) ?: $userModel->update($user['id'], ['archive' => null]);
+            return redirect()->to(base_url('Users/edit_tim_user/' . $timUserId));
+        }
     }
 }

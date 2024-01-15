@@ -5,19 +5,19 @@ input:invalid {
 }
 </style>
 <section class="container">
-    <h3><?= esc($h3title) ?></h3>
-    <form method='post' action="<?=esc($editUrl)?>">
+    <h3><?= lang('tim_lang.timUserEdit') ?></h3>
+    <form method='post' action="<?= '../edit_tim_user/' . $id_user ?>">
         <?= csrf_field() ?>
         <div class="form-row">
             <div class="form-group col-md-6">
                 <label for='name'><?=esc($nameLabel)?></label>
                 <input class="form-control" id='name' value='<?=esc($name)?>' name='name' required>
-                <span class="text-danger"><?= isset($errors['name']) ? $errors['name']: ''; ?></span>
+                <span class="text-danger"><?= isset($errors['name']) ? $errors['name'] : ''; ?></span>
             </div>
             <div class="form-group col-md-6">
                 <label for='surname'><?=esc($surnameLabel)?></label>
                 <input class="form-control" id='surname' value='<?=esc($surname)?>' name='surname' required>
-                <span class="text-danger"><?= isset($errors['surname']) ? $errors['surname']: ''; ?></span>
+                <span class="text-danger"><?= isset($errors['surname']) ? $errors['surname'] : ''; ?></span>
             </div>
         </div>
 
@@ -27,12 +27,12 @@ input:invalid {
                 <div class="form-group">
                     <label for='username'><?= lang('user_lang.field_username') ?></label>
                     <input class="form-control" id='username' value='<?= isset($username) ? esc($username) : '' ?>' name='username'>
-                    <span class="text-danger"><?= isset($errors['surname']) ? $errors['surname']: ''; ?></span>
+                    <span class="text-danger"><?= isset($errors['surname']) ? $errors['surname'] : ''; ?></span>
                 </div>
                 <div class="form-group">
                     <label for='email'><?= lang('user_lang.field_email') ?></label>
                     <input class="form-control" id='email' name='email' value='<?= isset($email) ? esc($email) : '' ?>'>
-                    <span class="text-danger"><?= isset($errors['email']) ? $errors['email']: ''; ?></span>
+                    <span class="text-danger"><?= isset($errors['email']) ? $errors['email'] : ''; ?></span>
                 </div>
             </div>
             <div class="form-group col-md-6">
@@ -45,7 +45,7 @@ input:invalid {
                         <option value="<?= $userType['id'] ?>" <?= $userType['id'] === $fk_user_type ? 'selected' : null ?>><?= esc($userType['name']) ?></option>
                     <?php endforeach ?>
                 </select>
-                <span class="text-danger"><?= isset($errors['fk_user_type']) ? $errors['fk_user_type']: ''; ?></span>
+                <span class="text-danger"><?= isset($errors['fk_user_type']) ? $errors['fk_user_type'] : ''; ?></span>
             </div>
         </div>
         
@@ -53,7 +53,7 @@ input:invalid {
             <div class="form-group col-md-6">
                 <label for='password'><?= lang('user_lang.field_password') ?></label>
                 <input class="form-control" type="password" id='password' name='password'>
-                <span class="text-danger"><?= isset($errors['password']) ? $errors['password']: ''; ?></span>
+                <span class="text-danger"><?= isset($errors['password']) ? $errors['password'] : ''; ?></span>
             </div>
             <div class="form-group col-md-6">
                 <label for='user_password_again'><?= lang('user_lang.field_password_confirm') ?></label>
@@ -81,15 +81,21 @@ input:invalid {
                 <?php endforeach?>
             </datalist>
         </div>
-        <span class="text-danger"><?= isset($errors['badgeId']) ? $errors['badgeId']: ''; ?></span>
+        <span class="text-danger"><?= isset($errors['badgeId']) ? $errors['badgeId'] : ''; ?></span>
 
         <div class="pt-3 pb-3">
-            <a href='<?=esc($siteAccountUrl)?>'><?=esc($siteAccountLabel)?></a>
+            <a href='<?= '../ci_users_list/'. $id_user ?>'><?=esc($siteAccountLabel)?></a>
         </div>
+        
+        <?php if ($archive || $date_delete): ?>
+            <div class="pb-3">
+                <a href='<?= '../reactivate_user/'.$id_user ?>'><?= esc(lang('user_lang.user_reactivate')) ?></a>
+            </div>
+        <?php endif ?>
 
         <div class="d-flex mb-3">
-            <a href='<?=esc($deleteUrl)?>' class="btn btn-danger mr-auto"><?=esc($deleteLabel)?></a>
-            <a href='<?=esc($returnUrl)?>' class="btn btn-secondary mr-1"><?=esc($backLabel)?></a>
+            <a href='<?= '../delete_tim_user/' . $id_user ?>' class="btn btn-danger mr-auto"><?=esc($deleteLabel)?></a>
+            <a href='<?= base_url('Users') ?>' class="btn btn-secondary mr-1"><?=esc($backLabel)?></a>
             <input type='submit' value='<?=esc($modifyLabel)?>' class="btn btn-primary">
         </div>
 
