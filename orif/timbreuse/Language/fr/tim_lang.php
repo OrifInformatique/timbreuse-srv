@@ -24,7 +24,6 @@ return [
     'all' => 'tout',
     'weekTime' => 'temps total de la semaine',
     'delete' => 'supprimer',
-    'cancel' => 'annuler',
     'confirm' => 'confirmer',
     'addAccess' => 'Voulez-vous ajouter l’autorisation au compte site web « %s » de contrôler les pointages du compte pointeuse « %s » ?',
     'deleteAccess' => 'Voulez-vous supprimer l’autorisation du compte site web « %s » de contrôler les pointages du compte pointeuse « %s » ?',

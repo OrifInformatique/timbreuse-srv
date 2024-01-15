@@ -259,36 +259,6 @@ class Users extends BaseController
         return $this->delete_access($this->request->getPostGet('userId'),
                 $this->request ->getPostGet('ciUserId'));
     }
-
-    protected function get_label_for_edit_tim_user()
-    {
-        $labels['nameLabel'] = ucfirst(lang('tim_lang.name'));
-        $labels['surnameLabel'] = ucfirst(lang('tim_lang.surname'));
-        $labels['siteAccountLabel'] = ucfirst(lang(
-                'tim_lang.siteAccountLabel'));
-        $labels['backLabel'] = ucfirst(lang('tim_lang.cancel'));
-        $labels['modifyLabel'] = ucfirst(lang('common_lang.btn_save'));
-        $labels['deleteLabel'] = ucfirst(lang('tim_lang.delete'));
-        $labels['badgeIdLabel'] = ucfirst(lang('tim_lang.badgeId'));
-        $labels['eraseLabel'] = ucfirst(lang('tim_lang.erase'));
-        return $labels;
-    }
-
-    protected function get_url_for_edit_tim_user($timUserId)
-    {
-        $userModel = model(UsersModel::class);
-        $urls = $userModel->select('user_sync.id_user, user_sync.name, user_sync.surname, user.id, user.fk_user_type, user.username, user.email')
-            ->join('access_tim_user', 'user_sync.id_user = access_tim_user.id_user', 'left')
-            ->join('user', 'user.id = access_tim_user.id_ci_user', 'left')
-            ->join('user_type', 'user.fk_user_type = user_type.id', 'left')
-            ->withDeleted(true)
-            ->find($timUserId);
-        $urls['editUrl'] = '../edit_tim_user/' . $timUserId;
-        $urls['siteAccountUrl'] = '../ci_users_list/'. $timUserId;
-        $urls['returnUrl'] = '..';
-        $urls['deleteUrl'] = '../delete_tim_user/' . $timUserId;
-        return $urls;
-    }
     
     protected function get_badge_id_for_edit_tim_user($timUserId)
     {
@@ -311,15 +281,14 @@ class Users extends BaseController
         return $badgeIds;
     }
 
-    protected function get_user_data($timUserId)
+    protected function get_user_data_for_edit_time_user($timUserId)
     {
         $userSyncModel = model(UsersModel::class);
 
         $userSync = $userSyncModel->get_user($timUserId);
 
-        $labels = $this->get_label_for_edit_tim_user();
         $badgeIds = $this->get_badge_id_for_edit_tim_user($timUserId);
-        $data = array_merge($userSync, $labels, $badgeIds);
+        $data = array_merge($userSync, $badgeIds);
         return $data;
     }
 
@@ -333,7 +302,7 @@ class Users extends BaseController
     {
         $userTypeModel = model(User_type_model::class);
 
-        $data = $this->get_user_data($timUserId);
+        $data = $this->get_user_data_for_edit_time_user($timUserId);
         $data['userTypes'] = $userTypeModel->findAll();
         $data['errors'] = [];
 
