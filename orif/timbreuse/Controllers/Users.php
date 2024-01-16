@@ -120,7 +120,7 @@ class Users extends BaseController
             
             case 2:
                 $confirmation = $this->request->getPost('confirmation');
-                if ($this->request->getMethod() === 'post' && $confirmation) {
+                if ($this->request->getMethod() === 'post' && !is_null($confirmation)) {
                     $userPlannings = $userPlanningModel->where('id_user', $timUserId)->findAll();
                     $AccessTimModel->where('id_user', $timUserId)->where('id_ci_user', $user['id'])->delete(null, true);
                     is_null($user['id']) ?: $userModel->delete($user['id'], true);
