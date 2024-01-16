@@ -31,7 +31,7 @@ class Users extends BaseController
     {
         $model = model(UsersModel::class);
         $data['title'] = lang('tim_lang.users');
-        $data['list_title'] = ucfirst(lang('tim_lang.timUsers'));
+        $data['list_title'] = lang('tim_lang.users');
 
         $data['columns'] = [
             'surname' =>ucfirst(lang('tim_lang.surname')),

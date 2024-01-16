@@ -21,7 +21,7 @@
                             </a>
                         <?php endif ?>
                         <button class="btn btn-danger" data-toggle="modal" data-target="#confirmDeleteUser">
-                            <?= lang('user_lang.btn_hard_delete_user'); ?>
+                            <?= lang('tim_lang.btn_hard_delete_user'); ?>
                         </button>
 
                         <!-- MODAL DELETE CONFIRMATION -->
@@ -40,7 +40,7 @@
                                         </button>
                                         <form method="post" action="<?= base_url(uri_string().'/2'); ?>">
                                             <button type="submit" name="confirmation" class="btn btn-danger">
-                                                <?= lang('user_lang.btn_hard_delete_user'); ?>
+                                                <?= lang('tim_lang.btn_hard_delete_user'); ?>
                                             </button>
                                         </form>
                                     </div>

@@ -58,7 +58,7 @@ return [
     'restore' => 'restaurer',
     'timUsers' => 'utilisateurs de la pointeuse',
     'webUsers' => 'utilisateurs du site web',
-    'users' => 'utilisateurs',
+    'users' => 'Utilisateurs',
     'details' => 'détails',
     'deleted' => 'supprimé',
     'timUserEdit' => 'Édition utilisateur de la pointeuse',
@@ -114,4 +114,5 @@ return [
     'title' => 'titre',
     'really_want_to_delete' => 'Voulez-vous vraiment supprimer cet utilisateur ?',
     'hard_delete_explanation' => 'Toutes ses données seront effacés.',
+    'btn_hard_delete_user' => 'Supprimer définitivement cet utilisateur',
 ];
