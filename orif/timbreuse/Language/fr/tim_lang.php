@@ -112,5 +112,6 @@ return [
     'help' => 'aide',
     'rate' => 'taux',
     'title' => 'titre',
-
+    'really_want_to_delete' => 'Voulez-vous vraiment supprimer cet utilisateur ?',
+    'hard_delete_explanation' => 'Toutes ses données seront effacés.',
 ];

@@ -20,9 +20,33 @@
                                 <?= lang('user_lang.btn_disable_user'); ?>
                             </a>
                         <?php endif ?>
-                        <a href="<?= base_url(uri_string().'/2'); ?>" class="btn btn-danger">
+                        <button class="btn btn-danger" data-toggle="modal" data-target="#confirmDeleteUser">
                             <?= lang('user_lang.btn_hard_delete_user'); ?>
-                        </a>
+                        </button>
+
+                        <!-- MODAL DELETE CONFIRMATION -->
+                        <div class="modal fade" id="confirmDeleteUser" tabindex="-1" aria-labelledby="lblConfirmDeleteUser" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content text-center">
+                                    <div class="modal-header">
+                                        <h3 class="modal-title"><?= lang('tim_lang.really_want_to_delete') ?></h3>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="alert alert-danger"><?= lang('tim_lang.hard_delete_explanation'); ?></div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                            <?= lang('common_lang.btn_cancel'); ?>
+                                        </button>
+                                        <form method="post" action="<?= base_url(uri_string().'/2'); ?>">
+                                            <button type="submit" name="confirmation" class="btn btn-danger">
+                                                <?= lang('user_lang.btn_hard_delete_user'); ?>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 <?php else: ?>
                     <div>

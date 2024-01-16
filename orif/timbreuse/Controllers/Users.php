@@ -104,6 +104,10 @@ class Users extends BaseController
 
         $user = $userSyncModel->get_user($timUserId);
 
+        if (!$user) {
+            return redirect()->to(base_url('Users'));
+        }
+
         switch ($action) {
             case 0:
                 return $this->display_view('Timbreuse\Views\users\delete_user', $user);
@@ -115,16 +119,19 @@ class Users extends BaseController
                 break;
             
             case 2:
-                $userPlannings = $userPlanningModel->where('id_user', $timUserId)->findAll();
-                $AccessTimModel->where('id_user', $timUserId)->where('id_ci_user', $user['id'])->delete(null, true);
-                is_null($user['id']) ?: $userModel->delete($user['id'], true);
-                $badgeModel->set_user_id_to_null($timUserId);
-                $logSyncModel->where('id_user', $timUserId)->delete(null, true);
-                $userPlanningModel->where('id_user', $timUserId)->delete(null, true);
-                foreach($userPlannings as $userPlanning) {
-                    $planningModel->delete($userPlanning['id_planning'], true);
+                $confirmation = $this->request->getPost('confirmation');
+                if ($this->request->getMethod() === 'post' && $confirmation) {
+                    $userPlannings = $userPlanningModel->where('id_user', $timUserId)->findAll();
+                    $AccessTimModel->where('id_user', $timUserId)->where('id_ci_user', $user['id'])->delete(null, true);
+                    is_null($user['id']) ?: $userModel->delete($user['id'], true);
+                    $badgeModel->set_user_id_to_null($timUserId);
+                    $logSyncModel->where('id_user', $timUserId)->delete(null, true);
+                    $userPlanningModel->where('id_user', $timUserId)->delete(null, true);
+                    foreach($userPlannings as $userPlanning) {
+                        $planningModel->delete($userPlanning['id_planning'], true);
+                    }
+                    $userSyncModel->delete($timUserId, true);
                 }
-                $userSyncModel->delete($timUserId, true);
                 break;
         }
 

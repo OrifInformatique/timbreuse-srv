@@ -83,7 +83,7 @@ class BadgesModel extends Model
         $data['id_user'] = null;
 
         if (isset($badgeIds) && count($badgeIds) > 0) {
-            $this->update($badgeIds, $data);
+            $this->withDeleted(true)->update($badgeIds, $data);
         }
     }
 
