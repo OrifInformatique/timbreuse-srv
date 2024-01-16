@@ -25,6 +25,8 @@ class Users extends BaseController
              ->access_lvl_admin;
         parent::initController($request, $response, $logger);
         $this->session = \Config\Services::session();
+
+        helper('form');
     }
 
     public function index(bool $with_deleted = false)
@@ -57,32 +59,6 @@ class Users extends BaseController
         $data['url_create'] = 'user/admin/save_user';
 
         return $this->display_view('Common\Views\items_list', $data);
-    }
-
-    protected function get_data_for_delete_tim_user($timUserId)
-    {
-        $userModel = model(UsersModel::class);
-        $userNames = $userModel->get_names($timUserId);
-        if (!isset($userNames['name'], $userNames['surname'])){
-            $userNames['name'] = '';
-            $userNames['surname'] = '';
-        }
-        $data['h3title'] = sprintf(lang('tim_lang.titleconfirmDeleteTimUser'),
-            $userNames['name'], $userNames['surname']);
-
-        $badgeModel = model(BadgesModel::class);
-        $badgeId = $badgeModel->get_badges($timUserId);
-        if (!isset($badgeId[0])) {
-            $badgeId = '';
-        } else {
-            $badgeId = $badgeId[0];
-        }
-        $data['text'] = sprintf(lang('tim_lang.confirmDeleteTimUser'),
-            $badgeId, '');
-        $data['link'] = '';
-        $data['cancel_link'] = '..';
-        $data['id'] = $timUserId;
-        return $data;
     }
 
     /**
@@ -137,135 +113,6 @@ class Users extends BaseController
 
         return redirect()->to(base_url('Users'));
     }
-
-    public function ci_users_list($userId)
-    {
-        $accessTimModel = model(AccessTimModel::class);
-        $userModel = model(User_model::class);
-
-        $data['title'] = lang('tim_lang.webUsers');
-
-        $data['list_title'] = sprintf(lang('tim_lang.ci_users_list_title'), $this->get_username($userId));
-
-        $data['columns'] = [
-            'id' => lang('tim_lang.id_site'),
-            'username' => ucfirst(lang('tim_lang.username')),
-            'access' => ucfirst(lang('tim_lang.access')),
-        ];
-
-        $data['items'] = $userModel->select('id, username')->orderBy('username')->findall();
-        $access = $accessTimModel->select('id_ci_user')->where('id_user=', $userId)->findall();
-        $access = array_map(fn ($access) => array_pop($access), $access);
-
-        $data['items'] = array_map(function (array $item) use ($access) {
-            $item['access'] = array_search($item['id'], $access) !== false ?
-                lang('tim_lang.yes') : lang('tim_lang.no');
-            return $item;
-        }, $data['items']);
-        
-        $data['primary_key_field']  = 'id';
-        $data['url_update'] = 'Users/form_add_access/' . $userId . '/';
-        $data['url_delete'] = 'Users/form_delete_access/' . $userId . '/';
-
-        return $this->display_view('Common\Views\items_list', $data);
-    }
-    
-    protected function get_usernames($userId, $ciUserId)
-    {
-        $userName = $this->get_username($userId);
-
-        $ciUserName = $this->get_ci_username($ciUserId);
-        $data = array();
-        $data['userName'] = $userName;
-        $data['ciUserName'] = $ciUserName;
-        return $data;
-    }
-
-    protected function get_username($userId)
-    {
-        $model = model(UsersModel::class);
-        $userName = $model->select('name, surname')->withDeleted(true)->find($userId);
-        $userName = $userName['name'].' '.$userName['surname'];
-        return $userName;
-    }
-
-    protected function get_ci_username($ciUserId)
-    {
-        $ciModel = model(User_model::class);
-        return $ciModel->select('username')->find($ciUserId)['username'];
-    }
-
-    public function form_add_access($userId, $ciUserId)
-    {
-        $userNames = $this->get_usernames($userId, $ciUserId);
-        $data = array();
-        $data['ids']['userId'] = $userId;
-        $data['ids']['ciUserId'] = $ciUserId;
-        $data['link'] = '../../post_add_access';
-        $data['cancel_link'] = '../../ci_users_list/' . $userId;
-        $data['label_button'] = lang('tim_lang.add');
-        $data['text'] = sprintf(
-            lang('tim_lang.addAccess'),
-            $userNames['ciUserName'],
-            $userNames['userName']
-        );
-
-        return $this->display_view('Timbreuse\Views\confirm_form', $data);
-    }
-
-    protected function add_access($userId, $ciUserId)
-    {
-        $model = model(AccessTimModel::class);
-        $userAccess = $model->where('id_user', $userId)->first();
-        $data = array();
-        if (is_null($userAccess)) {
-            $data['id_user'] = $userId;
-            $data['id_ci_user'] = $ciUserId;
-            $model->save($data);
-        }
-
-        return redirect()->to(current_url() . '/../ci_users_list/' . $userId);
-    }
-
-    public function post_add_access()
-    {
-        return $this->add_access($this->request->getPostGet('userId'), 
-                $this->request ->getPostGet('ciUserId'));
-    }
-
-    protected function delete_access($userId, $ciUserId)
-    {
-        $model = model(AccessTimModel::class);
-        $data = array();
-        $data['id_user'] = $userId;
-        $data['id_ci_user'] = $ciUserId;
-        $model->where('id_user=', $userId)->where('id_ci_user=', $ciUserId)
-            ->delete();
-        return redirect()->to(current_url() . '/../ci_users_list/' . $userId);
-    }
-
-    public function form_delete_access($userId, $ciUserId)
-    {
-        $userNames = $this->get_usernames($userId, $ciUserId);
-        $data = array();
-        $data['ids']['userId'] = $userId;
-        $data['ids']['ciUserId'] = $ciUserId;
-        $data['link'] = '../../post_delete_access';
-        $data['cancel_link'] = '../../ci_users_list/' . $userId;
-        $data['label_button'] = lang('tim_lang.delete');
-        $data['text'] = sprintf(
-            lang('tim_lang.deleteAccess'),
-            $userNames['ciUserName'],
-            $userNames['userName']
-        );
-        return $this->display_view('Timbreuse\Views\confirm_form', $data);
-    }
-
-    public function post_delete_access()
-    {
-        return $this->delete_access($this->request->getPostGet('userId'),
-                $this->request ->getPostGet('ciUserId'));
-    }
     
     protected function get_badge_id_for_edit_tim_user($timUserId)
     {
@@ -288,7 +135,7 @@ class Users extends BaseController
         return $badgeIds;
     }
 
-    protected function get_user_data_for_edit_time_user($timUserId)
+    protected function get_user_data_for_edit_tim_user($timUserId)
     {
         $userSyncModel = model(UsersModel::class);
 
@@ -305,11 +152,11 @@ class Users extends BaseController
      * @param  int $timUserId
      * @return string|Response
      */
-    public function edit_tim_user(int $timUserId)
+    public function edit_tim_user(int $timUserId): string|Response
     {
         $userTypeModel = model(User_type_model::class);
 
-        $data = $this->get_user_data_for_edit_time_user($timUserId);
+        $data = $this->get_user_data_for_edit_tim_user($timUserId);
         $data['userTypes'] = $userTypeModel->findAll();
         $data['errors'] = [];
 
@@ -320,8 +167,11 @@ class Users extends BaseController
                 $userModel = model(User_model::class);
                 $userSyncModel = model(UsersModel::class);
                 $badgeModel = model(BadgesModel::class);
+                $accessTimModel = model(AccessTimModel::class);
     
                 $userId = intval($this->request->getPost('userId'));
+                $username = $this->request->getPost('username');
+                $email = $this->request->getPost('email');
                 $badgeId =  $this->request->getPost('badgeId');
                 $userType = $this->request->getPost('fk_user_type');
                 $password = $this->request->getPost('password');
@@ -336,23 +186,31 @@ class Users extends BaseController
                     'id_user' => $timUserId
                 ];
     
-                if (!empty($userId)) {
+                if (!empty($username) || !empty($email)) {
                     $updateUser = [
-                        'id' => $userId,
-                        'username' => $this->request->getPost('username'),
-                        'email' => $this->request->getPost('email'),
+                        'username' => $username,
+                        'email' => $email,
                     ];
-        
-                    if ($userId !== $_SESSION['user_id']) {
-                        $updateUser['fk_user_type'] = $userType;
-                    }
-        
+
                     if (!empty($password) || !empty($passwordAgain)) {
                         $updateUser['password'] = $password;
                         $updateUser['password_confirm'] = $passwordAgain;
                     }
     
-                    $userModel->save($updateUser);
+                    if (!empty($userId)) {
+                        if ($userId !== $_SESSION['user_id']) {
+                            $updateUser['fk_user_type'] = $userType;
+                        }
+        
+                        $userModel->update($userId, $updateUser);
+                    } else {
+                        $updateUser['fk_user_type'] = $userType;
+                        $insertedUserId = $this->create_ci_user($updateUser, $userModel);
+
+                        if (gettype($insertedUserId) === 'integer') {
+                            $accessTimModel->add_access($timUserId, $insertedUserId);
+                        }
+                    }
                 }
     
                 $badgeModel->set_user_id_to_null($timUserId);
@@ -360,7 +218,7 @@ class Users extends BaseController
                 $userSyncModel->update($timUserId, $updateTimUser);
                 $badgeModel->update($badgeId, $updateBadge);
     
-                if ($userModel->errors() == null && $userSyncModel->errors() == null && $badgeModel->errors() == null) {
+                if ($userModel->errors() == null && $userSyncModel->errors() == null && $badgeModel->errors() == null && $accessTimModel->errors() == null) {
                     return redirect()->to(base_url('Users'));
                 } else {
                     $allModelsErrors = [...$userModel->errors(), ...$userSyncModel->errors(), ...$badgeModel->errors()];
@@ -372,6 +230,17 @@ class Users extends BaseController
         }
 
         return $this->display_view('Timbreuse\Views\users\edit_tim_user', $data);
+    }
+    
+    /**
+     * Create a website user
+     *
+     * @param  array $user
+     * @param  User_model $userModel
+     * @return int|bool
+     */
+    protected function create_ci_user(array $user, User_model $userModel): int|bool {
+        return $userModel->insert($user);
     }
 
     /**

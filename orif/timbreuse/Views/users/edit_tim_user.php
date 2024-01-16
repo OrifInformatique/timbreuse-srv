@@ -20,18 +20,39 @@ input:invalid {
                 <span class="text-danger"><?= isset($errors['surname']) ? esc($errors['surname']) : ''; ?></span>
             </div>
         </div>
+        <div class="form-group">
+            <label for='badgeId'><?= esc(ucfirst(lang('tim_lang.badgeId'))) ?></label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <button type='button' id='delete_badge_id_text' class="btn input-group-text" ><?= esc(ucfirst(lang('tim_lang.erase'))) ?></button>
+                </div>
+    
+                <input id='badgeId'  class="form-control"  list='badgeId_list' disabled autocomplete="off" value='<?=esc($badgeId)?>' pattern="^\d*$">
+                <datalist id='badgeId_list'>
+                    <?php foreach ($availableBadges as $badge):?>
+                        <option value='<?=esc($badge)?>'>
+                    <?php endforeach?>
+                </datalist>
+            </div>
+            <span class="text-danger"><?= isset($errors['badgeId']) ? $errors['badgeId'] : ''; ?></span>
+        </div>
 
-        <?php if (isset($id)): ?>
+        <?php if (!isset($id)): ?>
+            <div class="alert alert-warning" role="alert">
+                <?= esc(lang('tim_lang.siteAccountNotLinked')) ?>
+            </div>
+        <?php endif ?>
+
         <div class="form-row">
             <div class="col-md-6">
                 <div class="form-group">
                     <label for='username'><?= esc(lang('user_lang.field_username')) ?></label>
-                    <input class="form-control" id='username' value='<?= isset($username) ? esc($username) : '' ?>' name='username'>
+                    <input class="form-control" id='username' value='<?= isset($username) ? esc($username) : set_value('username') ?>' name='username'>
                     <span class="text-danger"><?= isset($errors['username']) ? esc($errors['username']) : ''; ?></span>
                 </div>
                 <div class="form-group">
                     <label for='email'><?= esc(lang('user_lang.field_email')) ?></label>
-                    <input class="form-control" id='email' name='email' value='<?= isset($email) ? esc($email) : '' ?>'>
+                    <input class="form-control" id='email' name='email' value='<?= isset($email) ? esc($email) : set_value('email') ?>'>
                     <span class="text-danger"><?= isset($errors['email']) ? esc($errors['email']) : ''; ?></span>
                 </div>
             </div>
@@ -41,6 +62,7 @@ input:invalid {
                     <div class="alert alert-info"><?= esc(lang('user_lang.user_update_usertype_himself')) ?></div>
                 <?php endif ?>
                 <select <?= $_SESSION['user_id'] == $id ? 'disabled' : null ?> class="form-control" name="fk_user_type" id="userType">
+                    <option value="0"></option>
                     <?php foreach($userTypes as $userType): ?>
                         <option value="<?= $userType['id'] ?>" <?= $userType['id'] === $fk_user_type ? 'selected' : null ?>><?= esc($userType['name']) ?></option>
                     <?php endforeach ?>
@@ -59,32 +81,6 @@ input:invalid {
                 <label for='user_password_again'><?= esc(lang('user_lang.field_password_confirm')) ?></label>
                 <input class="form-control" type="password" id='user_password_again' name='user_password_again'>
             </div>
-        </div>
-        <?php else: ?>
-            <div class="alert alert-warning" role="alert">
-                <?= esc(lang('tim_lang.siteAccountNotLinked')) ?>
-            </div>
-        <?php endif ?>
-
-
-        <label for='badgeId'><?= esc(ucfirst(lang('tim_lang.badgeId'))) ?></label>
-
-        <div class="input-group">
-            <div class="input-group-prepend">
-                <button type='button' id='delete_badge_id_text' class="btn input-group-text" ><?= esc(ucfirst(lang('tim_lang.erase'))) ?></button>
-            </div>
-
-            <input id='badgeId'  class="form-control"  list='badgeId_list' disabled autocomplete="off" value='<?=esc($badgeId)?>' pattern="^\d*$">
-            <datalist id='badgeId_list'>
-                <?php foreach ($availableBadges as $badge):?>
-                    <option value='<?=esc($badge)?>'>
-                <?php endforeach?>
-            </datalist>
-        </div>
-        <span class="text-danger"><?= isset($errors['badgeId']) ? $errors['badgeId'] : ''; ?></span>
-
-        <div class="pt-3 pb-3">
-            <a href='<?= '../ci_users_list/'. $id_user ?>'><?= esc(ucfirst(lang('tim_lang.siteAccountLabel'))) ?></a>
         </div>
         
         <?php if ($archive || $date_delete): ?>
