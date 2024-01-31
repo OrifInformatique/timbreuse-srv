@@ -13,7 +13,7 @@ use CodeIgniter\Validation\ValidationInterface;
 class User_model extends \CodeIgniter\Model{
     protected $table='user';
     protected $primaryKey='id';
-    protected $allowedFields=['archive','date_creation','email','username','password','fk_user_type'];
+    protected $allowedFields=['archive','date_creation','email','username','password','fk_user_type','azure_mail'];
     protected $useSoftDeletes=true;
     protected $deletedField="archive";
     private $user_type_model=null;
@@ -87,12 +87,11 @@ class User_model extends \CodeIgniter\Model{
     public function check_password_name($username, $password){
         $user=$this->where("username",$username)->first();
         //If a user is found we can verify his password because if his archive is not empty, he is not in the array
-        if (!is_null($user)){
+        if (!is_null($user)) {
             return password_verify($password,$user['password']);
         }
-        else{
+        else {
             return false;
-
         }
     }
 
