@@ -5,4 +5,4 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * @var RouteCollection $routes
  */
-$routes->get('/', '\Welcome\Controllers\Home::index');
+$routes->get('/', '\Timbreuse\Controllers\Home::index');
