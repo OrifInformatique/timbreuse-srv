@@ -50,6 +50,8 @@ class CreatePlanningEventTable extends Migration
 
     public function down()
     {
-        //
+        $this->forge->dropForeignKey('event_planning', 'event_planning_fk_event_type_id_foreign');
+        
+        $this->forge->dropTable('event_type', true);
     }
 }

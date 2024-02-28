@@ -31,6 +31,8 @@ class CreateUserGroupTable extends Migration
 
     public function down()
     {
-        //
+        $this->forge->dropForeignKey('user_group', 'user_group_fk_user_group_id_foreign');
+
+        $this->forge->dropTable('user_group', true);
     }
 }

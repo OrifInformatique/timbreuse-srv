@@ -31,6 +31,9 @@ class CreateUserSyncGroupTable extends Migration
 
     public function down()
     {
-        //
+        $this->forge->dropForeignKey('user_sync_group', 'user_sync_group_fk_user_group_id_foreign');
+        $this->forge->dropForeignKey('user_sync_group', 'user_sync_group_fk_user_sync_id_foreign');
+
+        $this->forge->dropTable('user_sync_group', true);
     }
 }
