@@ -16,7 +16,8 @@ class CreateUserGroupTable extends Migration
             ],
             'fk_user_group_id' => [
                 'type'              => 'INT',
-                'unsigned'          => true
+                'unsigned'          => true,
+                'null'              => true
             ],
             'name' => [
                 'type'              => 'VARCHAR',
