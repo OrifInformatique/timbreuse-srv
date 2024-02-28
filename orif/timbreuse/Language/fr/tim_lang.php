@@ -115,4 +115,9 @@ return [
     'fieldUserGroupId' => 'Numéro du groupe d\'utilisateurs',
     'fieldUserSyncId' => 'Numéro de l\'utilisateur timbreuse',
     'fieldUserGroupName' => 'Nom du groupe d\'utilisateurs',
+    'fieldName' => 'Nom',
+    'fieldGroupParentName' => 'Nom du groupe parent',
+    'createUserGroupTitle' => 'Ajouter un groupe d\'utilisateurs',
+    'updateUserGroupTitle' => 'Modifier un groupe d\'utilisateurs',
+    'userGroupList' => 'Groupe d\'utilisateurs',
 ];
