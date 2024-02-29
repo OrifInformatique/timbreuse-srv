@@ -14,7 +14,7 @@ class CreateUserGroupTable extends Migration
                 'unsigned'          => true,
                 'auto_increment'    => true
             ],
-            'fk_user_group_id' => [
+            'fk_parent_user_group_id' => [
                 'type'              => 'INT',
                 'unsigned'          => true,
                 'null'              => true
@@ -26,13 +26,13 @@ class CreateUserGroupTable extends Migration
         ]);
 
         $this->forge->addKey('id', true);
-        $this->forge->addForeignKey('fk_user_group_id', 'user_group', 'id');
+        $this->forge->addForeignKey('fk_parent_user_group_id', 'user_group', 'id');
         $this->forge->createTable('user_group', true);
     }
 
     public function down()
     {
-        $this->forge->dropForeignKey('user_group', 'user_group_fk_user_group_id_foreign');
+        $this->forge->dropForeignKey('user_group', 'user_group_fk_parent_user_group_id_foreign');
 
         $this->forge->dropTable('user_group', true);
     }

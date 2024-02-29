@@ -15,7 +15,7 @@ class UserGroupsModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['fk_user_group_id', 'name'];
+    protected $allowedFields    = ['fk_parent_user_group_id', 'name'];
 
     // Validation
     protected $validationRules      = [];
@@ -30,7 +30,7 @@ class UserGroupsModel extends Model
             [
                 'rules' => 'permit_empty|numeric'
             ],
-            'fk_user_group_id' =>
+            'fk_parent_user_group_id' =>
             [
                 'label' => lang('tim_lang.fieldUserGroupId'),
                 'rules' => 'permit_empty|numeric|differs[id]'
@@ -53,7 +53,7 @@ class UserGroupsModel extends Model
         return $this->select('child.id, child.name AS userGroupName, parent.name AS parentUserGroupName')
             ->distinct()
             ->from('user_group child')
-            ->join('user_group parent', 'parent.id = child.fk_user_group_id', 'left')
+            ->join('user_group parent', 'parent.id = child.fk_parent_user_group_id', 'left')
             ->find($id);
     }
 }

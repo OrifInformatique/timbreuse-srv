@@ -18,10 +18,10 @@ class CreateEventTypeTable extends Migration
                 'type'              => 'VARCHAR',
                 'constraint'        => '45'
             ],
-            'is_group_event' => [
+            'is_group_event_type' => [
                 'type'              => 'BOOLEAN'
             ],
-            'is_personal_event' => [
+            'is_personal_event_type' => [
                 'type'              => 'BOOLEAN'
             ],
         ]);
@@ -32,9 +32,6 @@ class CreateEventTypeTable extends Migration
 
     public function down()
     {
-        $this->forge->dropForeignKey('event_planning', 'event_planning_fk_user_group_id_foreign');
-        $this->forge->dropForeignKey('event_planning', 'event_planning_fk_user_sync_id_foreign');
-
-        $this->forge->dropTable('event_planning', true);
+        $this->forge->dropTable('event_type', true);
     }
 }

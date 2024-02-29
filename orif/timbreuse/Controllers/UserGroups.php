@@ -99,9 +99,9 @@ class UserGroups extends BaseController
     public function update(int $id, int $parentId = null) : string|RedirectResponse {
         $userGroup = $this->userGroupsModel->find($id);
 
-        if (is_null($parentId) && !is_null($userGroup['fk_user_group_id'])) {
-            $parentUserGroup = $this->userGroupsModel->find($userGroup['fk_user_group_id']);
-        } else if (!is_null($parentId) && is_null($userGroup['fk_user_group_id'])) {
+        if (is_null($parentId) && !is_null($userGroup['fk_parent_user_group_id'])) {
+            $parentUserGroup = $this->userGroupsModel->find($userGroup['fk_parent_user_group_id']);
+        } else if (!is_null($parentId) && is_null($userGroup['fk_parent_user_group_id'])) {
             $parentUserGroup = $this->userGroupsModel->find($parentId);
         } else {
             $parentUserGroup = null;
@@ -170,9 +170,9 @@ class UserGroups extends BaseController
         ];
 
         if (!is_null($parentUserGroupId) && !empty($parentUserGroupId)) {
-            $userGroup['fk_user_group_id'] = $parentUserGroupId;
+            $userGroup['fk_parent_user_group_id'] = $parentUserGroupId;
         } else {
-            $userGroup['fk_user_group_id'] = null;
+            $userGroup['fk_parent_user_group_id'] = null;
         }
 
         $this->userGroupsModel->save($userGroup);

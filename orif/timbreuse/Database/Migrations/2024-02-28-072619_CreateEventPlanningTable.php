@@ -4,7 +4,7 @@ namespace Timbreuse\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
 
-class CreatePlanningEventTable extends Migration
+class CreateEventPlanningTable extends Migration
 {
     public function up()
     {
@@ -51,7 +51,9 @@ class CreatePlanningEventTable extends Migration
     public function down()
     {
         $this->forge->dropForeignKey('event_planning', 'event_planning_fk_event_type_id_foreign');
+        $this->forge->dropForeignKey('event_planning', 'event_planning_fk_user_group_id_foreign');
+        $this->forge->dropForeignKey('event_planning', 'event_planning_fk_user_sync_id_foreign');
         
-        $this->forge->dropTable('event_type', true);
+        $this->forge->dropTable('event_planning', true);
     }
 }
