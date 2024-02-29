@@ -99,6 +99,10 @@ class UserGroups extends BaseController
     public function update(int $id, int $parentId = null) : string|RedirectResponse {
         $userGroup = $this->userGroupsModel->find($id);
 
+        if (is_null($userGroup)) {
+            return redirect()->to(base_url('admin/user-groups'));
+        }
+
         if (is_null($parentId) && !is_null($userGroup['fk_parent_user_group_id'])) {
             $parentUserGroup = $this->userGroupsModel->find($userGroup['fk_parent_user_group_id']);
         } else if (!is_null($parentId) && is_null($userGroup['fk_parent_user_group_id'])) {
