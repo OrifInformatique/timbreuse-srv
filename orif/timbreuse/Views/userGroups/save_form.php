@@ -17,25 +17,34 @@
             <div class="col-sm-6">
                 <div class="form-group">
                     <?= form_label(lang('tim_lang.fieldName'), 'name', ['class' => 'form-label']); ?>
-                    <?= form_input('name', $userGroup['name'] ?? '', [
+                    <?= form_input('name', $userGroup['name'] ?? set_value('name'), [
                         'class' => 'form-control', 'required' => ''
                     ]); ?>
                     <span class="text-danger"><?= isset($errors['name']) ? esc($errors['name']) : ''; ?></span>
                 </div>
             </div>
-            <div class="col-sm-6 form-group">
-                <div class="form-group">
-                    <?= form_label(lang('tim_lang.fieldName'), 'parentGroupName', ['class' => 'form-label']); ?>
-                    <?= form_input('parentGroupName', $userGroup['fk_user_group_id'] ?? '', [
-                        'class' => 'form-control', 'disabled' => ''
+            <div class="col-sm-6">
+                <?= form_label(lang('tim_lang.fieldGroupParentName'), 'parentGroupName', ['class' => 'form-label']); ?>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <button type='button' id='deleteParentGroup' class="btn input-group-text" ><?= ucfirst(lang('tim_lang.erase')) ?></button>
+                    </div>
+
+                    <?= form_input('parentUserGroupName', $parentUserGroup['name'] ?? '', [
+                        'class' => 'form-control',
+                        'disabled' => '',
+                        'id' => 'parentUserGroupName'
                     ]); ?>
-                    <span class="text-danger"><?= isset($errors['fk_user_group_id']) ? esc($errors['fk_user_group_id']) : ''; ?></span>
                 </div>
+                <span class="text-danger w-100"><?= isset($errors['fk_user_group_id']) ? esc($errors['fk_user_group_id']) : ''; ?></span>
+                <?= form_submit('selectParentUserGroupButton', lang('tim_lang.selectParentGroup'), ['class' => 'mt-3 w-100 btn btn-secondary']); ?>
             </div>
         </div>
+
+        <input type="hidden" name="parentUserGroupId" id="parentUserGroupId" value="<?= $parentUserGroup['id'] ?? '' ?>">
                     
         <!-- FORM BUTTONS -->
-        <div class="row">
+        <div class="row mb-3 mt-3">
             <div class="col text-right">
                 <a class="btn btn-secondary" href="<?= base_url('admin/user-groups'); ?>"><?= lang('common_lang.btn_cancel'); ?></a>
                 <?= form_submit('save', lang('common_lang.btn_save'), ['class' => 'btn btn-primary']); ?>
@@ -43,3 +52,14 @@
         </div>
     <?= form_close(); ?>
 </div>
+
+<script>
+    let parentUserGroupInput = document.getElementById("parentUserGroupName");
+    let hiddenParentUserGroupId = document.getElementById("parentUserGroupId");
+    let deleteButton = document.getElementById("deleteParentGroup");
+
+    deleteButton.onclick = () => {
+        parentUserGroupInput.value = '';
+        hiddenParentUserGroupId.value = '';
+    };
+</script>

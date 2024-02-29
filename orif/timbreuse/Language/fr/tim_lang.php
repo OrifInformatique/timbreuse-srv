@@ -120,4 +120,5 @@ return [
     'createUserGroupTitle' => 'Ajouter un groupe d\'utilisateurs',
     'updateUserGroupTitle' => 'Modifier un groupe d\'utilisateurs',
     'userGroupList' => 'Groupe d\'utilisateurs',
+    'selectParentGroup' => 'Sélectionner un groupe parent',
 ];
