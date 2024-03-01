@@ -24,8 +24,9 @@ input:invalid {
         </div>
 
         <?php if (!isset($id)): ?>
-            <div class="alert alert-warning" role="alert">
-                <?= esc(lang('tim_lang.siteAccountNotLinked')) ?>
+            <div class="alert alert-info" role="alert">
+                <?= esc(lang('tim_lang.siteAccountNotLinked')) ?><br>
+                <?= esc(lang('tim_lang.fillFieldsToCreateAccount')) ?>
             </div>
         <?php endif ?>
 

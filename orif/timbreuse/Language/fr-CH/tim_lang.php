@@ -18,4 +18,5 @@ return [
     . '<p>Le <strong>temps offert</strong> correspond au temps qui est automatiquement ajouté à votre temps de travail, en plus vos heures timbrées. (temps des pauses + temps aux cours)</p> '
     . '<p>Exemple pour une personne à 100 %  (41 heures sur 5 jours) : </p> ',
     'siteAccountNotLinked' => 'Ce compte utilisateur de la timbreuse n\'est pas lié à un compte de l\'application web.',
+    'fillFieldsToCreateAccount' => 'Complétez les champs ci-dessous et enregistrez pour lui créer un compte dans l\'application.',
 ];
