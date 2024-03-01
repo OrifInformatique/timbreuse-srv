@@ -35,10 +35,16 @@ class AdminMenuTest extends CIUnitTestCase
            ->access_lvl_admin;
         $_SESSION['_ci_previous_url'] = 'url';
 
-        $result = $this->withSession()->get('user/admin/list_user');
-        // Assertions
-        $response = $result->response();
-        $body = $response->getBody();
-        $result->assertSee(lang('user_lang.title_user_list'), 'h1');
+        // With admin session, try to display the content of each admin tab
+        $adminTabs = config('\Common\Config\AdminPanelConfig')->tabs;
+
+        foreach ($adminTabs as $adminTab) {
+            $result = $this->withSession()->get($adminTab['pageLink']);
+
+            // Assertions
+            $response = $result->response();
+            $body = $response->getBody();
+            $result->assertSee(lang($adminTab['title']));
+        }
     }
 }
