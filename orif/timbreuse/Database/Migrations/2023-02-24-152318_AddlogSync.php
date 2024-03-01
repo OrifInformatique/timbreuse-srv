@@ -40,6 +40,9 @@ class AddlogSync extends Migration
 		$this->forge->addForeignKey('id_badge', 'badge_sync', 'id_badge');
 		$this->forge->addForeignKey('id_user', 'user_sync', 'id_user');
         $this->forge->createTable('log_sync');
+
+        /* Be sure that procedure doesn't allready exists before creating it */
+        $this->drop_procedure_insert_badge_and_user();
         $this->add_procedure_insert_badge_and_user();
 	}
 
@@ -78,7 +81,7 @@ class AddlogSync extends Migration
     }
 
     public function drop_procedure_insert_badge_and_user() {
-        $sql = 'DROP PROCEDURE `insert_badge_and_user`;';
+        $sql = 'DROP PROCEDURE IF EXISTS `insert_badge_and_user`;';
         $this->db->query($sql);
     }
 

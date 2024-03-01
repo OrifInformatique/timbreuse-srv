@@ -29,9 +29,9 @@ class PersoLogs extends BaseController
     }
 
     public function index()
-        {
-            return redirect()->to(current_url() . '/perso_time');
-        }
+    {
+        return redirect()->to(current_url() . '/perso_time');
+    }
 
     protected function get_last_monday(Time $day): Time
     {

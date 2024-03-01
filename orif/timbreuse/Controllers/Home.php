@@ -15,8 +15,18 @@ class Home extends BaseController
         $this->session=\Config\Services::session();
     }
 
+    private function is_connected_user()
+    {
+        return session()->get('user_access')
+            >= config('\User\Config\UserConfig')->access_lvl_registered;
+    }
+
 	public function index()
 	{
+        if (!$this->is_connected_user()) {
+            #return redirect()->to(current_url() . '../user/auth/login');
+            return redirect()->to(url_to('login'));
+        }
         return redirect()->to(current_url() . '/PersoLogs/perso_time');
 		$data['title'] = "Welcome";
 
