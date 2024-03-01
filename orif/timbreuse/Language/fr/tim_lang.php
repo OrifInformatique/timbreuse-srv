@@ -49,7 +49,7 @@ return [
     'record' => 'pointer',
     'confirmDelete' => 'Êtes-vous sûr·e de vouloir supprimer ce pointage.',
     'badgeId' => 'Numéro du badge',
-    'userId' => 'Numéro de l\'utilisateur',
+    'userId' => 'Numéro d\'utilisateur',
     'idLog' => 'Identifiant du pointage',
     'badgeDate' => 'date de pointage physique sur une pointeuse',
     'deleteDate' => 'date de suppression',
@@ -113,6 +113,6 @@ return [
     'rate' => 'taux',
     'title' => 'titre',
     'really_want_to_delete' => 'Voulez-vous vraiment supprimer cet utilisateur ?',
-    'hard_delete_explanation' => 'Toutes ses données seront effacés.',
+    'hard_delete_explanation' => 'Toutes ses données seront effacées.',
     'btn_hard_delete_user' => 'Supprimer définitivement cet utilisateur',
 ];
