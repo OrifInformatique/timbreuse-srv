@@ -37,14 +37,12 @@ class AdminMenuTest extends CIUnitTestCase
 
         // With admin session, try to display the content of each admin tab
         $adminTabs = config('\Common\Config\AdminPanelConfig')->tabs;
-        //dd(lang($adminTabs[0]['title']));
 
         foreach ($adminTabs as $adminTab) {
             $result = $this->withSession()->get($adminTab['pageLink']);
 
             // Assertions
             $response = $result->response();
-            //dd($response);
             $body = $response->getBody();
             $result->assertSee(lang($adminTab['title']));
         }
