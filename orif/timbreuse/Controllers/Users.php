@@ -53,7 +53,7 @@ class Users extends BaseController
         $data['primary_key_field']  = 'id_user';
         $data['btn_create_label']  = lang('common_lang.btn_new_m');;
         $data['url_detail'] = "AdminLogs/time_list/";
-        $data['url_update'] = 'Users/edit_tim_user/';
+        $data['url_update'] = 'Users/edit_user/';
         $data['url_delete'] = 'Users/delete_tim_user/';
         $data['with_deleted'] = $with_deleted;
         $data['url_getView'] = 'Users/index/';
@@ -153,7 +153,7 @@ class Users extends BaseController
      * @param  int $timUserId
      * @return string|Response
      */
-    public function edit_tim_user(int $timUserId): string|Response
+    public function edit_user(int $timUserId): string|Response
     {
         $userTypeModel = model(User_type_model::class);
 
@@ -170,7 +170,7 @@ class Users extends BaseController
             }
         }
 
-        return $this->display_view('Timbreuse\Views\users\edit_tim_user', $data);
+        return $this->display_view('Timbreuse\Views\users\edit_user', $data);
     }
     
     /**
@@ -353,7 +353,7 @@ class Users extends BaseController
         } else {
             $userSyncModel->update($timUserId, ['date_delete' => null]);
             is_null($user['id']) ?: $userModel->update($user['id'], ['archive' => null]);
-            return redirect()->to(base_url('Users/edit_tim_user/' . $timUserId));
+            return redirect()->to(base_url('Users/edit_user/' . $timUserId));
         }
     }
 }

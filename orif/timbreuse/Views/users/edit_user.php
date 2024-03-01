@@ -6,7 +6,7 @@ input:invalid {
 </style>
 <section class="container">
     <h3><?= esc(ucfirst(lang('tim_lang.timUserEdit'))) ?></h3>
-    <form method='post' action="<?= '../edit_tim_user/' . $id_user ?>">
+    <form method='post' action="<?= '../edit_user/' . $id_user ?>">
         <?= csrf_field() ?>
 
         <!-- User Sync (timbreuse) -->
