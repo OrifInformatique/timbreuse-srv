@@ -24,7 +24,6 @@ return [
     'all' => 'tout',
     'weekTime' => 'temps total de la semaine',
     'delete' => 'supprimer',
-    'cancel' => 'annuler',
     'confirm' => 'confirmer',
     'addAccess' => 'Voulez-vous ajouter l’autorisation au compte site web « %s » de contrôler les pointages du compte pointeuse « %s » ?',
     'deleteAccess' => 'Voulez-vous supprimer l’autorisation du compte site web « %s » de contrôler les pointages du compte pointeuse « %s » ?',
@@ -50,6 +49,7 @@ return [
     'record' => 'pointer',
     'confirmDelete' => 'Êtes-vous sûr·e de vouloir supprimer ce pointage.',
     'badgeId' => 'Numéro du badge',
+    'userId' => 'Numéro d\'utilisateur',
     'idLog' => 'Identifiant du pointage',
     'badgeDate' => 'date de pointage physique sur une pointeuse',
     'deleteDate' => 'date de suppression',
@@ -58,7 +58,7 @@ return [
     'restore' => 'restaurer',
     'timUsers' => 'utilisateurs de la pointeuse',
     'webUsers' => 'utilisateurs du site web',
-    'users' => 'utilisateurs',
+    'users' => 'Utilisateurs',
     'details' => 'détails',
     'deleted' => 'supprimé',
     'timUserEdit' => 'Édition utilisateur de la pointeuse',
@@ -112,5 +112,7 @@ return [
     'help' => 'aide',
     'rate' => 'taux',
     'title' => 'titre',
-
+    'really_want_to_delete' => 'Voulez-vous vraiment supprimer cet utilisateur ?',
+    'hard_delete_explanation' => 'Toutes ses données seront effacées.',
+    'btn_hard_delete_user' => 'Supprimer définitivement cet utilisateur',
 ];
