@@ -2,6 +2,8 @@
 namespace Timbreuse\Models;
 
 use CodeIgniter\Model;
+use CodeIgniter\Database\ConnectionInterface;
+use CodeIgniter\Validation\ValidationInterface;
 
 class BadgesModel extends Model 
 {
@@ -10,13 +12,27 @@ class BadgesModel extends Model
 
     protected $useSoftDeletes = true;
 
-    protected $allowedFields = ['id_user', 'date_delete'];
+    protected $allowedFields = ['id_user'];
 
     protected $useTimestamps = true;
     protected $createdField  = '';
     protected $updatedField  = 'date_modif';
     protected $deletedField  = 'date_delete';
     protected $dateFormat = 'datetime';
+
+    public function __construct(ConnectionInterface &$db = null, ValidationInterface $validation = null)
+    {
+        $this->validationRules = [
+            'id_user' => [
+                'label' => lang('tim_lang.userId'),
+                'rules' => 'permit_empty|integer'
+            ],
+        ];
+
+        $this->validationMessages = [];
+
+        parent::__construct($db, $validation);
+    }
 
     public function get_badges($userId=null)
     {
@@ -54,19 +70,21 @@ class BadgesModel extends Model
         $sql = 'CALL `select_users_and_badges`(?);';
         return $this->db->query($sql, $startUserId)->getResultArray();
     }
-
-    public function set_user_id_to_null($timUserId)
+    
+    /**
+     * Set each id_user from one user to null
+     *
+     * @param  int $timUserId
+     * @return void
+     */
+    public function set_user_id_to_null(int $timUserId)
     {
         $badgeIds = $this->get_badges($timUserId);
         $data['id_user'] = null;
-        if (isset($badgeIds[0]) and is_array($badgeIds)) {
-            foreach ($badgeIds as $badgeId) {
-                $this->update($badgeId, $data);
-            }
-        } elseif (isset($badgeIds)) {
-            $this->update($badgeIds, $data);
-        }
 
+        if (isset($badgeIds) && count($badgeIds) > 0) {
+            $this->withDeleted(true)->update($badgeIds, $data);
+        }
     }
 
     public function is_set_badge($badgeId)

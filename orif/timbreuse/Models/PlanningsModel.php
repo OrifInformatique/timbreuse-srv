@@ -5,7 +5,7 @@ namespace Timbreuse\Models;
 use CodeIgniter\Model;
 use CodeIgniter\I18n\Time;
 
-class PlanningModel extends Model 
+class PlanningsModel extends Model 
 {
     protected $table = 'planning';
     protected $primaryKey ='id_planning';
@@ -67,21 +67,21 @@ class PlanningModel extends Model
                 ->find($planningId);
     }
 
-    public function select_date_and_id_planning(): PlanningModel 
+    public function select_date_and_id_planning(): PlanningsModel 
     {
         return $this->select(
             'date_begin, date_end, user_planning.id_planning, '
             .'planning.date_delete');
     }
 
-    public function select_due_time(): PlanningModel 
+    public function select_due_time(): PlanningsModel 
     {
         return $this->select('due_time_monday, due_time_tuesday, '
         . 'due_time_wednesday, due_time_thursday, due_time_friday');
 
     }
 
-    public function select_time(): PlanningModel 
+    public function select_time(): PlanningsModel 
     {
         return $this->select('due_time_monday, offered_time_monday, '
         . 'due_time_tuesday, offered_time_tuesday, due_time_wednesday, '
@@ -90,20 +90,20 @@ class PlanningModel extends Model
 
     }
 
-    public function join_tim_user_and_planning(): PlanningModel 
+    public function join_tim_user_and_planning(): PlanningsModel 
     {
         return $this->join_planning_and_user_planning()
              ->join('user_sync', 'user_sync.id_user = user_planning.id_user');
     }
 
-    public function join_ci_user_and_tim_user(): PlanningModel 
+    public function join_ci_user_and_tim_user(): PlanningsModel 
     {
         return $this->join_tim_user_and_planning()->join('access_tim_user',
             'access_tim_user.id_user = user_planning.id_user')
             ->join('user', 'user.id = access_tim_user.id_ci_user');
     }
 
-    public function join_planning_and_user_planning(): PlanningModel 
+    public function join_planning_and_user_planning(): PlanningsModel 
     {
         return $this->join('user_planning',
             'user_planning.id_planning = planning.id_planning');
