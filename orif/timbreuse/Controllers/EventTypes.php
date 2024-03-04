@@ -117,8 +117,15 @@ class EventTypes extends BaseController
 
         return $this->display_view(['Timbreuse\Views\eventTypes\save_form'], $data);
     }
-
-    public function delete(int $id, int $action = 0) {
+    
+    /**
+     * Display the delete form and delete the corresponding event type
+     *
+     * @param  int $id
+     * @param  int $action
+     * @return string|RedirectResponse
+     */
+    public function delete(int $id, int $action = 0) : string|RedirectResponse {
         $eventType = $this->eventTypesModel->find($id);
 
         if (!$eventType) {
