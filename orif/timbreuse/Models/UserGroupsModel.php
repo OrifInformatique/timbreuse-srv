@@ -32,12 +32,12 @@ class UserGroupsModel extends Model
             ],
             'fk_parent_user_group_id' =>
             [
-                'label' => lang('tim_lang.fieldUserGroupId'),
+                'label' => lang('tim_lang.field_user_group_id'),
                 'rules' => 'permit_empty|numeric|differs[id]'
             ],
             'name' =>
             [
-                'label' => lang('tim_lang.fieldUserGroupName'),
+                'label' => lang('tim_lang.field_user_group_name'),
                 'rules' => 'required|trim|'
                 . 'min_length['.config('\Timbreuse\Config\TimbreuseConfig')->userGroupNameMinLength.']|'
                 . 'max_length['.config('\Timbreuse\Config\TimbreuseConfig')->userGroupNameMaxLength.']'

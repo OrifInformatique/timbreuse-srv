@@ -32,12 +32,12 @@ class UserSyncGroupsModel extends Model
             ],
             'fk_user_group_id' =>
             [
-                'label' => lang('tim_lang.fieldUserGroupId'),
+                'label' => lang('tim_lang.field_user_group_id'),
                 'rules' => 'required|numeric'
             ],
             'fk_user_sync_id' =>
             [
-                'label' => lang('tim_lang.fieldUserSyncId'),
+                'label' => lang('tim_lang.field_user_sync_id'),
                 'rules' => 'required|numeric'
             ],
         ];

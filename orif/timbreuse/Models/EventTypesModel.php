@@ -31,19 +31,19 @@ class EventTypesModel extends Model
             ],
             'name' =>
             [
-                'label' => lang('tim_lang.fieldName'),
+                'label' => lang('tim_lang.field_name'),
                 'rules' => 'required|trim|'
                 . 'min_length['.config('\Timbreuse\Config\TimbreuseConfig')->eventTypeNameMinLength.']|'
                 . 'max_length['.config('\Timbreuse\Config\TimbreuseConfig')->eventTypeNameMaxLength.']'
             ],
             'is_group_event_type' =>
             [
-                'label' => lang('tim_lang.fieldIsGroupEventType'),
+                'label' => lang('tim_lang.field_is_group_event_type'),
                 'rules' => 'is_bool'
             ],
             'is_personal_event_type' =>
             [
-                'label' => lang('tim_lang.fieldIsPersonalEventType'),
+                'label' => lang('tim_lang.field_is_personal_event_type'),
                 'rules' => 'is_bool'
             ],
         ];

@@ -3,7 +3,7 @@
     <!-- TITLE -->
     <div class="row mt-3">
         <div class="col">
-            <h1 class="title-section"><?= lang('tim_lang.'.($update ? 'update' : 'create').'UserGroupTitle'); ?></h1>
+            <h1 class="title-section"><?= lang('tim_lang.'.($update ? 'update' : 'create').'_user_group_title'); ?></h1>
         </div>
     </div>
     
@@ -16,7 +16,7 @@
         <div class="row mt-3">
             <div class="col-sm-6">
                 <div class="form-group">
-                    <?= form_label(lang('tim_lang.fieldName'), 'name', ['class' => 'form-label']); ?>
+                    <?= form_label(lang('tim_lang.field_name'), 'name', ['class' => 'form-label']); ?>
                     <?= form_input('name', $userGroup['name'] ?? set_value('name'), [
                         'class' => 'form-control', 'required' => ''
                     ]); ?>
@@ -24,7 +24,7 @@
                 </div>
             </div>
             <div class="col-sm-6">
-                <?= form_label(lang('tim_lang.fieldGroupParentName'), 'parentGroupName', ['class' => 'form-label']); ?>
+                <?= form_label(lang('tim_lang.field_group_parent_name'), 'parentGroupName', ['class' => 'form-label']); ?>
                 <div class="input-group">
                     <div class="input-group-prepend">
                         <button type='button' id='deleteParentGroup' class="btn input-group-text" ><?= ucfirst(lang('tim_lang.erase')) ?></button>
@@ -37,7 +37,7 @@
                     ]); ?>
                 </div>
                 <span class="text-danger w-100"><?= isset($errors['fk_user_group_id']) ? esc($errors['fk_user_group_id']) : ''; ?></span>
-                <?= form_submit('selectParentUserGroupButton', lang('tim_lang.selectParentGroup'), ['class' => 'mt-3 w-100 btn btn-secondary']); ?>
+                <?= form_submit('selectParentUserGroupButton', lang('tim_lang.select_parent_group'), ['class' => 'mt-3 w-100 btn btn-secondary']); ?>
             </div>
         </div>
 

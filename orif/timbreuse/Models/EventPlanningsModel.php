@@ -31,37 +31,37 @@ class EventPlanningsModel extends Model
             ],
             'fk_user_group_id' =>
             [
-                'label' => lang('tim_lang.fieldUserGroupId'),
+                'label' => lang('tim_lang.field_user_group_id'),
                 'rules' => 'required_without[fk_user_sync_id]|numeric'
             ],
             'fk_user_sync_id' =>
             [
-                'label' => lang('tim_lang.fieldUserSyncId'),
+                'label' => lang('tim_lang.field_user_sync_id'),
                 'rules' => 'required_without[fk_user_group_id]|numeric'
             ],
             'fk_event_type_id' =>
             [
-                'label' => lang('tim_lang.fieldEventTypeId'),
+                'label' => lang('tim_lang.field_event_type_id'),
                 'rules' => 'required|numeric'
             ],
             'event_date' =>
             [
-                'label' => lang('tim_lang.fieldEventDate'),
+                'label' => lang('tim_lang.field_event_date'),
                 'rules' => 'required'
             ],
             'start_time' =>
             [
-                'label' => lang('tim_lang.fieldEventStartTime'),
+                'label' => lang('tim_lang.field_event_start_time'),
                 'rules' => 'required'
             ],
             'end_time' =>
             [
-                'label' => lang('tim_lang.fieldEventEndTime'),
+                'label' => lang('tim_lang.field_event_end_time'),
                 'rules' => 'required'
             ],
             'is_work_time' =>
             [
-                'label' => lang('tim_lang.fieldIsWorkTime'),
+                'label' => lang('tim_lang.field_is_work_time'),
                 'rules' => 'required|is_bool'
             ],
         ];

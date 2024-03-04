@@ -40,13 +40,13 @@ class EventTypes extends BaseController
      * @return string
      */
     public function index() : string {
-        $data['title'] = lang('tim_lang.eventTypesList');
-        $data['list_title'] = ucfirst(lang('tim_lang.eventTypesList'));
+        $data['title'] = lang('tim_lang.event_types_list');
+        $data['list_title'] = ucfirst(lang('tim_lang.event_types_list'));
 
         $data['columns'] = [
-            'name' => ucfirst(lang('tim_lang.fieldName')),
-            'is_group_event_type' => ucfirst(lang('tim_lang.fieldIsGroupEventType')),
-            'is_personal_event_type' => ucfirst(lang('tim_lang.fieldIsPersonalEventType')),
+            'name' => ucfirst(lang('tim_lang.field_name')),
+            'is_group_event_type' => ucfirst(lang('tim_lang.field_is_group_event_type')),
+            'is_personal_event_type' => ucfirst(lang('tim_lang.field_is_personal_event_type')),
         ];
 
         $eventTypes = $this->eventTypesModel->findAll();
@@ -74,8 +74,8 @@ class EventTypes extends BaseController
      */
     public function create() : string|RedirectResponse {
         $data = [
-            'title' => lang('tim_lang.createUserGroupTitle'),
-            'userGroup' => null,
+            'title' => lang('tim_lang.create_event_type_title'),
+            'eventType' => null,
         ];
 
         if (isset($_POST) && !empty($_POST)) {
@@ -90,7 +90,7 @@ class EventTypes extends BaseController
     }
     
     /**
-     * Retrieves the corresponding user group and display the update form
+     * Retrieves the corresponding event type and display the update form
      *
      * @param  int $id
      * @return string|RedirectResponse
@@ -103,7 +103,7 @@ class EventTypes extends BaseController
         }
 
         $data = [
-            'title' => lang('tim_lang.updateUserGroupTitle'),
+            'title' => lang('tim_lang.update_event_type_title'),
             'eventType' => $eventType
         ];
 
@@ -125,9 +125,14 @@ class EventTypes extends BaseController
             return redirect()->to(base_url('admin/event-types'));
         }
 
+        $data = [
+            'title' => lang('tim_lang.delete_event_type'),
+            'eventType' => $eventType
+        ];
+
         switch ($action) {
             case 0:
-                return $this->display_view('Timbreuse\Views\eventTypes\confirm_delete', $eventType);
+                return $this->display_view('Timbreuse\Views\eventTypes\confirm_delete', $data);
 
             case 1:
                 // In case soft delete is implemented

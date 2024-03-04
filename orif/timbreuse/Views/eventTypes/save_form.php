@@ -3,7 +3,7 @@
     <!-- TITLE -->
     <div class="row mt-3">
         <div class="col">
-            <h1 class="title-section"><?= lang('tim_lang.' . ($update ? 'update' : 'create') . 'EventTypeTitle'); ?></h1>
+            <h1 class="title-section"><?= lang('tim_lang.' . ($update ? 'update' : 'create') . '_event_type_title'); ?></h1>
         </div>
     </div>
 
@@ -16,7 +16,7 @@
     <div class="row mt-3">
         <div class="col-sm-6">
             <div class="form-group">
-                <?= form_label(lang('tim_lang.fieldName'), 'name', ['class' => 'form-label']); ?>
+                <?= form_label(lang('tim_lang.field_name'), 'name', ['class' => 'form-label']); ?>
                 <?= form_input('name', $eventType['name'] ?? set_value('name'), [
                     'class' => 'form-control', 'required' => ''
                 ]); ?>
@@ -26,7 +26,7 @@
 
         <div class="col-sm-6">
             <div class="form-group">
-                <?= form_label(lang('tim_lang.fieldIsGroupEventType'), 'isGroupEventTypeYes', ['class' => 'form-label']); ?>
+                <?= form_label(lang('tim_lang.field_is_group_event_type'), 'isGroupEventTypeYes', ['class' => 'form-label']); ?>
                 <div>
                     <div class="form-check form-check-inline">
                         <?= form_radio(
@@ -50,7 +50,7 @@
                 <span class="text-danger"><?= isset($errors['is_group_event_type']) ? esc($errors['is_group_event_type']) : ''; ?></span>
             </div>
             <div class="form-group">
-                <?= form_label(lang('tim_lang.fieldIsPersonalEventType'), 'isPersonalEventTypeYes', ['class' => 'form-label']); ?>
+                <?= form_label(lang('tim_lang.field_is_personal_event_type'), 'isPersonalEventTypeYes', ['class' => 'form-label']); ?>
                 <div>
                     <div class="form-check form-check-inline">
                         <?= form_radio(

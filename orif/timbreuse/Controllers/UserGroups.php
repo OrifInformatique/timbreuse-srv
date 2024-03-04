@@ -42,12 +42,12 @@ class UserGroups extends BaseController
      * @return string
      */
     public function index() : string {
-        $data['title'] = lang('tim_lang.userGroupList');
-        $data['list_title'] = ucfirst(lang('tim_lang.userGroupList'));
+        $data['title'] = lang('tim_lang.user_group_list');
+        $data['list_title'] = ucfirst(lang('tim_lang.user_group_list'));
 
         $data['columns'] = [
-            'userGroupName' => ucfirst(lang('tim_lang.fieldName')),
-            'parentUserGroupName' => ucfirst(lang('tim_lang.fieldGroupParentName')),
+            'userGroupName' => ucfirst(lang('tim_lang.field_name')),
+            'parentUserGroupName' => ucfirst(lang('tim_lang.field_group_parent_name')),
         ];
 
         $data['items'] = $this->userGroupsModel->getUserGroups();
@@ -68,7 +68,7 @@ class UserGroups extends BaseController
         $parentUserGroup = $this->userGroupsModel->find($parentId);
 
         $data = [
-            'title' => lang('tim_lang.createUserGroupTitle'),
+            'title' => lang('tim_lang.create_user_group_title'),
             'userGroup' => null,
             'parentUserGroup' => $parentUserGroup,
         ];
@@ -110,7 +110,7 @@ class UserGroups extends BaseController
         }
 
         $data = [
-            'title' => lang('tim_lang.updateUserGroupTitle'),
+            'title' => lang('tim_lang.update_user_group_title'),
             'userGroup' => $userGroup,
             'parentUserGroup' => $parentUserGroup,
         ];
@@ -145,11 +145,11 @@ class UserGroups extends BaseController
             $pathToUserGroupForm = "{$pathToUserGroupForm}update/{$id}/";
         }
 
-        $data['title'] = lang('tim_lang.userGroupList');
-        $data['list_title'] = ucfirst(lang('tim_lang.userGroupList'));
+        $data['title'] = lang('tim_lang.user_group_list');
+        $data['list_title'] = ucfirst(lang('tim_lang.user_group_list'));
 
         $data['columns'] = [
-            'name' => ucfirst(lang('tim_lang.fieldName')),
+            'name' => ucfirst(lang('tim_lang.field_name')),
         ];
 
         $data['items'] = $this->userGroupsModel->where('id !=', $id)->findAll();
