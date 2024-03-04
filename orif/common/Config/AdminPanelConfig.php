@@ -28,5 +28,7 @@ class AdminPanelConfig extends \CodeIgniter\Config\BaseConfig
             'tim_lang.badgesList', 'pageLink'=>'Badges'],
         ['label'=>'tim_lang.Defaultplanning', 'title'=>
             'tim_lang.Defaultplanning', 'pageLink'=>'DefaultPlannings'],
+        ['label'=>'tim_lang.eventTypesList', 'title'=>
+            'tim_lang.eventTypesList', 'pageLink'=>'admin/event-types'],
     ];
 }

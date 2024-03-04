@@ -39,12 +39,12 @@ class EventTypesModel extends Model
             'is_group_event_type' =>
             [
                 'label' => lang('tim_lang.fieldIsGroupEventType'),
-                'rules' => 'required|is_bool'
+                'rules' => 'is_bool'
             ],
             'is_personal_event_type' =>
             [
                 'label' => lang('tim_lang.fieldIsPersonalEventType'),
-                'rules' => 'required|is_bool'
+                'rules' => 'is_bool'
             ],
         ];
 
