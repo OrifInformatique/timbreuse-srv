@@ -2,20 +2,19 @@
 
 namespace Timbreuse\Models;
 
+use CodeIgniter\Model;
 use CodeIgniter\Database\ConnectionInterface;
 use CodeIgniter\Validation\ValidationInterface;
 
-use CodeIgniter\Model;
-
-class UserSyncGroupsModel extends Model
+class EventTypesModel extends Model
 {
-    protected $table            = 'user_sync_group';
+    protected $table            = 'event_type';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['fk_user_group_id', 'fk_user_sync_id'];
+    protected $allowedFields    = ['name', 'is_group_event_type', 'is_personal_event_type'];
 
     // Validation
     protected $validationRules      = [];
@@ -30,15 +29,22 @@ class UserSyncGroupsModel extends Model
             [
                 'rules' => 'permit_empty|numeric'
             ],
-            'fk_user_group_id' =>
+            'name' =>
             [
-                'label' => lang('tim_lang.fieldUserGroupId'),
-                'rules' => 'required|numeric'
+                'label' => lang('tim_lang.fieldName'),
+                'rules' => 'required|trim|'
+                . 'min_length['.config('\Timbreuse\Config\TimbreuseConfig')->userGroupNameMinLength.']|'
+                . 'max_length['.config('\Timbreuse\Config\TimbreuseConfig')->userGroupNameMaxLength.']'
             ],
-            'fk_user_sync_id' =>
+            'is_group_event_type' =>
             [
-                'label' => lang('tim_lang.fieldUserSyncId'),
-                'rules' => 'required|numeric'
+                'label' => lang('tim_lang.fieldIsGroupEventType'),
+                'rules' => 'required|is_bool'
+            ],
+            'is_personal_event_type' =>
+            [
+                'label' => lang('tim_lang.fieldIsPersonalEventType'),
+                'rules' => 'required|is_bool'
             ],
         ];
 
