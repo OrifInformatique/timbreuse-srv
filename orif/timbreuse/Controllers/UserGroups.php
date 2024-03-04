@@ -3,12 +3,10 @@
 namespace Timbreuse\Controllers;
 
 use App\Controllers\BaseController;
-use CodeIgniter\Database\BaseConnection;
 use CodeIgniter\HTTP\RedirectResponse;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
-use \CodeIgniter\Validation\ValidationInterface;
 use Timbreuse\Models\UserGroupsModel;
 
 use function PHPSTORM_META\map;
