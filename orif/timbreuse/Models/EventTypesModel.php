@@ -33,8 +33,8 @@ class EventTypesModel extends Model
             [
                 'label' => lang('tim_lang.fieldName'),
                 'rules' => 'required|trim|'
-                . 'min_length['.config('\Timbreuse\Config\TimbreuseConfig')->userGroupNameMinLength.']|'
-                . 'max_length['.config('\Timbreuse\Config\TimbreuseConfig')->userGroupNameMaxLength.']'
+                . 'min_length['.config('\Timbreuse\Config\TimbreuseConfig')->eventTypeNameMinLength.']|'
+                . 'max_length['.config('\Timbreuse\Config\TimbreuseConfig')->eventTypeNameMaxLength.']'
             ],
             'is_group_event_type' =>
             [

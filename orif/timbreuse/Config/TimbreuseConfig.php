@@ -11,4 +11,7 @@ class TimbreuseConfig extends BaseConfig
 
     public $userGroupNameMinLength = 3;
     public $userGroupNameMaxLength = 45;
+    
+    public $eventTypeNameMinLength = 3;
+    public $eventTypeNameMaxLength = 45;
 }
