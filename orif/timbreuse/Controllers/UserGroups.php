@@ -154,7 +154,7 @@ class UserGroups extends BaseController
 
         $data['items'] = $this->userGroupsModel->where('id !=', $id)->findAll();
 
-        $data['url_update'] = base_url($pathToUserGroupForm);
+        $data['url_update'] = $pathToUserGroupForm;
 
         return $this->display_view('Common\Views\items_list', $data);
     }
