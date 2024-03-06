@@ -14,7 +14,16 @@ class EventPlanningsModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['fk_user_group_id', 'fk_user_sync_id', 'fk_event_type_id', 'event_date', 'start_time', 'end_time', 'is_work_time'];
+    protected $allowedFields    = [
+        'fk_event_series_id',
+        'fk_user_group_id',
+        'fk_user_sync_id',
+        'fk_event_type_id',
+        'event_date',
+        'start_time',
+        'end_time',
+        'is_work_time'
+    ];
 
     // Validation
     protected $validationRules      = [];
@@ -27,6 +36,11 @@ class EventPlanningsModel extends Model
         $this->validationRules = [
             'id' =>
             [
+                'rules' => 'permit_empty|numeric'
+            ],
+            'fk_event_series_id' =>
+            [
+                'label' => lang('tim_lang.field_user_group_id'),
                 'rules' => 'permit_empty|numeric'
             ],
             'fk_user_group_id' =>

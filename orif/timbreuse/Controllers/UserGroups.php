@@ -70,8 +70,11 @@ class UserGroups extends BaseController
         $data = [
             'title' => lang('tim_lang.create_user_group_title'),
             'userGroup' => null,
+            'sessionUserGroup' => session()->get('groupPostData') ?? null,
             'parentUserGroup' => $parentUserGroup,
         ];
+
+        session()->remove('groupPostData');
 
         if (isset($_POST) && !empty($_POST)) {
             if ($this->checkSelectParent()) {
@@ -96,24 +99,22 @@ class UserGroups extends BaseController
      */
     public function update(int $id, int $parentId = null) : string|RedirectResponse {
         $userGroup = $this->userGroupsModel->find($id);
+        $parentUserGroupId = $parentId ?? $userGroup['fk_parent_user_group_id'] ?? null;
 
         if (is_null($userGroup)) {
             return redirect()->to(base_url('admin/user-groups'));
         }
 
-        if (is_null($parentId) && !is_null($userGroup['fk_parent_user_group_id'])) {
-            $parentUserGroup = $this->userGroupsModel->find($userGroup['fk_parent_user_group_id']);
-        } else if (!is_null($parentId) && is_null($userGroup['fk_parent_user_group_id'])) {
-            $parentUserGroup = $this->userGroupsModel->find($parentId);
-        } else {
-            $parentUserGroup = null;
-        }
+        $parentUserGroup = $this->userGroupsModel->find($parentUserGroupId);
 
         $data = [
             'title' => lang('tim_lang.update_user_group_title'),
             'userGroup' => $userGroup,
+            'sessionUserGroup' => session()->get('groupPostData') ?? null,
             'parentUserGroup' => $parentUserGroup,
         ];
+
+        session()->remove('groupPostData');
 
         if (isset($_POST) && !empty($_POST)) {
             if ($this->checkSelectParent()) {

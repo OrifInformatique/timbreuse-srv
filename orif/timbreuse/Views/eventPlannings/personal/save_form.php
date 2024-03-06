@@ -35,7 +35,7 @@
         <div class="col-sm-6">
             <div class="form-group">
                 <?= form_label(lang('tim_lang.field_linked_user'), 'linked_user', ['class' => 'form-label']); ?>
-                <?= form_input('linked_user', $eventPlanning['linked_user'] ?? set_value('linked_user'), [
+                <?= form_input('', $eventPlanning['linked_user'] ?? set_value('linked_user'), [
                     'class' => 'form-control', 'id' => 'linked_user', 'disabled' => ''
                 ]); ?>
                 <span class="text-danger"><?= isset($errors['end_time']) ? esc($errors['end_time']) : ''; ?></span>
@@ -99,10 +99,13 @@
             </div>
         </div>
     </div>
-    
-    <?= form_button('', lang('tim_lang.btn_create_series'), ['class' => 'btn btn-primary', 'id' => 'create_series']) ?>
 
-    <div id="create_series_form"></div>
+    <?= form_input('linked_user_id', '', ['hidden' => '']) ?>
+    
+    <?php if (!$update): ?>
+        <?= form_button('', lang('tim_lang.btn_create_series'), ['class' => 'btn btn-primary', 'id' => 'create_series']) ?>
+        <div id="create_series_form"></div>
+    <?php endif; ?>
 
     <!-- FORM BUTTONS -->
     <div class="row mb-3 mt-3">
@@ -113,22 +116,3 @@
     </div>
     <?= form_close(); ?>
 </div>
-
-<script>
-    let createSeriesForm = document.getElementById("create_series_form");
-    let createSeriesButton = document.getElementById("create_series");
-    const eventSeriesURL = '<?= base_url('event-series/html/form') ?>';
-    
-    createSeriesButton.onclick = () => {
-        createSeriesButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ' + createSeriesButton.innerText;
-        $.ajax({
-            url: eventSeriesURL,
-            type: 'get',
-            success: (response) => {
-                const html = JSON.parse(response);
-                createSeriesButton.hidden = true;
-                $('#create_series_form').append(html);
-            }
-        });
-    };
-</script>

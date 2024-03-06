@@ -17,8 +17,8 @@
             <div class="col-sm-6">
                 <div class="form-group">
                     <?= form_label(lang('tim_lang.field_name'), 'name', ['class' => 'form-label']); ?>
-                    <?= form_input('name', $userGroup['name'] ?? set_value('name'), [
-                        'class' => 'form-control', 'required' => ''
+                    <?= form_input('name', $sessionUserGroup['name'] ?? $userGroup['name'] ?? set_value('name'), [
+                        'class' => 'form-control'
                     ]); ?>
                     <span class="text-danger"><?= isset($errors['name']) ? esc($errors['name']) : ''; ?></span>
                 </div>

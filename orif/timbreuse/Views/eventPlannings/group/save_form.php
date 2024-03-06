@@ -35,7 +35,7 @@
         <div class="col-sm-6">
             <div class="form-group">
                 <?= form_label(lang('tim_lang.field_linked_user_group'), 'linked_user_group', ['class' => 'form-label']); ?>
-                <?= form_input('linked_user_group', $eventPlanning['linked_user_group'] ?? set_value('linked_user_group'), [
+                <?= form_input('', $eventPlanning['linked_user_group'] ?? set_value('linked_user_group'), [
                     'class' => 'form-control', 'id' => 'linked_user_group', 'disabled' => ''
                 ]); ?>
                 <span class="text-danger"><?= isset($errors['end_time']) ? esc($errors['end_time']) : ''; ?></span>
@@ -45,7 +45,7 @@
     </div>
 
     <div class="row">
-        <div class="col-12">
+        <div class="col-sm-4">
             <div class="form-group">
                 <?= form_label(lang('tim_lang.field_event_date'), 'event_date', ['class' => 'form-label']); ?>
                 <?= form_input('event_date', $eventPlanning['event_date'] ?? set_value('event_date'), [
@@ -54,7 +54,7 @@
                 <span class="text-danger"><?= isset($errors['event_date']) ? esc($errors['event_date']) : ''; ?></span>
             </div>
         </div>
-        <div class="col-sm-6">
+        <div class="col-sm-4">
             <div class="form-group">
                 <?= form_label(lang('tim_lang.field_start_time'), 'start_time', ['class' => 'form-label']); ?>
                 <?= form_input('start_time', $eventPlanning['start_time'] ?? set_value('start_time'), [
@@ -63,7 +63,7 @@
                 <span class="text-danger"><?= isset($errors['start_time']) ? esc($errors['start_time']) : ''; ?></span>
             </div>
         </div>
-        <div class="col-sm-6">
+        <div class="col-sm-4">
             <div class="form-group">
                 <?= form_label(lang('tim_lang.field_end_time'), 'end_time', ['class' => 'form-label']); ?>
                 <?= form_input('end_time', $eventPlanning['end_time'] ?? set_value('end_time'), [
@@ -99,6 +99,13 @@
             </div>
         </div>
     </div>
+
+    <?= form_input('linked_user_group_id', '', ['hidden' => '']) ?>
+
+    <?php if (!$update): ?>
+        <?= form_button('', lang('tim_lang.btn_create_series'), ['class' => 'btn btn-primary', 'id' => 'create_series']) ?>
+        <div id="create_series_form"></div>
+    <?php endif; ?>
 
     <!-- FORM BUTTONS -->
     <div class="row mb-3 mt-3">

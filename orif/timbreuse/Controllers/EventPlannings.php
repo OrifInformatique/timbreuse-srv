@@ -83,7 +83,9 @@ class EventPlannings extends BaseController
             }
         }
 
-        return $this->display_view(['Timbreuse\Views\eventPlannings\personal\save_form'], $data);
+        return $this->display_view([
+            'Timbreuse\Views\eventPlannings\personal\save_form',
+            'Timbreuse\Views\eventPlannings\get_event_series_form'], $data);
     }
     
     /**
@@ -107,7 +109,9 @@ class EventPlannings extends BaseController
             }
         }
 
-        return $this->display_view(['Timbreuse\Views\eventPlannings\group\save_form'], $data);
+        return $this->display_view([
+            'Timbreuse\Views\eventPlannings\group\save_form',
+            'Timbreuse\Views\eventPlannings\get_event_series_form'], $data);
     }
     
     /**
@@ -184,9 +188,14 @@ class EventPlannings extends BaseController
     private function getPostDataAndSaveEventPlanning() : array {
         $eventPlanning = [
             'id' => $this->request->getPost('id'),
-            'name' => $this->request->getPost('name'),
-            'is_group_event_planning' => (bool)$this->request->getPost('isGroupEventType'),
-            'is_personal_event_planning' => (bool)$this->request->getPost('isPersonalEventType'),
+            'fk_event_series_id' => $this->request->getPost('fk_event_series_id'),
+            'fk_user_group_id' => $this->request->getPost('fk_user_group_id'),
+            'fk_user_sync_id' => $this->request->getPost('fk_user_sync_id'),
+            'fk_event_type_id' => $this->request->getPost('fk_event_type_id'),
+            'event_date' => $this->request->getPost('event_date'),
+            'start_time' => $this->request->getPost('start_time'),
+            'end_time' => $this->request->getPost('end_time'),
+            'is_work_time' => (bool)$this->request->getPost('isPersonalEventType'),
         ];
 
         $this->eventPlanningsModel->save($eventPlanning);
