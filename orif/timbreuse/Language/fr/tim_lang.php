@@ -129,6 +129,7 @@ return [
     'field_event_start_time' => 'Heure de début de l’événement',
     'field_event_end_time' => 'Heure de fin de l’événement',
     'field_is_work_time' => 'Est-ce que cela compte comme du temps de travail ?',
+    'field_is_work_time_short' => 'Temps de travail ?',
     'event_types_list' => 'Types d’événements',
     'event_type' => 'Type d’événement',
     'create_event_type_title' => 'Ajouter un type d’événement',

@@ -56,10 +56,20 @@ class EventPlannings extends BaseController
             'event_date' => ucfirst(lang('tim_lang.field_event_date')),
             'start_time' => ucfirst(lang('tim_lang.field_start_time')),
             'end_time' => ucfirst(lang('tim_lang.field_end_time')),
-            'is_work_time' => ucfirst(lang('tim_lang.field_is_work_time')),
+            'is_work_time' => ucfirst(lang('tim_lang.field_is_work_time_short')),
         ];
 
-        $data['items'] = $this->eventPlanningsModel->findAll();
+        $eventPlannings = $this->eventPlanningsModel->findAll();
+
+        $data['items'] = array_map(function($eventPlanning) {
+            return [
+                'id' => $eventPlanning['id'],
+                'event_date' => $eventPlanning['event_date'],
+                'start_time' => $eventPlanning['start_time'],
+                'end_time' => $eventPlanning['end_time'],
+                'is_work_time' => $eventPlanning['is_work_time'] ? lang('common_lang.yes') : lang('common_lang.no'),
+            ];
+        }, $eventPlannings);
 
         $data['url_create'] = "admin/event-plannings/group/create";
         $data['url_update'] = 'admin/event-plannings/update/';
