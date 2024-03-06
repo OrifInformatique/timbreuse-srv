@@ -46,12 +46,12 @@ class EventPlanningsModel extends Model
             'fk_user_group_id' =>
             [
                 'label' => lang('tim_lang.field_user_group_id'),
-                'rules' => 'required_without[fk_user_sync_id]|numeric'
+                'rules' => 'required_without[fk_user_sync_id]|permit_empty|numeric'
             ],
             'fk_user_sync_id' =>
             [
                 'label' => lang('tim_lang.field_user_sync_id'),
-                'rules' => 'required_without[fk_user_group_id]|numeric'
+                'rules' => 'required_without[fk_user_group_id]|permit_empty|numeric'
             ],
             'fk_event_type_id' =>
             [
@@ -61,22 +61,22 @@ class EventPlanningsModel extends Model
             'event_date' =>
             [
                 'label' => lang('tim_lang.field_event_date'),
-                'rules' => 'required'
+                'rules' => 'required|valid_date'
             ],
             'start_time' =>
             [
                 'label' => lang('tim_lang.field_event_start_time'),
-                'rules' => 'required'
+                'rules' => 'required|valid_date'
             ],
             'end_time' =>
             [
                 'label' => lang('tim_lang.field_event_end_time'),
-                'rules' => 'required'
+                'rules' => 'required|valid_date'
             ],
             'is_work_time' =>
             [
                 'label' => lang('tim_lang.field_is_work_time'),
-                'rules' => 'required|is_bool'
+                'rules' => 'is_bool'
             ],
         ];
 

@@ -25,21 +25,20 @@
         <div class="col-sm-6">
             <div class="form-group">
                 <?= form_label(lang('tim_lang.event_type'), 'event_type', ['class' => 'form-label']); ?>
-                <?= form_dropdown('event_type', $eventTypes, [], [
+                <?= form_dropdown('fk_event_type_id', $eventTypes, $sessionEventPlanning['fk_event_type_id'] ?? [], [
                     'class' => 'form-control', 'id' => 'event_type'
                 ]); ?>
-                <span class="text-danger"><?= isset($errors['end_time']) ? esc($errors['end_time']) : ''; ?></span>
+                <span class="text-danger"><?= isset($errors['fk_event_type_id']) ? esc($errors['fk_event_type_id']) : ''; ?></span>
             </div>
         </div>
 
         <div class="col-sm-6">
             <div class="form-group">
                 <?= form_label(lang('tim_lang.field_linked_user_group'), 'linked_user_group', ['class' => 'form-label']); ?>
-                <?= form_input('', $eventPlanning['linked_user_group'] ?? set_value('linked_user_group'), [
+                <?= form_input('', $userGroup['name'] ?? '', [
                     'class' => 'form-control', 'id' => 'linked_user_group', 'disabled' => ''
                 ]); ?>
-                <span class="text-danger"><?= isset($errors['end_time']) ? esc($errors['end_time']) : ''; ?></span>
-                <?= form_submit('select_linked_user_group', lang('tim_lang.btn_select_linked_user_group'), ['class' => 'mt-3 w-100 btn btn-secondary']); ?>
+                <?= form_submit('select_user_group', lang('tim_lang.btn_select_user_group'), ['class' => 'mt-3 w-100 btn btn-secondary']); ?>
             </div>
         </div>
     </div>
@@ -48,8 +47,8 @@
         <div class="col-sm-4">
             <div class="form-group">
                 <?= form_label(lang('tim_lang.field_event_date'), 'event_date', ['class' => 'form-label']); ?>
-                <?= form_input('event_date', $eventPlanning['event_date'] ?? set_value('event_date'), [
-                    'class' => 'form-control', 'id' => 'event_date', 'required' => ''
+                <?= form_input('event_date', $sessionEventPlanning['event_date'] ?? $eventPlanning['event_date'] ?? set_value('event_date'), [
+                    'class' => 'form-control', 'id' => 'event_date',
                 ], 'date'); ?>
                 <span class="text-danger"><?= isset($errors['event_date']) ? esc($errors['event_date']) : ''; ?></span>
             </div>
@@ -57,8 +56,8 @@
         <div class="col-sm-4">
             <div class="form-group">
                 <?= form_label(lang('tim_lang.field_start_time'), 'start_time', ['class' => 'form-label']); ?>
-                <?= form_input('start_time', $eventPlanning['start_time'] ?? set_value('start_time'), [
-                    'class' => 'form-control', 'id' => 'start_time', 'required' => ''
+                <?= form_input('start_time', $sessionEventPlanning['start_time'] ?? $eventPlanning['start_time'] ?? set_value('start_time'), [
+                    'class' => 'form-control', 'id' => 'start_time',
                 ], 'time'); ?>
                 <span class="text-danger"><?= isset($errors['start_time']) ? esc($errors['start_time']) : ''; ?></span>
             </div>
@@ -66,8 +65,8 @@
         <div class="col-sm-4">
             <div class="form-group">
                 <?= form_label(lang('tim_lang.field_end_time'), 'end_time', ['class' => 'form-label']); ?>
-                <?= form_input('end_time', $eventPlanning['end_time'] ?? set_value('end_time'), [
-                    'class' => 'form-control', 'id' => 'end_time', 'required' => ''
+                <?= form_input('end_time', $sessionEventPlanning['end_time'] ?? $eventPlanning['end_time'] ?? set_value('end_time'), [
+                    'class' => 'form-control', 'id' => 'end_time',
                 ], 'time'); ?>
                 <span class="text-danger"><?= isset($errors['end_time']) ? esc($errors['end_time']) : ''; ?></span>
             </div>
@@ -80,7 +79,7 @@
                         <?= form_radio(
                             'is_work_time',
                             '1',
-                            $update ? $eventPlanning['is_work_time'] : true,
+                            $update ? $eventPlanning['is_work_time'] : (!is_null($sessionEventPlanning['is_work_time']) ? $sessionEventPlanning['is_work_time'] : true),
                             ['class' => 'form-check-input', 'id' => 'is_work_time_yes']
                         ) ?>
                         <?= form_label(lang('common_lang.yes'), 'is_work_time_yes', ['class' => 'form-check-label']); ?>
@@ -89,7 +88,10 @@
                         <?= form_radio(
                             'is_work_time',
                             '0',
-                            $update ?  !$eventPlanning['is_work_time'] : false,
+                            $update ?
+                                !$eventPlanning['is_work_time'] : (!is_null($sessionEventPlanning['is_work_time']) ?
+                                    !$sessionEventPlanning['is_work_time'] :
+                                    false),
                             ['class' => 'form-check-input', 'id' => 'is_work_time_no']
                         ) ?>
                         <?= form_label(lang('common_lang.no'), 'is_work_time_no', ['class' => 'form-check-label']); ?>
@@ -100,9 +102,9 @@
         </div>
     </div>
 
-    <?= form_input('linked_user_group_id', '', ['hidden' => '']) ?>
+    <?= form_input('linked_user_group_id', $userGroup['id'] ?? '', ['hidden' => '']) ?>
 
-    <?php if (!$update): ?>
+    <?php if (!$update) : ?>
         <?= form_button('', lang('tim_lang.btn_create_series'), ['class' => 'btn btn-primary', 'id' => 'create_series']) ?>
         <div id="create_series_form"></div>
     <?php endif; ?>

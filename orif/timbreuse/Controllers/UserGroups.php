@@ -78,7 +78,7 @@ class UserGroups extends BaseController
 
         if (isset($_POST) && !empty($_POST)) {
             if ($this->checkSelectParent()) {
-                return redirect()->to(base_url('admin/user-groups/select-parent'));
+                return redirect()->to(base_url('admin/user-groups/select-parent?path=admin/user-groups/create/'));
             }
 
             $data['errors'] = $this->getPostDataAndSaveUserGroup();
@@ -118,7 +118,7 @@ class UserGroups extends BaseController
 
         if (isset($_POST) && !empty($_POST)) {
             if ($this->checkSelectParent()) {
-                return redirect()->to(base_url('admin/user-groups/select-parent/' . $id ?? ''));
+                return redirect()->to(base_url('admin/user-groups/select-parent/' . $id . '?path=admin/user-groups/update/' . $id . '/'));
             }
 
             $data['errors'] = $this->getPostDataAndSaveUserGroup();
@@ -132,19 +132,13 @@ class UserGroups extends BaseController
     }
     
     /**
-     * Display select parent user group page
+     * Display select user group page
      *
      * @param  int $id
      * @return string
      */
-    public function selectParent(?int $id = null) : string {
-        $pathToUserGroupForm = 'admin/user-groups/';
-
-        if (is_null($id)) {
-            $pathToUserGroupForm = "{$pathToUserGroupForm}create/";
-        } else {
-            $pathToUserGroupForm = "{$pathToUserGroupForm}update/{$id}/";
-        }
+    public function selectUserGroup(?int $id = null) : string {
+        $filters = $_GET;
 
         $data['title'] = lang('tim_lang.user_group_list');
         $data['list_title'] = ucfirst(lang('tim_lang.user_group_list'));
@@ -155,7 +149,7 @@ class UserGroups extends BaseController
 
         $data['items'] = $this->userGroupsModel->where('id !=', $id)->findAll();
 
-        $data['url_update'] = $pathToUserGroupForm;
+        $data['url_update'] = $filters['path'];
 
         return $this->display_view('Common\Views\items_list', $data);
     }

@@ -25,7 +25,7 @@
         <div class="col-sm-6">
             <div class="form-group">
                 <?= form_label(lang('tim_lang.event_type'), 'event_type', ['class' => 'form-label']); ?>
-                <?= form_dropdown('event_type', $eventTypes, [], [
+                <?= form_dropdown('fk_event_type_id', $eventTypes, [], [
                     'class' => 'form-control', 'id' => 'event_type'
                 ]); ?>
                 <span class="text-danger"><?= isset($errors['end_time']) ? esc($errors['end_time']) : ''; ?></span>
@@ -35,7 +35,7 @@
         <div class="col-sm-6">
             <div class="form-group">
                 <?= form_label(lang('tim_lang.field_linked_user'), 'linked_user', ['class' => 'form-label']); ?>
-                <?= form_input('', $eventPlanning['linked_user'] ?? set_value('linked_user'), [
+                <?= form_input('', $eventPlanning['linked_user_name'] ?? set_value('linked_user'), [
                     'class' => 'form-control', 'id' => 'linked_user', 'disabled' => ''
                 ]); ?>
                 <span class="text-danger"><?= isset($errors['end_time']) ? esc($errors['end_time']) : ''; ?></span>

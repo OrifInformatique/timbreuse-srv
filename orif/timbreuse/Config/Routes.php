@@ -13,8 +13,9 @@ $routes->group('admin', function($routes) {
         $routes->get('update/(:num)', '\Timbreuse\Controllers\UserGroups::update/$1');
         $routes->get('update/(:num)/(:num)', '\Timbreuse\Controllers\UserGroups::update/$1/$2');
         $routes->post('update/(:num)', '\Timbreuse\Controllers\UserGroups::update/$1');
-        $routes->get('select-parent', '\Timbreuse\Controllers\UserGroups::selectParent');
-        $routes->get('select-parent/(:num)', '\Timbreuse\Controllers\UserGroups::selectParent/$1');
+        $routes->get('select-parent', '\Timbreuse\Controllers\UserGroups::selectUserGroup');
+        $routes->get('select', '\Timbreuse\Controllers\UserGroups::selectUserGroup');
+        $routes->get('select-parent/(:num)', '\Timbreuse\Controllers\UserGroups::selectUserGroup/$1');
     });
 
     // Event plannings
@@ -23,6 +24,7 @@ $routes->group('admin', function($routes) {
         $routes->get('personal/create', '\Timbreuse\Controllers\EventPlannings::createPersonal');
         $routes->post('personal/create', '\Timbreuse\Controllers\EventPlannings::createPersonal');
         $routes->get('group/create', '\Timbreuse\Controllers\EventPlannings::createGroup');
+        $routes->get('group/create/(:num)', '\Timbreuse\Controllers\EventPlannings::createGroup/$1');
         $routes->post('group/create', '\Timbreuse\Controllers\EventPlannings::createGroup');
         $routes->get('delete/(:num)', '\Timbreuse\Controllers\EventPlannings::delete/$1');
         $routes->post('delete/(:num)/(:num)', '\Timbreuse\Controllers\EventPlannings::delete/$1/$2');

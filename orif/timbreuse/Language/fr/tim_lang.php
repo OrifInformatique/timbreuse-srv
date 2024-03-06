@@ -150,7 +150,7 @@ return [
     'field_linked_user' => 'Utilisateur concerné',
     'field_linked_user_group' => 'Groupe concerné',
     'btn_select_linked_user' => 'Sélectionner un utilisateur',
-    'btn_select_linked_user_group' => 'Sélectionner un groupe d’utilisateurs',
+    'btn_select_user_group' => 'Sélectionner un groupe d’utilisateurs',
     'field_start_date' => 'Date de début',
     'field_end_date' => 'Date de fin',
     'field_recurrence_frequency' => 'Fréquence',

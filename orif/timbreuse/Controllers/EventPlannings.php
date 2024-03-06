@@ -9,12 +9,14 @@ use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Timbreuse\Models\EventPlanningsModel;
 use Timbreuse\Models\EventTypesModel;
+use Timbreuse\Models\UserGroupsModel;
 
 class EventPlannings extends BaseController
 {
     // Class properties
     private EventPlanningsModel $eventPlanningsModel;
     private EventTypesModel $eventTypesModel;
+    private UserGroupsModel $userGroupsModel;
 
     /**
      * Constructor
@@ -35,6 +37,7 @@ class EventPlannings extends BaseController
         // Load required models
         $this->eventPlanningsModel = new EventPlanningsModel();
         $this->eventTypesModel = new EventTypesModel();
+        $this->userGroupsModel = new UserGroupsModel();
     }
 
     /**
@@ -75,7 +78,13 @@ class EventPlannings extends BaseController
             'eventTypes' => $this->mapForSelectForm($eventTypes)
         ];
 
+        session()->remove('eventPlanningPostData');
+
         if (isset($_POST) && !empty($_POST)) {
+            if ($this->checkButtonClicked('select_linked_user')) {
+                return redirect()->to(base_url('admin/users/select'));
+            }
+
             $data['errors'] = $this->getPostDataAndSaveEventPlanning();
 
             if (empty($data['errors'])) {
@@ -93,54 +102,34 @@ class EventPlannings extends BaseController
      *
      * @return string|RedirectResponse
      */
-    public function createGroup() : string|RedirectResponse {
+    public function createGroup(?int $userGroupId = null) : string|RedirectResponse {
         $eventTypes = $this->eventTypesModel->where('is_group_event_type', true)->findAll();
+        $userGroup = $this->userGroupsModel->find($userGroupId);
         $data = [
             'title' => lang('tim_lang.create_event_planning_title'),
             'eventPlanning' => null,
-            'eventTypes' => $this->mapForSelectForm($eventTypes)
+            'sessionEventPlanning' => session()->get('eventPlanningPostData'),
+            'eventTypes' => $this->mapForSelectForm($eventTypes),
+            'userGroup' => $userGroup
         ];
 
+        session()->remove('eventPlanningPostData');
+
         if (isset($_POST) && !empty($_POST)) {
+            if ($this->checkButtonClicked('select_user_group')) {
+                return redirect()->to(base_url('admin/user-groups/select?path=admin/event-plannings/group/create/'));
+            }
+
             $data['errors'] = $this->getPostDataAndSaveEventPlanning();
 
             if (empty($data['errors'])) {
-                return redirect()->to(base_url('admin/event-types'));
+                return redirect()->to(base_url('admin/event-plannings'));
             }
         }
 
         return $this->display_view([
             'Timbreuse\Views\eventPlannings\group\save_form',
             'Timbreuse\Views\eventPlannings\get_event_series_form'], $data);
-    }
-    
-    /**
-     * Retrieves the corresponding event type and display the update form
-     *
-     * @param  int $id
-     * @return string|RedirectResponse
-     */
-    public function update(int $id) : string|RedirectResponse {
-        $eventPlanning = $this->eventPlanningsModel->find($id);
-
-        if (is_null($eventPlanning)) {
-            return redirect()->to(base_url('admin/event-types'));
-        }
-
-        $data = [
-            'title' => lang('tim_lang.update_event_planning_title'),
-            'eventPlanning' => $eventPlanning
-        ];
-
-        if (isset($_POST) && !empty($_POST)) {
-            $data['errors'] = $this->getPostDataAndSaveEventPlanning();
-
-            if (empty($data['errors'])) {
-                return redirect()->to(base_url('admin/event-types'));
-            }
-        }
-
-        return $this->display_view(['Timbreuse\Views\eventPlannings\save_form'], $data);
     }
     
     /**
@@ -177,7 +166,7 @@ class EventPlannings extends BaseController
                 break;
         }
 
-        return redirect()->to(base_url('admin/event-types'));
+        return redirect()->to(base_url('admin/event-plannings'));
     }
 
     /**
@@ -186,16 +175,17 @@ class EventPlannings extends BaseController
      * @return array Validation errors encountered during the saving process
      */
     private function getPostDataAndSaveEventPlanning() : array {
+        // todo: Save event serie and get id of saved + errors
         $eventPlanning = [
             'id' => $this->request->getPost('id'),
-            'fk_event_series_id' => $this->request->getPost('fk_event_series_id'),
-            'fk_user_group_id' => $this->request->getPost('fk_user_group_id'),
-            'fk_user_sync_id' => $this->request->getPost('fk_user_sync_id'),
+            'fk_event_series_id' => null,
+            'fk_user_group_id' => $this->request->getPost('linked_user_group_id') ?? null,
+            'fk_user_sync_id' => $this->request->getPost('linked_user_id') ?? null,
             'fk_event_type_id' => $this->request->getPost('fk_event_type_id'),
             'event_date' => $this->request->getPost('event_date'),
             'start_time' => $this->request->getPost('start_time'),
             'end_time' => $this->request->getPost('end_time'),
-            'is_work_time' => (bool)$this->request->getPost('isPersonalEventType'),
+            'is_work_time' => (bool)$this->request->getPost('is_work_time'),
         ];
 
         $this->eventPlanningsModel->save($eventPlanning);
@@ -206,5 +196,30 @@ class EventPlannings extends BaseController
         return array_combine(array_column($array, 'id'), array_map(function($row) {
             return $row['name'];
         }, $array));
+    }
+
+    /**
+     * Check if selectParentButton has been clicked
+     * Save post data on true
+     *
+     * @return bool
+     */
+    private function checkButtonClicked(string $buttonName) : bool {
+        $selectParentUserGroup = boolval($this->request->getPost($buttonName));
+
+        if ($selectParentUserGroup) {
+            $this->savePostDataToSession('eventPlanningPostData');
+        }
+
+        return $selectParentUserGroup;
+    }
+    
+    /**
+     * Save post data in the user session
+     *
+     * @return void
+     */
+    private function savePostDataToSession(string $key) : void {
+        session()->set($key, $this->request->getPost());
     }
 }
