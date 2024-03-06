@@ -24,6 +24,8 @@ $routes->group('admin', function($routes) {
         $routes->post('personal/create', '\Timbreuse\Controllers\EventPlannings::createPersonal');
         $routes->get('group/create', '\Timbreuse\Controllers\EventPlannings::createGroup');
         $routes->post('group/create', '\Timbreuse\Controllers\EventPlannings::createGroup');
+        $routes->get('delete/(:num)', '\Timbreuse\Controllers\EventPlannings::delete/$1');
+        $routes->post('delete/(:num)/(:num)', '\Timbreuse\Controllers\EventPlannings::delete/$1/$2');
     });
 
     // Event types routes
