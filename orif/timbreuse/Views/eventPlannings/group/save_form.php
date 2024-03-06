@@ -79,7 +79,10 @@
                         <?= form_radio(
                             'is_work_time',
                             '1',
-                            $update ? $eventPlanning['is_work_time'] : (!is_null($sessionEventPlanning['is_work_time']) ? $sessionEventPlanning['is_work_time'] : true),
+                            $update ? 
+                                $eventPlanning['is_work_time'] : (!is_null($sessionEventPlanning) ? 
+                                    $sessionEventPlanning['is_work_time'] : 
+                                    true),
                             ['class' => 'form-check-input', 'id' => 'is_work_time_yes']
                         ) ?>
                         <?= form_label(lang('common_lang.yes'), 'is_work_time_yes', ['class' => 'form-check-label']); ?>
@@ -89,7 +92,7 @@
                             'is_work_time',
                             '0',
                             $update ?
-                                !$eventPlanning['is_work_time'] : (!is_null($sessionEventPlanning['is_work_time']) ?
+                                !$eventPlanning['is_work_time'] : (!is_null($sessionEventPlanning) ?
                                     !$sessionEventPlanning['is_work_time'] :
                                     false),
                             ['class' => 'form-check-input', 'id' => 'is_work_time_no']

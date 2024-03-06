@@ -23,9 +23,9 @@ $routes->group('admin', function($routes) {
         $routes->get('', '\Timbreuse\Controllers\EventPlannings');
         $routes->get('personal/create', '\Timbreuse\Controllers\EventPlannings::createPersonal');
         $routes->post('personal/create', '\Timbreuse\Controllers\EventPlannings::createPersonal');
+        $routes->get('personal/create/(:num)', '\Timbreuse\Controllers\EventPlannings::createPersonal/$1');
         $routes->get('group/create', '\Timbreuse\Controllers\EventPlannings::createGroup');
         $routes->get('group/create/(:num)', '\Timbreuse\Controllers\EventPlannings::createGroup/$1');
-        $routes->post('group/create', '\Timbreuse\Controllers\EventPlannings::createGroup');
         $routes->get('delete/(:num)', '\Timbreuse\Controllers\EventPlannings::delete/$1');
         $routes->post('delete/(:num)/(:num)', '\Timbreuse\Controllers\EventPlannings::delete/$1/$2');
     });
@@ -39,6 +39,10 @@ $routes->group('admin', function($routes) {
         $routes->post('update/(:num)', '\Timbreuse\Controllers\EventTypes::update/$1');
         $routes->get('delete/(:num)', '\Timbreuse\Controllers\EventTypes::delete/$1');
         $routes->post('delete/(:num)/(:num)', '\Timbreuse\Controllers\EventTypes::delete/$1/$2');
+    });
+
+    $routes->group('users', function($routes) {
+        $routes->get('select', '\Timbreuse\Controllers\Users::selectUser');
     });
 });
 

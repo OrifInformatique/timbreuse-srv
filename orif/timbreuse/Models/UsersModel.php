@@ -3,7 +3,7 @@ namespace Timbreuse\Models;
 
 use CodeIgniter\Model;
 
-class UserModel extends Model 
+class UsersModel extends Model
 {
     protected $table = 'user_sync';
     protected $primaryKey ='id_user';

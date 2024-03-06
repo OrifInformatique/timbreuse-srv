@@ -10,6 +10,7 @@ use Psr\Log\LoggerInterface;
 use Timbreuse\Models\EventPlanningsModel;
 use Timbreuse\Models\EventTypesModel;
 use Timbreuse\Models\UserGroupsModel;
+use Timbreuse\Models\UsersModel;
 
 class EventPlannings extends BaseController
 {
@@ -17,6 +18,7 @@ class EventPlannings extends BaseController
     private EventPlanningsModel $eventPlanningsModel;
     private EventTypesModel $eventTypesModel;
     private UserGroupsModel $userGroupsModel;
+    private UsersModel $userModel;
 
     /**
      * Constructor
@@ -38,6 +40,7 @@ class EventPlannings extends BaseController
         $this->eventPlanningsModel = new EventPlanningsModel();
         $this->eventTypesModel = new EventTypesModel();
         $this->userGroupsModel = new UserGroupsModel();
+        $this->userModel = new UsersModel();
     }
 
     /**
@@ -70,25 +73,33 @@ class EventPlannings extends BaseController
      *
      * @return string|RedirectResponse
      */
-    public function createPersonal() : string|RedirectResponse {
+    public function createPersonal(?int $userId = null) : string|RedirectResponse {
         $eventTypes = $this->eventTypesModel->where('is_personal_event_type', true)->findAll();
+        $user = null;
+
+        if (!is_null($userId)) {
+            $user = $this->userModel->find($userId);
+        }
+
         $data = [
             'title' => lang('tim_lang.create_event_planning_title'),
             'eventPlanning' => null,
-            'eventTypes' => $this->mapForSelectForm($eventTypes)
+            'sessionEventPlanning' => session()->get('eventPlanningPostData'),
+            'eventTypes' => $this->mapForSelectForm($eventTypes),
+            'user' => $user
         ];
 
         session()->remove('eventPlanningPostData');
 
         if (isset($_POST) && !empty($_POST)) {
             if ($this->checkButtonClicked('select_linked_user')) {
-                return redirect()->to(base_url('admin/users/select'));
+                return redirect()->to(base_url('admin/users/select?path=admin/event-plannings/personal/create/'));
             }
 
             $data['errors'] = $this->getPostDataAndSaveEventPlanning();
 
             if (empty($data['errors'])) {
-                return redirect()->to(base_url('admin/event-types'));
+                return redirect()->to(base_url('admin/event-plannings'));
             }
         }
 
@@ -104,7 +115,12 @@ class EventPlannings extends BaseController
      */
     public function createGroup(?int $userGroupId = null) : string|RedirectResponse {
         $eventTypes = $this->eventTypesModel->where('is_group_event_type', true)->findAll();
-        $userGroup = $this->userGroupsModel->find($userGroupId);
+        $userGroup = null;
+
+        if (!is_null($userGroupId)) {
+            $userGroup = $this->userGroupsModel->find($userGroupId);
+        }
+
         $data = [
             'title' => lang('tim_lang.create_event_planning_title'),
             'eventPlanning' => null,
@@ -143,7 +159,7 @@ class EventPlannings extends BaseController
         $eventPlanning = $this->eventPlanningsModel->find($id);
 
         if (!$eventPlanning) {
-            return redirect()->to(base_url('admin/event-types'));
+            return redirect()->to(base_url('admin/event-plannings'));
         }
 
         $data = [

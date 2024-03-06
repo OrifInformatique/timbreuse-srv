@@ -121,6 +121,7 @@ return [
     'update_user_group_title' => 'Modifier un groupe d’utilisateurs',
     'user_group_list' => 'Groupes d’utilisateurs',
     'select_parent_group' => 'Sélectionner un groupe parent',
+    'select_user' => 'Sélectionner un utilisateur',
     'field_is_group_event_type' => 'Événement de groupe',
     'field_is_personal_event_type' => 'Événement personnel',
     'field_event_type_id' => 'Numéro du type d’événement',

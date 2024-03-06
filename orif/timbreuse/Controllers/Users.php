@@ -339,4 +339,25 @@ class Users extends BaseController
         }
     }
 
+    public function selectUser() : string {
+        $model = model(UsersModel::class);
+        $filters = $_GET;
+
+        $data['title'] = lang('tim_lang.select_user');
+        $data['list_title'] = ucfirst(lang('tim_lang.select_user'));
+
+        $data['columns'] = [
+            'name' => ucfirst(lang('tim_lang.field_name')),
+            'surname' => ucfirst(lang('tim_lang.surname')),
+        ];
+
+        $data['primary_key_field']  = 'id_user';
+
+        $data['items'] = $model->findAll();
+
+        $data['url_update'] = $filters['path'];
+
+        return $this->display_view('Common\Views\items_list', $data);
+    }
+
 }
