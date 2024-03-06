@@ -44,7 +44,7 @@ class EventPlannings extends BaseController
     }
 
     /**
-     * Display the event types list
+     * Display the event plannings list
      *
      * @return string
      */
@@ -159,7 +159,7 @@ class EventPlannings extends BaseController
     }
     
     /**
-     * Display the delete form and delete the corresponding event type
+     * Display the delete form and delete the corresponding event planning
      *
      * @param  int $id
      * @param  int $action
@@ -196,7 +196,7 @@ class EventPlannings extends BaseController
     }
 
     /**
-     * Retrieves post data from the request and saves the event type information
+     * Retrieves post data from the request and saves the event planning information
      *
      * @return array Validation errors encountered during the saving process
      */
