@@ -83,6 +83,7 @@ class UserSyncGroups extends BaseController
      * @return RedirectResponse
      */
     public function addLinkUserToGroup(int $groupId, int $userId) : RedirectResponse {
+        $this->userSyncGroupsModel->setValidationRule('fk_user_group_id', "cb_is_unique[{$userId}]");
         $this->userSyncGroupsModel->save([
             'fk_user_sync_id' => $userId,
             'fk_user_group_id' => $groupId

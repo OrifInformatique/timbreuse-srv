@@ -5,6 +5,7 @@ use Timbreuse\Models\BadgesModel;
 use Timbreuse\Models\UsersModel;
 use Timbreuse\Models\PlanningsModel;
 use CodeIgniter\I18n\Time;
+use Timbreuse\Models\UserSyncGroupsModel;
 
 class TimbreuseRules
 {
@@ -116,6 +117,16 @@ class TimbreuseRules
         $timUserId = $model->get_tim_user_id($planningId);
         $error = lang('tim_lang.dateColideRestore');
         return $model->is_available_period($timUserId, $period, $planningId);
+    }
+
+    public function cb_is_unique($groupId, $fk_user_sync_id) : bool {
+        $model = model(UserSyncGroupsModel::class);
+        $userSyncGroup = $model
+            ->where('fk_user_group_id', $groupId)
+            ->where('fk_user_sync_id', $fk_user_sync_id)
+            ->find();
+
+        return empty($userSyncGroup);
     }
 
 }
