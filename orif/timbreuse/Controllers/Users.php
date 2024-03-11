@@ -370,8 +370,8 @@ class Users extends BaseController
             'surname' => ucfirst(lang('tim_lang.surname')),
         ];
 
+        $data['btn_create_label'] = lang('tim_lang.btn_add_or_delete');
         $data['url_create'] = "admin/user-groups/{$groupId}/link-user/";
-        $data['url_update'] = 'admin/user-sync-groups/update/';
 
         $data['items'] = $model->where('user_sync_group.fk_user_group_id', $groupId)
             ->join('user_sync_group', 'user_sync_group.fk_user_sync_id = user_sync.id_user', 'left')

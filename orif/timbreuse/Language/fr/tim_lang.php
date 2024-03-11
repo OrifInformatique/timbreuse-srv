@@ -169,4 +169,5 @@ return [
     'title_link_user' => 'Lien entre groupe "{group_name}" ⇋ utilisateur',
     'linked_to_group' => 'Lié au groupe',
     'cannot_delete_group_has_linked' => 'Ce groupe d’utilisateurs ne peut pas être supprimé car il est lié à d’autres éléments.',
+    'btn_add_or_delete' => 'Ajouter / supprimer',
 ];
