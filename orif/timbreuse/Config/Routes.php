@@ -13,9 +13,15 @@ $routes->group('admin', function($routes) {
         $routes->get('update/(:num)', '\Timbreuse\Controllers\UserGroups::update/$1');
         $routes->get('update/(:num)/(:num)', '\Timbreuse\Controllers\UserGroups::update/$1/$2');
         $routes->post('update/(:num)', '\Timbreuse\Controllers\UserGroups::update/$1');
-        $routes->get('select-parent', '\Timbreuse\Controllers\UserGroups::selectUserGroup');
+        $routes->get('delete/(:num)', '\Timbreuse\Controllers\UserGroups::delete/$1');
+        $routes->post('delete/(:num)/(:num)', '\Timbreuse\Controllers\UserGroups::delete/$1/$2');
+        
+        // Select
         $routes->get('select', '\Timbreuse\Controllers\UserGroups::selectUserGroup');
+        $routes->get('select-parent', '\Timbreuse\Controllers\UserGroups::selectUserGroup');
         $routes->get('select-parent/(:num)', '\Timbreuse\Controllers\UserGroups::selectUserGroup/$1');
+
+        // User sync groups link
         $routes->get('(:num)/link-user', '\Timbreuse\Controllers\UserSyncGroups::linkUserList/$1');
         $routes->get('(:num)/link-user/(:num)', '\Timbreuse\Controllers\UserSyncGroups::addLinkUserToGroup/$1/$2');
         $routes->get('(:num)/unlink-user/(:num)', '\Timbreuse\Controllers\UserSyncGroups::deleteLinkToGroup/$1/$2');

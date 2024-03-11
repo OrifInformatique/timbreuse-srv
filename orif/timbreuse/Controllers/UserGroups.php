@@ -8,12 +8,16 @@ use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Timbreuse\Models\UserGroupsModel;
+use Timbreuse\Models\UserSyncGroupsModel;
+use Timbreuse\Models\EventPlanningsModel;
 use Timbreuse\Controllers\Users;
 
 class UserGroups extends BaseController
 {
     // Class properties
     private UserGroupsModel $userGroupsModel;
+    private UserSyncGroupsModel $userSyncGroupsModel;
+    private EventPlanningsModel $eventPlanningsModel;
     private Users $userSyncController;
 
     /**
@@ -34,6 +38,8 @@ class UserGroups extends BaseController
 
         // Load required models
         $this->userGroupsModel = new UserGroupsModel();
+        $this->userSyncGroupsModel = new UserSyncGroupsModel();
+        $this->eventPlanningsModel = new EventPlanningsModel();
 
         // Load required controllers
         $this->userSyncController = new Users();
@@ -136,6 +142,49 @@ class UserGroups extends BaseController
         }
 
         return $this->display_view(['Timbreuse\Views\userGroups\save_form', 'Common\Views\items_list'], $data);
+    }
+
+    /**
+     * Display the delete form and delete the corresponding user group
+     *
+     * @param  int $id
+     * @param  int $action
+     * @return string|RedirectResponse
+     */
+    public function delete(int $id, int $action = 0) : string|RedirectResponse {
+        $userGroup = $this->userGroupsModel->find($id);
+
+        if (!$userGroup) {
+            return redirect()->to(base_url('admin/user-groups'));
+        }
+
+        $eventPlanningLinkedCount = $this->eventPlanningsModel->where('fk_user_group_id', $id)->countAllResults();
+        $userSyncLinkedCount = $this->userSyncGroupsModel->where('fk_user_group_id', $id)->countAllResults();
+        $userGroupLinkedCount = $this->userGroupsModel->where('fk_parent_user_group_id', $id)->countAllResults();
+        $canBeDeleted = $eventPlanningLinkedCount === 0 && $userSyncLinkedCount === 0 && $userGroupLinkedCount === 0;
+
+        $data = [
+            'title' => lang('tim_lang.delete_event_planning'),
+            'userGroup' => $userGroup,
+            'canBeDeleted' => $canBeDeleted,
+        ];
+
+        switch ($action) {
+            case 0:
+                return $this->display_view('Timbreuse\Views\userGroups\confirm_delete', $data);
+
+            case 1:
+                // In case soft delete is implemented
+                break;
+            
+            case 2:
+                if ($canBeDeleted && isset($_POST) && !empty($_POST) && !is_null($_POST['confirmation'])) {
+                    $this->userGroupsModel->delete($id, true);
+                }
+                break;
+        }
+
+        return redirect()->to(base_url('admin/user-groups'));
     }
     
     /**
