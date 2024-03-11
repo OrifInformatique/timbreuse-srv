@@ -8,13 +8,13 @@ use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Timbreuse\Models\UserGroupsModel;
-
-use function PHPSTORM_META\map;
+use Timbreuse\Controllers\Users;
 
 class UserGroups extends BaseController
 {
     // Class properties
     private UserGroupsModel $userGroupsModel;
+    private Users $userSyncController;
 
     /**
      * Constructor
@@ -34,6 +34,9 @@ class UserGroups extends BaseController
 
         // Load required models
         $this->userGroupsModel = new UserGroupsModel();
+
+        // Load required controllers
+        $this->userSyncController = new Users();
     }
     
     /**
@@ -100,10 +103,12 @@ class UserGroups extends BaseController
     public function update(int $id, int $parentId = null) : string|RedirectResponse {
         $userGroup = $this->userGroupsModel->find($id);
         $parentUserGroupId = $parentId ?? $userGroup['fk_parent_user_group_id'] ?? null;
-
+        
         if (is_null($userGroup)) {
             return redirect()->to(base_url('admin/user-groups'));
         }
+
+        $userData = $this->userSyncController->getLinkedUserList($id);
 
         $parentUserGroup = $this->userGroupsModel->find($parentUserGroupId);
 
@@ -113,6 +118,8 @@ class UserGroups extends BaseController
             'sessionUserGroup' => session()->get('groupPostData') ?? null,
             'parentUserGroup' => $parentUserGroup,
         ];
+
+        $data += $userData;
 
         session()->remove('groupPostData');
 
@@ -128,7 +135,7 @@ class UserGroups extends BaseController
             }
         }
 
-        return $this->display_view(['Timbreuse\Views\userGroups\save_form'], $data);
+        return $this->display_view(['Timbreuse\Views\userGroups\save_form', 'Common\Views\items_list'], $data);
     }
     
     /**

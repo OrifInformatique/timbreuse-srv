@@ -359,5 +359,35 @@ class Users extends BaseController
 
         return $this->display_view('Common\Views\items_list', $data);
     }
+    
+    public function getLinkedUserList(int $groupId) : array {
+        $model = model(UsersModel::class);
+
+        $data['list_title'] = ucfirst(lang('tim_lang.linked_users'));
+
+        $data['columns'] = [
+            'name' => ucfirst(lang('tim_lang.field_name')),
+            'surname' => ucfirst(lang('tim_lang.surname')),
+        ];
+
+        $data['url_create'] = "admin/user-groups/{$groupId}/link-user/";
+        $data['url_update'] = 'admin/user-sync-groups/update/';
+
+        $data['items'] = $model->where('user_sync_group.fk_user_group_id', $groupId)
+            ->join('user_sync_group', 'user_sync_group.fk_user_sync_id = user_sync.id_user', 'left')
+            ->findAll();
+
+        return $data;
+    }
+
+    public function getUsersAndGroupLink() : array {
+        $model = model(UsersModel::class);
+
+        return $model->select('id_user, user_sync.name, surname, GROUP_CONCAT(user_group.name) user_group_name')
+            ->join('user_sync_group', 'user_sync_group.fk_user_sync_id = user_sync.id_user', 'left')
+            ->join('user_group', 'user_group.id = user_sync_group.fk_user_group_id', 'left')
+            ->groupBy('id_user, user_sync.name, surname')
+            ->findAll();
+    }
 
 }

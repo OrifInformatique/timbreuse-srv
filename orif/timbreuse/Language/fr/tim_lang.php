@@ -150,6 +150,7 @@ return [
     'update_personal_event_planning_title' => 'Modifier un événement personnel',
     'update_group_event_planning_title' => 'Modifier un événement de groupe',
     'field_linked_user' => 'Utilisateur concerné',
+    'linked_users' => 'Utilisateurs concernés',
     'field_linked_user_group' => 'Groupe concerné',
     'btn_select_linked_user' => 'Sélectionner un utilisateur',
     'btn_select_user_group' => 'Sélectionner un groupe d’utilisateurs',
@@ -162,4 +163,6 @@ return [
     'weekly' => 'Hebdomadaire',
     'monthly' => 'Mensuel',
     'btn_create_series' => 'Créer en série',
+    'title_link_user' => 'Lien entre groupe "{group_name}" ⇋ utilisateur',
+    'linked_to_group' => 'Lié au groupe',
 ];

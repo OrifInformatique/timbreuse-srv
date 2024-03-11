@@ -16,6 +16,9 @@ $routes->group('admin', function($routes) {
         $routes->get('select-parent', '\Timbreuse\Controllers\UserGroups::selectUserGroup');
         $routes->get('select', '\Timbreuse\Controllers\UserGroups::selectUserGroup');
         $routes->get('select-parent/(:num)', '\Timbreuse\Controllers\UserGroups::selectUserGroup/$1');
+        $routes->get('(:num)/link-user', '\Timbreuse\Controllers\UserSyncGroups::linkUserList/$1');
+        $routes->get('(:num)/link-user/(:num)', '\Timbreuse\Controllers\UserSyncGroups::addLinkUserToGroup/$1/$2');
+        $routes->get('(:num)/unlink-user/(:num)', '\Timbreuse\Controllers\UserSyncGroups::deleteLinkToGroup/$1/$2');
     });
 
     // Event plannings
