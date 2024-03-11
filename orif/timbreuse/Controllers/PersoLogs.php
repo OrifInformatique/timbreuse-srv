@@ -187,6 +187,18 @@ class PersoLogs extends BaseController
         $button['label'] = ucfirst(lang('tim_lang.planning'));
         return $button;
     }
+    
+    protected function create_event_planning_link(?int $timUserId=null): array
+    {
+        helper('UtilityFunctions');
+        if ($timUserId === get_tim_user_id()) {
+            $button['link'] = base_url('event-plannings');
+        } else {
+            $button['link'] = base_url("event-plannings/$timUserId");
+        }
+        $button['label'] = ucfirst(lang('tim_lang.event_plannings_list'));
+        return $button;
+    }
 
     protected function get_buttons_for_log_views($day, $period,
             ?int $timUserId=null): array
@@ -197,6 +209,7 @@ class PersoLogs extends BaseController
             $data['buttons']
         );
         array_push($data['buttons'], $this->create_planning_link($timUserId));
+        array_push ($data['buttons'], $this->create_event_planning_link($timUserId));
         return $data;
     }
 

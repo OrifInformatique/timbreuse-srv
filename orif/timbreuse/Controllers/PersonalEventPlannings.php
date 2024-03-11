@@ -2,6 +2,7 @@
 
 namespace Timbreuse\Controllers;
 
+use App\Controllers\BaseController;
 use CodeIgniter\HTTP\RedirectResponse;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
@@ -9,13 +10,16 @@ use Psr\Log\LoggerInterface;
 use Timbreuse\Models\EventPlanningsModel;
 use Timbreuse\Models\EventTypesModel;
 use Timbreuse\Models\UserGroupsModel;
+use Timbreuse\Models\UsersModel;
+use User\Models\User_model;
 
-class EventPlannings extends PersonalEventPlannings
+class PersonalEventPlannings extends BaseController
 {
     // Class properties
     private EventPlanningsModel $eventPlanningsModel;
     private EventTypesModel $eventTypesModel;
-    private UserGroupsModel $userGroupsModel;
+    private UsersModel $userSyncModel;
+    private User_model $userModel;
 
     /**
      * Constructor
@@ -27,7 +31,7 @@ class EventPlannings extends PersonalEventPlannings
     ): void {
         // Set Access level before calling parent constructor
         // Accessibility reserved to admin users
-        $this->access_level = config('\User\Config\UserConfig')->access_lvl_admin;
+        $this->access_level = config('\User\Config\UserConfig')->access_lvl_registered;
         parent::initController($request, $response, $logger);
 
         // Load required helpers
@@ -37,6 +41,8 @@ class EventPlannings extends PersonalEventPlannings
         $this->eventPlanningsModel = new EventPlanningsModel();
         $this->eventTypesModel = new EventTypesModel();
         $this->userGroupsModel = new UserGroupsModel();
+        $this->userSyncModel = new UsersModel();
+        $this->userModel = new User_model();
     }
 
     /**
@@ -44,8 +50,15 @@ class EventPlannings extends PersonalEventPlannings
      *
      * @return string
      */
-    #[\Override]
     public function index(?int $timUserId = null) : string {
+        if (is_null($timUserId) && !url_is('*admin*')) {
+            $user = $this->userModel
+                ->join('access_tim_user', 'access_tim_user.id_ci_user = user.id', 'left')
+                ->find($_SESSION['user_id']);
+
+            $timUserId = $user['id_user'] ?? null;
+        }
+
         $data['title'] = lang('tim_lang.event_plannings_list');
         $data['list_title'] = ucfirst(lang('tim_lang.event_plannings_list'));
         $data['isVisible'] = true;
@@ -58,7 +71,7 @@ class EventPlannings extends PersonalEventPlannings
             'is_work_time' => ucfirst(lang('tim_lang.field_is_work_time_short')),
         ];
 
-        $eventPlannings = $this->eventPlanningsModel->findAll();
+        $eventPlannings = $this->eventPlanningsModel->where('fk_user_sync_id', $timUserId)->findAll();
 
         $data['items'] = array_map(function($eventPlanning) {
             return [
@@ -70,24 +83,26 @@ class EventPlannings extends PersonalEventPlannings
             ];
         }, $eventPlannings);
 
-        $data['url_create'] = "admin/event-plannings/group/create";
-        $data['url_update'] = 'admin/event-plannings/update/';
-        $data['url_delete'] = 'admin/event-plannings/delete/';
+        $data['url_create'] = "event-plannings/group/create";
+        $data['url_update'] = 'event-plannings/update/';
+        $data['url_delete'] = 'event-plannings/delete/';
 
-        return $this->display_view(['Common\Views\items_list'], $data);
+        return $this->display_view([
+            'Timbreuse\Views\common\return_button',
+            'Common\Views\items_list'], $data);
     }
-    
+
     /**
      * Display the create form
      *
      * @return string|RedirectResponse
      */
-    public function createGroup(?int $userGroupId = null) : string|RedirectResponse {
-        $eventTypes = $this->eventTypesModel->where('is_group_event_type', true)->findAll();
-        $userGroup = null;
+    public function createPersonal(?int $userId = null) : string|RedirectResponse {
+        $eventTypes = $this->eventTypesModel->where('is_personal_event_type', true)->findAll();
+        $user = null;
 
-        if (!is_null($userGroupId)) {
-            $userGroup = $this->userGroupsModel->find($userGroupId);
+        if (!is_null($userId)) {
+            $user = $this->userSyncModel->find($userId);
         }
 
         $data = [
@@ -95,14 +110,14 @@ class EventPlannings extends PersonalEventPlannings
             'eventPlanning' => null,
             'sessionEventPlanning' => session()->get('eventPlanningPostData'),
             'eventTypes' => $this->mapForSelectForm($eventTypes),
-            'userGroup' => $userGroup
+            'user' => $user
         ];
 
         session()->remove('eventPlanningPostData');
 
         if (isset($_POST) && !empty($_POST)) {
-            if ($this->checkButtonClicked('select_user_group')) {
-                return redirect()->to(base_url('admin/user-groups/select?path=admin/event-plannings/group/create/'));
+            if ($this->checkButtonClicked('select_linked_user')) {
+                return redirect()->to(base_url('admin/users/select?path=admin/event-plannings/personal/create/'));
             }
 
             $data['errors'] = $this->getPostDataAndSaveEventPlanning();
@@ -114,7 +129,7 @@ class EventPlannings extends PersonalEventPlannings
 
         return $this->display_view([
             'Timbreuse\Views\eventPlannings\event_tabs',
-            'Timbreuse\Views\eventPlannings\group\save_form',
+            'Timbreuse\Views\eventPlannings\personal\save_form',
             'Timbreuse\Views\eventPlannings\get_event_series_form'], $data);
     }
     
@@ -153,5 +168,59 @@ class EventPlannings extends PersonalEventPlannings
         }
 
         return redirect()->to(base_url('admin/event-plannings'));
+    }
+
+    /**
+     * Retrieves post data from the request and saves the event planning information
+     *
+     * @return array Validation errors encountered during the saving process
+     */
+    protected function getPostDataAndSaveEventPlanning() : array {
+        // todo: Save event serie and get id of saved + errors
+        $eventPlanning = [
+            'id' => $this->request->getPost('id'),
+            'fk_event_series_id' => null,
+            'fk_user_group_id' => $this->request->getPost('linked_user_group_id') ?? null,
+            'fk_user_sync_id' => $this->request->getPost('linked_user_id') ?? null,
+            'fk_event_type_id' => $this->request->getPost('fk_event_type_id'),
+            'event_date' => $this->request->getPost('event_date'),
+            'start_time' => $this->request->getPost('start_time'),
+            'end_time' => $this->request->getPost('end_time'),
+            'is_work_time' => (bool)$this->request->getPost('is_work_time'),
+        ];
+
+        $this->eventPlanningsModel->save($eventPlanning);
+        return $this->eventPlanningsModel->errors();
+    }
+
+    protected function mapForSelectForm($array) : array {
+        return array_combine(array_column($array, 'id'), array_map(function($row) {
+            return $row['name'];
+        }, $array));
+    }
+
+    /**
+     * Check if selectParentButton has been clicked
+     * Save post data on true
+     *
+     * @return bool
+     */
+    protected function checkButtonClicked(string $buttonName) : bool {
+        $selectParentUserGroup = boolval($this->request->getPost($buttonName));
+
+        if ($selectParentUserGroup) {
+            $this->savePostDataToSession('eventPlanningPostData');
+        }
+
+        return $selectParentUserGroup;
+    }
+    
+    /**
+     * Save post data in the user session
+     *
+     * @return void
+     */
+    protected function savePostDataToSession(string $key) : void {
+        session()->set($key, $this->request->getPost());
     }
 }

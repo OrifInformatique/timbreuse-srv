@@ -1,13 +1,5 @@
 <?php $update = boolval(isset($eventPlanning)); ?>
 <div class="container">
-    <ul class="nav nav-tabs nav-fill pt-3">
-        <li class="nav-item">
-            <a class="nav-link" href="<?= base_url('admin/event-plannings/personal/create') ?>"><?= lang('tim_lang.field_is_personal_event_type') ?></a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link active" href="<?= base_url('admin/event-plannings/group/create') ?>"><?= lang('tim_lang.field_is_group_event_type') ?></a>
-        </li>
-    </ul>
     <!-- TITLE -->
     <div class="row mt-3">
         <div class="col">
