@@ -161,7 +161,7 @@ class PersonalEventPlannings extends BaseController
             return redirect()->to(base_url($route));
         }
 
-        if (!((int)$eventPlanning['fk_user_sync_id'] != $this->getConnectedTimuserId()
+        if (!((int)$eventPlanning['fk_user_sync_id'] == $this->getConnectedTimuserId()
             || $_SESSION['user_access'] >= config('\User\Config\UserConfig')->access_lvl_admin)) {
             return redirect()->to(base_url($route));
         }
