@@ -69,6 +69,13 @@ $routes->group('admin', function($routes) {
 $routes->group('event-plannings', function($routes) {
     $routes->get('', '\Timbreuse\Controllers\PersonalEventPlannings::index');
     $routes->get('(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::index/$1');
+
+    $routes->get('personal/create', '\Timbreuse\Controllers\PersonalEventPlannings::createPersonal');
+    $routes->post('personal/create', '\Timbreuse\Controllers\PersonalEventPlannings::createPersonal');
+    $routes->get('personal/create/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::createPersonal/$1');
+
+    $routes->get('delete/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::delete/$1');
+        $routes->post('delete/(:num)/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::delete/$1/$2');
 });
 
 // Event series routes

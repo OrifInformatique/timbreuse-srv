@@ -343,6 +343,7 @@ class Users extends BaseController
         $model = model(UsersModel::class);
         $filters = $_GET;
 
+        $data['route'] = $filters['path'];
         $data['title'] = lang('tim_lang.select_user');
         $data['list_title'] = ucfirst(lang('tim_lang.select_user'));
 
@@ -357,7 +358,7 @@ class Users extends BaseController
 
         $data['url_update'] = $filters['path'];
 
-        return $this->display_view('Common\Views\items_list', $data);
+        return $this->display_view(['Timbreuse\Views\common\return_button', 'Common\Views\items_list'], $data);
     }
     
     public function getLinkedUserList(int $groupId) : array {

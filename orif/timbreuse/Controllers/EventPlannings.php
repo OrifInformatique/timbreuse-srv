@@ -117,41 +117,4 @@ class EventPlannings extends PersonalEventPlannings
             'Timbreuse\Views\eventPlannings\group\save_form',
             'Timbreuse\Views\eventPlannings\get_event_series_form'], $data);
     }
-    
-    /**
-     * Display the delete form and delete the corresponding event planning
-     *
-     * @param  int $id
-     * @param  int $action
-     * @return string|RedirectResponse
-     */
-    public function delete(int $id, int $action = 0) : string|RedirectResponse {
-        $eventPlanning = $this->eventPlanningsModel->find($id);
-
-        if (!$eventPlanning) {
-            return redirect()->to(base_url('admin/event-plannings'));
-        }
-
-        $data = [
-            'title' => lang('tim_lang.delete_event_planning'),
-            'eventPlanning' => $eventPlanning
-        ];
-
-        switch ($action) {
-            case 0:
-                return $this->display_view('Timbreuse\Views\eventPlannings\confirm_delete', $data);
-
-            case 1:
-                // In case soft delete is implemented
-                break;
-            
-            case 2:
-                if (isset($_POST) && !empty($_POST) && !is_null($_POST['confirmation'])) {
-                    $this->eventPlanningsModel->delete($id, true);
-                }
-                break;
-        }
-
-        return redirect()->to(base_url('admin/event-plannings'));
-    }
 }

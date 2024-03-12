@@ -1,4 +1,8 @@
-<?php $update = boolval(isset($eventPlanning)); ?>
+<?php 
+    $update = isset($eventPlanning);
+    $eventPlanningId = $eventPlanning['id'] ?? 0;    
+?>
+
 <div class="container">
     <!-- TITLE -->
     <div class="row mt-3">
@@ -8,8 +12,8 @@
     </div>
 
     <!-- FORM OPEN -->
-    <?= form_open('admin/event-plannings/personal/' . ($update ? "update/{$eventPlanning['id']}" : 'create'), [], [
-        'id' => $eventPlanning['id'] ?? 0
+    <?= form_open('event-plannings/personal/' . ($update ? "update/{$eventPlanningId}" : "create"), [], [
+        'id' => $eventPlanningId
     ]);
     ?>
     <!-- FORM FIELDS -->
@@ -31,7 +35,9 @@
                     'class' => 'form-control', 'id' => 'linked_user', 'disabled' => ''
                 ]); ?>
                 <span class="text-danger"><?= isset($errors['end_time']) ? esc($errors['end_time']) : ''; ?></span>
-                <?= form_submit('select_linked_user', lang('tim_lang.btn_select_linked_user'), ['class' => 'mt-3 w-100 btn btn-secondary']); ?>
+                <?php if (url_is('*admin*')) : ?>
+                    <?= form_submit('select_linked_user', lang('tim_lang.btn_select_linked_user'), ['class' => 'mt-3 w-100 btn btn-secondary']); ?>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -108,7 +114,7 @@
     <!-- FORM BUTTONS -->
     <div class="row mb-3 mt-3">
         <div class="col text-right">
-            <a class="btn btn-secondary" href="<?= base_url('admin/event-plannings'); ?>"><?= lang('common_lang.btn_cancel'); ?></a>
+            <a class="btn btn-secondary" href="<?= base_url($route); ?>"><?= lang('common_lang.btn_cancel'); ?></a>
             <?= form_submit('save', lang('common_lang.btn_save'), ['class' => 'btn btn-primary']); ?>
         </div>
     </div>

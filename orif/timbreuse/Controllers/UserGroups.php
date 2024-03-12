@@ -196,6 +196,7 @@ class UserGroups extends BaseController
     public function selectUserGroup(?int $id = null) : string {
         $filters = $_GET;
 
+        $data['route'] = $filters['path'];
         $data['title'] = lang('tim_lang.user_group_list');
         $data['list_title'] = ucfirst(lang('tim_lang.user_group_list'));
 
@@ -207,7 +208,7 @@ class UserGroups extends BaseController
 
         $data['url_update'] = $filters['path'];
 
-        return $this->display_view('Common\Views\items_list', $data);
+        return $this->display_view(['Timbreuse\Views\common\return_button', 'Common\Views\items_list'], $data);
     }
     
     /**
