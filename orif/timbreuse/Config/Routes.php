@@ -34,13 +34,21 @@ $routes->group('admin', function($routes) {
     $routes->group('event-plannings', function($routes) {
         $routes->get('', '\Timbreuse\Controllers\EventPlannings');
 
-        $routes->get('personal/create', '\Timbreuse\Controllers\EventPlannings::createPersonal');
-        $routes->post('personal/create', '\Timbreuse\Controllers\EventPlannings::createPersonal');
-        $routes->get('personal/create/(:num)', '\Timbreuse\Controllers\EventPlannings::createPersonal/$1');
+        $routes->get('update/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::updateRedirect/$1');
 
+        $routes->get('personal/create', '\Timbreuse\Controllers\PersonalEventPlannings::createPersonal');
+        $routes->post('personal/create', '\Timbreuse\Controllers\PersonalEventPlannings::createPersonal');
+        $routes->get('personal/create/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::createPersonal/$1');
+        $routes->get('personal/update/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::updatePersonal/$1');
+        $routes->post('personal/update/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::updatePersonal/$1');
+        $routes->get('personal/update/(:num)/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::updatePersonal/$1/$2');
+        
         $routes->get('group/create', '\Timbreuse\Controllers\EventPlannings::createGroup');
         $routes->post('group/create', '\Timbreuse\Controllers\EventPlannings::createGroup');
         $routes->get('group/create/(:num)', '\Timbreuse\Controllers\EventPlannings::createGroup/$1');
+        $routes->get('group/update/(:num)', '\Timbreuse\Controllers\EventPlannings::updateGroup/$1');
+        $routes->post('group/update/(:num)', '\Timbreuse\Controllers\EventPlannings::updateGroup/$1');
+        $routes->get('group/update/(:num)/(:num)', '\Timbreuse\Controllers\EventPlannings::updateGroup/$1/$2');
 
         $routes->get('delete/(:num)', '\Timbreuse\Controllers\EventPlannings::delete/$1');
         $routes->post('delete/(:num)/(:num)', '\Timbreuse\Controllers\EventPlannings::delete/$1/$2');

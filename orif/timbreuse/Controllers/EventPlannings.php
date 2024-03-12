@@ -117,4 +117,50 @@ class EventPlannings extends PersonalEventPlannings
             'Timbreuse\Views\eventPlannings\group\save_form',
             'Timbreuse\Views\eventPlannings\get_event_series_form'], $data);
     }
+    
+    /**
+     * Display and update a group event
+     *
+     * @param  int $id
+     * @param  int $userGroupId
+     * @return string
+     */
+    public function updateGroup(int $id, ?int $userGroupId = 0) : string|RedirectResponse {
+        $route = 'admin/event-plannings';
+
+        $eventPlanning = $this->eventPlanningsModel->find($id);
+
+        if (is_null($eventPlanning)) {
+            return redirect()->to(base_url($_SESSION['_ci_previous_url']));
+        }
+        $userGroupId = $userGroupId !== 0 ?: $eventPlanning['fk_user_group_id'];
+        $eventTypes = $this->eventTypesModel->where('is_personal_event_type', true)->findAll();
+
+        $userGroup = $this->userGroupsModel->find($userGroupId);
+
+        $data = [
+            'title' => lang('tim_lang.update_group_event_planning_title'),
+            'sessionEventPlanning' => session()->get('eventPlanningPostData'),
+            'eventPlanning' => $eventPlanning,
+            'eventTypes' => $this->mapForSelectForm($eventTypes),
+            'userGroup' => $userGroup,
+            'route' => $route
+        ];
+
+        session()->remove('eventPlanningPostData');
+
+        if (isset($_POST) && !empty($_POST)) {
+            if ($this->checkButtonClicked('select_user_group')) {
+                return redirect()->to(base_url('admin/user-groups/select?path=admin/event-plannings/group/create/'));
+            }
+
+            $data['errors'] = $this->getPostDataAndSaveEventPlanning($id);
+
+            if (empty($data['errors'])) {
+                return redirect()->to(base_url('admin/event-plannings'));
+            }
+        }
+
+        return $this->display_view(['Timbreuse\Views\eventPlannings\group\save_form'], $data);
+    }
 }

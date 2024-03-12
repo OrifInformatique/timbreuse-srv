@@ -99,9 +99,7 @@ class PersonalEventPlannings extends BaseController
             'Timbreuse\Views\eventPlannings\get_event_series_form'
         ];
         $isAdminView = url_is('*admin*');
-        $route = $_SESSION['user_access'] === config('\User\Config\UserConfig')->access_lvl_admin ? 
-        "event-plannings/{$userId}" :
-        'event-plannings';
+        $route = $this->getRoute($isAdminView, $userId);
 
         $eventTypes = $this->eventTypesModel->where('is_personal_event_type', true)->findAll();
 
@@ -114,6 +112,7 @@ class PersonalEventPlannings extends BaseController
         $user = $this->userSyncModel->find($userId);
 
         $data = [
+            'formAction' => $this->getFormAction($isAdminView, "event-plannings/personal/create"),
             'title' => lang('tim_lang.create_event_planning_title'),
             'sessionEventPlanning' => session()->get('eventPlanningPostData'),
             'eventTypes' => $this->mapForSelectForm($eventTypes),
@@ -143,6 +142,86 @@ class PersonalEventPlannings extends BaseController
     }
     
     /**
+     * Redirect to the corresponding route
+     *
+     * @param  int $id
+     * @return RedirectResponse
+     */
+    public function updateRedirect(int $id) : RedirectResponse {
+        $eventPlanning = $this->eventPlanningsModel->find($id);
+        $isUserAdmin = $_SESSION['user_access'] >= config('\User\Config\UserConfig')->access_lvl_admin;
+
+        if (is_null($eventPlanning)) {
+            return redirect()->to(base_url($_SESSION['_ci_previous_url']));
+        }
+
+        if (!is_null($eventPlanning['fk_user_sync_id']) && $isUserAdmin) {
+            return redirect()->to("admin/event-plannings/personal/update/{$id}");
+        } else if (!is_null($eventPlanning['fk_user_sync_id'])) {
+            return redirect()->to("event-plannings/personal/update/{$id}");
+        } else if (is_null($eventPlanning['fk_user_sync_id']) && $isUserAdmin) {
+            return redirect()->to("admin/event-plannings/group/update/{$id}");
+        } else {
+            return redirect()->to("event-plannings/group/update/{$id}");
+        }
+    }
+
+    /**
+     * Display the create form
+     *
+     * @return string|RedirectResponse
+     */
+    public function updatePersonal(int $id, ?int $userId = 0) : string|RedirectResponse {
+        $isAdminView = url_is('*admin*');
+        $isUserAdmin = $_SESSION['user_access'] >= config('\User\Config\UserConfig')->access_lvl_admin;
+
+        $eventPlanning = $this->eventPlanningsModel->find($id);
+
+        if (is_null($eventPlanning)) {
+            return redirect()->to(base_url($_SESSION['_ci_previous_url']));
+        }
+
+        if (!((int)$eventPlanning['fk_user_sync_id'] == $this->getConnectedTimuserId()
+            || $isUserAdmin)) {
+            return redirect()->to(base_url($_SESSION['_ci_previous_url']));
+        }
+
+        $eventTypes = $this->eventTypesModel->where('is_personal_event_type', true)->findAll();
+
+        $userId = $userId !== 0 ?: $eventPlanning['fk_user_sync_id'];
+
+        $route = $this->getRoute($isAdminView);
+
+        $user = $this->userSyncModel->find($userId);
+
+        $data = [
+            'formAction' => $this->getFormAction($isAdminView, "event-plannings/personal/update/{$id}"),
+            'title' => lang('tim_lang.update_personal_event_planning_title'),
+            'sessionEventPlanning' => session()->get('eventPlanningPostData'),
+            'eventPlanning' => $eventPlanning,
+            'eventTypes' => $this->mapForSelectForm($eventTypes),
+            'user' => $user,
+            'route' => $route
+        ];
+
+        session()->remove('eventPlanningPostData');
+
+        if (isset($_POST) && !empty($_POST)) {
+            if ($this->checkButtonClicked('select_linked_user')) {
+                return redirect()->to(base_url('admin/users/select?path=admin/event-plannings/personal/create/'));
+            }
+
+            $data['errors'] = $this->getPostDataAndSaveEventPlanning($id);
+
+            if (empty($data['errors'])) {
+                return redirect()->to(base_url($route));
+            }
+        }
+
+        return $this->display_view(['Timbreuse\Views\eventPlannings\personal\save_form'], $data);
+    }
+    
+    /**
      * Display the delete form and delete the corresponding event planning
      *
      * @param  int $id
@@ -167,11 +246,7 @@ class PersonalEventPlannings extends BaseController
             $userId = $this->getTimuserId($eventPlanning['fk_user_sync_id']);
         }
 
-        $route = $isAdminView ? 
-            (is_null($userId) ? 
-                'admin/event-plannings' :
-                "event-plannings/{$userId}") :
-            'event-plannings';
+        $route = $this->getRoute($isAdminView, $userId);
 
         if (!((int)$eventPlanning['fk_user_sync_id'] == $this->getConnectedTimuserId()
             || $isUserAdmin)) {
@@ -207,10 +282,9 @@ class PersonalEventPlannings extends BaseController
      *
      * @return array Validation errors encountered during the saving process
      */
-    protected function getPostDataAndSaveEventPlanning() : array {
-        // todo: Save event serie and get id of saved + errors
+    protected function getPostDataAndSaveEventPlanning(?int $id = null) : array {
         $eventPlanning = [
-            'id' => $this->request->getPost('id'),
+            'id' => $id,
             'fk_event_series_id' => null,
             'fk_user_group_id' => $this->request->getPost('linked_user_group_id') ?? null,
             'fk_user_sync_id' => $this->request->getPost('linked_user_id') ?? null,
@@ -220,8 +294,6 @@ class PersonalEventPlannings extends BaseController
             'end_time' => $this->request->getPost('end_time'),
             'is_work_time' => (bool)$this->request->getPost('is_work_time'),
         ];
-
-        dd($_POST);
 
         $this->eventPlanningsModel->save($eventPlanning);
         return $this->eventPlanningsModel->errors();
@@ -270,5 +342,34 @@ class PersonalEventPlannings extends BaseController
         $user = $this->userSyncModel->find($id);
 
         return $user['id_user'] ?? null;
+    }
+
+    protected function getRoute(bool $isAdminView, ?int $userId = null) : string {
+        $route = '';
+
+        if ($isAdminView) {
+            $route .= 'admin/';
+        }
+
+        $route .= 'event-plannings/';
+
+        if (!is_null($userId)) {
+            $route .= $userId;
+        }
+
+        return $route;
+    }
+
+    protected function getFormAction(bool $isAdminView, string $action) : string {
+        $formAction = '';
+
+        if ($isAdminView) {
+            $formAction .= 'admin/';
+        }
+
+        $formAction .= $action;
+
+
+        return $formAction;
     }
 }

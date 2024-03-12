@@ -12,7 +12,7 @@
     </div>
 
     <!-- FORM OPEN -->
-    <?= form_open('event-plannings/personal/' . ($update ? "update/{$eventPlanningId}" : "create"), [], [
+    <?= form_open($formAction, [], [
         'id' => $eventPlanningId
     ]);
     ?>
