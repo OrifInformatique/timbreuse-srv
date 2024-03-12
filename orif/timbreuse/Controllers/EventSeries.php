@@ -7,12 +7,9 @@ use CodeIgniter\HTTP\RedirectResponse;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
-use Timbreuse\Models\EventSeriesModel;
 
 class EventSeries extends BaseController
 {
-    // Class properties
-    private EventSeriesModel $eventSeriesModel;
 
     /**
      * Constructor
@@ -29,20 +26,21 @@ class EventSeries extends BaseController
 
         // Load required helpers
         helper('form');
+    }
 
-        // Load required models
-        $this->eventSeriesModel = new EventSeriesModel();
+    public function getDaysOfWeek() : array{
+        return [
+            lang('tim_lang.monday'),
+            lang('tim_lang.tuesday'),
+            lang('tim_lang.wednesday'),
+            lang('tim_lang.thursday'),
+            lang('tim_lang.friday')
+        ];
     }
 
     public function getCreateSeriesHTML() : string {
         $data = [
-            'daysOfWeek' => [
-                lang('tim_lang.monday'),
-                lang('tim_lang.tuesday'),
-                lang('tim_lang.wednesday'),
-                lang('tim_lang.thursday'),
-                lang('tim_lang.friday')
-            ],
+            'daysOfWeek' => $this->getDaysOfWeek(),
             'eventSerie' => null
         ];
 

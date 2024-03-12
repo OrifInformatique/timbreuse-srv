@@ -151,18 +151,30 @@ class PersonalEventPlannings extends BaseController
      */
     public function delete(int $id, int $action = 0) : string|RedirectResponse {
         $isAdminView = url_is('*admin*');
-        $route = $isAdminView ? 
-        "admin/event-plannings" :
-        'event-plannings';
-
+        $isUserAdmin = $_SESSION['user_access'] >= config('\User\Config\UserConfig')->access_lvl_admin;
         $eventPlanning = $this->eventPlanningsModel->find($id);
+        $userId = null;
 
-        if (!$eventPlanning) {
-            return redirect()->to(base_url($route));
+        if ($isUserAdmin) {
+            $isAdminView = true;
         }
 
+        if (!$eventPlanning) {
+            return redirect()->to(base_url($_SESSION['_ci_previous_url']));
+        }
+
+        if (!is_null($eventPlanning['fk_user_sync_id'])) {
+            $userId = $this->getTimuserId($eventPlanning['fk_user_sync_id']);
+        }
+
+        $route = $isAdminView ? 
+            (is_null($userId) ? 
+                'admin/event-plannings' :
+                "event-plannings/{$userId}") :
+            'event-plannings';
+
         if (!((int)$eventPlanning['fk_user_sync_id'] == $this->getConnectedTimuserId()
-            || $_SESSION['user_access'] >= config('\User\Config\UserConfig')->access_lvl_admin)) {
+            || $isUserAdmin)) {
             return redirect()->to(base_url($route));
         }
 
@@ -209,6 +221,8 @@ class PersonalEventPlannings extends BaseController
             'is_work_time' => (bool)$this->request->getPost('is_work_time'),
         ];
 
+        dd($_POST);
+
         $this->eventPlanningsModel->save($eventPlanning);
         return $this->eventPlanningsModel->errors();
     }
@@ -248,6 +262,12 @@ class PersonalEventPlannings extends BaseController
         $user = $this->userModel
             ->join('access_tim_user', 'id_ci_user = id', 'left')
             ->find($_SESSION['user_id']);
+
+        return $user['id_user'] ?? null;
+    }
+    
+    protected function getTimuserId(int $id) : int|null {
+        $user = $this->userSyncModel->find($id);
 
         return $user['id_user'] ?? null;
     }
