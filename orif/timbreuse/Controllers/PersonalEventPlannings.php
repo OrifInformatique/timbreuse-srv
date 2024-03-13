@@ -104,7 +104,7 @@ class PersonalEventPlannings extends BaseController
             'Timbreuse\Views\eventPlannings\get_event_series_form'
         ];
         $isAdminView = url_is('*admin*');
-        $route = $this->getRoute($isAdminView, $userId);
+        $route = $this->getPreviousRoute($isAdminView, $userId);
 
         $eventTypes = $this->eventTypesModel->where('is_personal_event_type', true)->findAll();
 
@@ -193,12 +193,16 @@ class PersonalEventPlannings extends BaseController
 
         $eventTypes = $this->eventTypesModel->where('is_personal_event_type', true)->findAll();
 
+        if (($userId !== 0 && $userId !== $eventPlanning['fk_user_sync_id']) || !$isUserAdmin) {
+            dd(current_url());
+        }
+
         $userId = $userId !== 0 ?: $eventPlanning['fk_user_sync_id'];
 
         
         $user = $this->userSyncModel->find($userId);
 
-        $route = $this->getRoute($isAdminView, $user['id_user'] ?? null);
+        $route = $this->getPreviousRoute($isAdminView, $user['id_user'] ?? null);
 
         $data = [
             'formAction' => $this->getFormAction($isAdminView, "event-plannings/personal/update/{$id}"),
@@ -252,7 +256,7 @@ class PersonalEventPlannings extends BaseController
             $userId = $this->getTimuserId($eventPlanning['fk_user_sync_id']);
         }
 
-        $route = $this->getRoute($isAdminView, $userId);
+        $route = $this->getPreviousRoute($isAdminView, $userId);
 
         if (!((int)$eventPlanning['fk_user_sync_id'] == $this->getConnectedTimuserId()
             || $isUserAdmin)) {
@@ -350,7 +354,12 @@ class PersonalEventPlannings extends BaseController
     protected function savePostDataToSession(string $key) : void {
         session()->set($key, $this->request->getPost());
     }
-
+    
+    /**
+     * Get connected tim user's id
+     *
+     * @return int|null
+     */
     protected function getConnectedTimuserId() : int|null {
         $user = $this->userModel
             ->join('access_tim_user', 'id_ci_user = id', 'left')
@@ -364,8 +373,15 @@ class PersonalEventPlannings extends BaseController
 
         return $user['id_user'] ?? null;
     }
-
-    protected function getRoute(bool $isAdminView, ?int $userId = null) : string {
+    
+    /**
+     * Get route to previous URL
+     *
+     * @param  bool $isAdminView
+     * @param  ?int $userId
+     * @return string
+     */
+    protected function getPreviousRoute(bool $isAdminView, ?int $userId = null) : string {
         $route = '';
 
         if ($isAdminView) {
@@ -380,7 +396,14 @@ class PersonalEventPlannings extends BaseController
 
         return $route;
     }
-
+    
+    /**
+     * Get action URL for forms
+     *
+     * @param  bool $isAdminView
+     * @param  string $action
+     * @return string
+     */
     protected function getFormAction(bool $isAdminView, string $action) : string {
         $formAction = '';
 
