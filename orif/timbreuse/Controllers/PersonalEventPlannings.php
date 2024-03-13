@@ -190,9 +190,10 @@ class PersonalEventPlannings extends BaseController
 
         $userId = $userId !== 0 ?: $eventPlanning['fk_user_sync_id'];
 
-        $route = $this->getRoute($isAdminView);
-
+        
         $user = $this->userSyncModel->find($userId);
+        
+        $route = $this->getRoute($isAdminView, $user['id_user'] ?? null);
 
         $data = [
             'formAction' => $this->getFormAction($isAdminView, "event-plannings/personal/update/{$id}"),

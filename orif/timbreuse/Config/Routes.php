@@ -81,6 +81,9 @@ $routes->group('event-plannings', function($routes) {
     $routes->get('personal/create', '\Timbreuse\Controllers\PersonalEventPlannings::createPersonal');
     $routes->post('personal/create', '\Timbreuse\Controllers\PersonalEventPlannings::createPersonal');
     $routes->get('personal/create/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::createPersonal/$1');
+    $routes->get('personal/update/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::updatePersonal/$1');
+    $routes->post('personal/update/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::updatePersonal/$1');
+    $routes->get('personal/update/(:num)/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::updatePersonal/$1/$2');
 
     $routes->get('delete/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::delete/$1');
         $routes->post('delete/(:num)/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::delete/$1/$2');
