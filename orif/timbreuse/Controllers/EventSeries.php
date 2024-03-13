@@ -51,7 +51,12 @@ class EventSeries extends BaseController
 
         return json_encode(view('\Timbreuse\Views\eventSeries\create_series.php', $data));
     }
-
+    
+    /**
+     * Get values of enum field from the DB
+     *
+     * @return array|bool
+     */
     private function getEnumValues() : array|bool {
         $model = model(EventSeriesModel::class);
 
@@ -69,8 +74,16 @@ class EventSeries extends BaseController
             return false;
         }
     }
-
-    public function create(array $eventSerie, array $eventPlanning) {
+    
+    /**
+     * Get event planning and event serie errors.
+     * Return an empty array if successfull
+     *
+     * @param  array $eventSerie
+     * @param  array $eventPlanning
+     * @return array
+     */
+    public function create(array $eventSerie, array $eventPlanning) : array {
         $errors = [];
 
         $eventSeriesModel = model(EventSeriesModel::class);
@@ -87,14 +100,23 @@ class EventSeries extends BaseController
     
             $newEventSerie = $eventSeriesModel->find($id);
     
-            $this->createEventPlannings($newEventSerie);
+            $errors = $this->createEventPlannings($newEventSerie, $eventPlanning);
         }
 
         return $errors;
     }
-
-    private function createEventPlannings(array $eventSerie) {
+    
+    /**
+     * Create the event plannings corresponding to an event serie.
+     * Return remaining errors
+     *
+     * @param  array $eventSerie
+     * @param  array $eventPlanning
+     * @return array
+     */
+    private function createEventPlannings(array $eventSerie, array $eventPlanning) : array {
         $planningErrors = [];
+        $eventPlanningModel = model(EventPlanningsModel::class);
 
         $startDate = new DateTime($eventSerie['start_date']);
         $endDate = new DateTime($eventSerie['end_date']);
@@ -112,18 +134,35 @@ class EventSeries extends BaseController
                 $nextOccurrence = $this->getNextOccurrence($currentDate, $endDate, $dayOfWeek);
     
                 if (!is_null($nextOccurrence)) {
-                    // todo: create planning
-                    d($interval, $nextOccurrence);
+                    $eventPlanningModel->insert([
+                        'fk_event_series_id' => $eventSerie['id'],
+                        'fk_user_group_id' => $eventPlanning['fk_user_group_id'],
+                        'fk_user_sync_id' => $eventPlanning['fk_user_sync_id'],
+                        'fk_event_type_id' => $eventPlanning['fk_event_type_id'],
+                        'event_date' => $nextOccurrence->format('Y-m-d'),
+                        'start_time' => $eventPlanning['start_time'],
+                        'end_time' => $eventPlanning['end_time'],
+                        'is_work_time' => $eventPlanning['is_work_time'],
+                    ]);
+
+                    $planningErrors += $eventPlanningModel->errors();
                 }
             }
 
             $currentDate->add($interval);
         }
-        dd($eventSerie);
 
         return $planningErrors;
     }
-
+    
+    /**
+     * Get the next date when an event will happen
+     *
+     * @param  DateTime $startDate
+     * @param  DateTime $endDate
+     * @param  string $dayOfWeek
+     * @return DateTime
+     */
     private function getNextOccurrence(DateTime $startDate, DateTime $endDate, string $dayOfWeek) : ?DateTime {
         $currentDate = clone $startDate;
 
