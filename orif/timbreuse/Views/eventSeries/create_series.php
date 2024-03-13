@@ -21,7 +21,7 @@
     <div class="col-sm-6">
         <div class="form-group">
             <?= form_label(lang('tim_lang.field_recurrence_frequency'), 'recurrence_frequency', ['class' => 'form-label']); ?>
-            <?= form_input('recurrence_frequency', $eventSerie['recurrence_frequency'] ?? set_value('recurrence_frequency'), [
+            <?= form_dropdown('recurrence_frequency', $recurrenceFrequencies, $eventSerie['recurrence_frequency'] ?? set_value('recurrence_frequency'), [
                 'class' => 'form-control', 'id' => 'recurrence_frequency'
             ]); ?>
             <span class="text-danger"><?= isset($errors['recurrence_frequency']) ? esc($errors['recurrence_frequency']) : ''; ?></span>
@@ -41,11 +41,11 @@
             <?= form_label(lang('tim_lang.field_days_of_week'), '', ['class' => 'form-label']); ?>
             <div>
                 <?php
-                    foreach ($daysOfWeek as $day) :
+                    foreach ($daysOfWeek as $key => $day) :
                 ?>
                     <div class="form-check form-check-inline">
-                        <?= form_checkbox($day, $day, false, ['id' => $day, 'class' => 'form-check-input']); ?>
-                        <?= form_label(ucfirst($day), $day, ['class' => 'form-check-label']); ?>
+                        <?= form_checkbox('days[]', $key, $eventSerie[$key] ?? false, ['id' => $key, 'class' => 'form-check-input']); ?>
+                        <?= form_label(ucfirst($day), $key, ['class' => 'form-check-label']); ?>
                     </div>
                 <?php endforeach; ?>
             </div>

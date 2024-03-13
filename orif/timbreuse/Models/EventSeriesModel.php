@@ -22,6 +22,12 @@ class EventSeriesModel extends Model
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
 
+    // Callbacks
+    protected $allowCallbacks = true;
+    protected $beforeInsert = ['encodeDays'];
+    protected $beforeUpdate = ['encodeDays'];
+    protected $afterFind = ['decodeDays'];
+
     public function __construct(ConnectionInterface &$db = null, ValidationInterface $validation = null)
     {
         $this->validationRules = [
@@ -52,12 +58,26 @@ class EventSeriesModel extends Model
             'days_of_week' =>
             [
                 'label' => lang('tim_lang.field_days_of_week'),
-                'rules' => 'required|valid_json'
+                'rules' => 'required|cb_valid_array|cb_array_not_empty'
             ],
         ];
 
         $this->validationMessages = [];
 
         parent::__construct($db, $validation);
+    }
+
+    protected function encodeDays(array $data) {
+        if (isset($data['data']['days_of_week'])) {
+            $data['data']['days_of_week'] = json_encode($data['data']['days_of_week']);
+        }
+        return $data;
+    }
+
+    protected function decodeDays(array $data) {
+        if (isset($data['data']['days_of_week'])) {
+            $data['data']['days_of_week'] = json_decode($data['data']['days_of_week']);
+        }
+        return $data;
     }
 }

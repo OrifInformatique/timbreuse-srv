@@ -11,10 +11,12 @@ use Timbreuse\Models\EventPlanningsModel;
 use Timbreuse\Models\EventTypesModel;
 use Timbreuse\Models\UsersModel;
 use User\Models\User_model;
+use Timbreuse\Controllers\EventSeries;
 
 class PersonalEventPlannings extends BaseController
 {
     // Class properties
+    protected EventSeries $eventSeriesController;
     private EventPlanningsModel $eventPlanningsModel;
     private EventTypesModel $eventTypesModel;
     private UsersModel $userSyncModel;
@@ -41,6 +43,9 @@ class PersonalEventPlannings extends BaseController
         $this->eventTypesModel = new EventTypesModel();
         $this->userSyncModel = new UsersModel();
         $this->userModel = new User_model();
+
+        // Load required controllers
+        $this->eventSeriesController = new EventSeries();
     }
 
     /**
@@ -192,7 +197,7 @@ class PersonalEventPlannings extends BaseController
 
         
         $user = $this->userSyncModel->find($userId);
-        
+
         $route = $this->getRoute($isAdminView, $user['id_user'] ?? null);
 
         $data = [
@@ -284,11 +289,12 @@ class PersonalEventPlannings extends BaseController
      * @return array Validation errors encountered during the saving process
      */
     protected function getPostDataAndSaveEventPlanning(?int $id = null) : array {
+        $errors = [];
         $eventPlanning = [
             'id' => $id,
             'fk_event_series_id' => null,
-            'fk_user_group_id' => $this->request->getPost('linked_user_group_id') ?? null,
-            'fk_user_sync_id' => $this->request->getPost('linked_user_id') ?? null,
+            'fk_user_group_id' => $this->request->getPost('linked_user_group_id'),
+            'fk_user_sync_id' => $this->request->getPost('linked_user_id'),
             'fk_event_type_id' => $this->request->getPost('fk_event_type_id'),
             'event_date' => $this->request->getPost('event_date'),
             'start_time' => $this->request->getPost('start_time'),
@@ -296,8 +302,22 @@ class PersonalEventPlannings extends BaseController
             'is_work_time' => (bool)$this->request->getPost('is_work_time'),
         ];
 
-        $this->eventPlanningsModel->save($eventPlanning);
-        return $this->eventPlanningsModel->errors();
+        // Check if a serie is created
+        if (array_key_exists('start_date', $_POST)) {
+            $eventSerie = [
+                'start_date' =>$this->request->getPost('start_date'),
+                'end_date' => $this->request->getPost('end_date'),
+                'recurrence_frequency' => $this->request->getPost('recurrence_frequency'),
+                'recurrence_interval' => $this->request->getPost('recurrence_interval'),
+                'days_of_week' => $this->request->getPost('days')
+            ];
+            $errors += $this->eventSeriesController->create($eventSerie, $eventPlanning);
+        } else {
+            $this->eventPlanningsModel->save($eventPlanning);
+            $errors += $this->eventPlanningsModel->errors();
+        }
+
+        return $errors;
     }
 
     protected function mapForSelectForm($array) : array {
@@ -354,7 +374,7 @@ class PersonalEventPlannings extends BaseController
 
         $route .= 'event-plannings/';
 
-        if (!is_null($userId)) {
+        if (!$isAdminView && !is_null($userId)) {
             $route .= $userId;
         }
 

@@ -128,5 +128,13 @@ class TimbreuseRules
 
         return empty($userSyncGroup);
     }
+    
+    public function cb_valid_array($array) : bool {
+        return is_array($array);
+    }
+    
+    public function cb_array_not_empty($array) : bool {
+        return count($array) > 0;
+    }
 
 }
