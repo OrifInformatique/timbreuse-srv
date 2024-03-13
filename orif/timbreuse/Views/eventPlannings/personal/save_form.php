@@ -21,7 +21,7 @@
         <div class="col-sm-6">
             <div class="form-group">
                 <?= form_label(lang('tim_lang.event_type'), 'event_type', ['class' => 'form-label']); ?>
-                <?= form_dropdown('fk_event_type_id', $eventTypes, $sessionEventPlanning['fk_event_type_id'] ?? [], [
+                <?= form_dropdown('fk_event_type_id', $eventTypes, $sessionEventPlanning['fk_event_type_id'] ?? $eventPlanning['fk_event_type_id'] ?? set_value('fk_event_type_id'), [
                     'class' => 'form-control', 'id' => 'event_type'
                 ]); ?>
                 <span class="text-danger"><?= isset($errors['fk_event_type_id']) ? esc($errors['fk_event_type_id']) : ''; ?></span>

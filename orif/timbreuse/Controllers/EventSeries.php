@@ -9,6 +9,7 @@ use CodeIgniter\HTTP\ResponseInterface;
 use DateInterval;
 use DateTime;
 use Psr\Log\LoggerInterface;
+use Timbreuse\Models\EventPlanningsModel;
 use Timbreuse\Models\EventSeriesModel;
 
 class EventSeries extends BaseController
@@ -45,7 +46,7 @@ class EventSeries extends BaseController
         $data = [
             'daysOfWeek' => $this->getDaysOfWeek(),
             'eventSerie' => null,
-            'recurrenceFrequencies' => $this->getEnumValues(),
+            'recurrenceFrequencies' => $this->getEnumValues()
         ];
 
         return json_encode(view('\Timbreuse\Views\eventSeries\create_series.php', $data));
@@ -70,15 +71,26 @@ class EventSeries extends BaseController
     }
 
     public function create(array $eventSerie, array $eventPlanning) {
-        $model = model(EventSeriesModel::class);
+        $errors = [];
 
-        $id = $model->insert($eventSerie, true);
+        $eventSeriesModel = model(EventSeriesModel::class);
+        $eventPlanningModel = model(EventPlanningsModel::class);
 
-        $newEventSerie = $model->find($id);
+        $isEventSerieValid = $eventSeriesModel->validate($eventSerie);
+        $iseventPlanningValid = $eventPlanningModel->validate($eventPlanning);
 
-        $this->createEventPlannings($newEventSerie);
+        if (!$isEventSerieValid || !$iseventPlanningValid) {
+            $errors += $eventSeriesModel->errors();
+            $errors += $eventPlanningModel->errors();
+        } else {
+            $id = $eventSeriesModel->insert($eventSerie, true);
+    
+            $newEventSerie = $eventSeriesModel->find($id);
+    
+            $this->createEventPlannings($newEventSerie);
+        }
 
-        return $model->errors();
+        return $errors;
     }
 
     private function createEventPlannings(array $eventSerie) {

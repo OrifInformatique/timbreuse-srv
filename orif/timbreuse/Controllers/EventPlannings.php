@@ -134,7 +134,7 @@ class EventPlannings extends PersonalEventPlannings
             return redirect()->to(base_url($_SESSION['_ci_previous_url']));
         }
         $userGroupId = $userGroupId !== 0 ?: $eventPlanning['fk_user_group_id'];
-        $eventTypes = $this->eventTypesModel->where('is_personal_event_type', true)->findAll();
+        $eventTypes = $this->eventTypesModel->where('is_group_event_type', true)->findAll();
 
         $userGroup = $this->userGroupsModel->find($userGroupId);
 
