@@ -170,4 +170,6 @@ return [
     'linked_to_group' => 'Lié au groupe',
     'cannot_delete_group_has_linked' => 'Ce groupe d’utilisateurs ne peut pas être supprimé car il est lié à d’autres éléments.',
     'btn_add_or_delete' => 'Ajouter / supprimer',
+    'event_series_list' => 'Séries d’événements',
+    'group_or_user_name' => 'Groupe / utilisateur',
 ];

@@ -32,6 +32,59 @@ class EventSeries extends BaseController
         helper('form');
     }
 
+    public function index() {
+        $eventSeriesModel = model(EventSeriesModel::class);
+
+        $data['title'] = lang('tim_lang.event_series_list');
+        $data['list_title'] = ucfirst(lang('tim_lang.event_series_list'));
+
+        $data['columns'] = [
+            'group_or_user_name' => ucfirst(lang('tim_lang.group_or_user_name')),
+            'start_date' => ucfirst(lang('tim_lang.field_start_date')),
+            'end_date' => ucfirst(lang('tim_lang.field_end_date')),
+            'recurrence_frequency' => ucfirst(lang('tim_lang.field_recurrence_frequency')),
+            'recurrence_interval' => ucfirst(lang('tim_lang.field_recurrence_interval')),
+            'days_of_week' => ucfirst(lang('tim_lang.field_days_of_week')),
+        ];
+
+        $eventSeries = $eventSeriesModel
+            ->select('
+                event_series.id,
+                start_date,
+                end_date,
+                recurrence_frequency,
+                recurrence_interval,
+                days_of_week,
+                GROUP_CONCAT(DISTINCT user_group.name) AS user_group_name,
+                GROUP_CONCAT(DISTINCT user_sync.name) AS user_lastname,
+                GROUP_CONCAT(DISTINCT user_sync.surname) AS user_firstname'    
+            )
+            ->join('event_planning', 'fk_event_series_id = event_series.id', 'left')
+            ->join('user_sync', 'user_sync.id_user = fk_user_sync_id', 'left')
+            ->join('user_group', 'user_group.id = fk_user_group_id', 'left')
+            ->groupBy('event_series.id')
+            ->findAll();
+
+            //dd($eventSeries);
+
+        $data['items'] = array_map(function($eventSerie) {
+            return [
+                'id' => $eventSerie['id'],
+                'start_date' => $eventSerie['start_date'],
+                'end_date' => $eventSerie['end_date'],
+                'recurrence_frequency' => lang("tim_lang.{$eventSerie['recurrence_frequency']}"),
+                'recurrence_interval' => $eventSerie['recurrence_interval'],
+                'days_of_week' => $this->getDaysAsString($eventSerie['days_of_week']),
+                'group_or_user_name' => $eventSerie['user_group_name'] ?? "{$eventSerie['user_firstname']} {$eventSerie['user_lastname']}",
+            ];
+        }, $eventSeries);
+
+        $data['url_update'] = 'admin/event-series/update/';
+        $data['url_delete'] = 'admin/event-series/delete/';
+
+        return $this->display_view(['Common\Views\items_list'], $data);
+    }
+
     public function getDaysOfWeek() : array{
         return [
             'monday' => lang('tim_lang.monday'),
@@ -183,5 +236,23 @@ class EventSeries extends BaseController
         }
     
         return null;
+    }
+    
+    /**
+     * Get days of week for display
+     *
+     * @param  array $daysOfWeek
+     * @return string
+     */
+    private function getDaysAsString(array $daysOfWeek) : string {
+        if (!empty($daysOfWeek) && count($daysOfWeek) === 1) {
+            return ucfirst(lang("tim_lang.{$daysOfWeek[0]}"));
+        } else {
+            foreach($daysOfWeek as &$day) {
+                $day = ucfirst(lang("tim_lang.{$day}"));
+            }
+
+            return implode(', ', $daysOfWeek);
+        }
     }
 }

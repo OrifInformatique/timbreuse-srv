@@ -68,15 +68,17 @@ class EventSeriesModel extends Model
     }
 
     protected function encodeDays(array $data) {
-        if (isset($data['data']['days_of_week'])) {
-            $data['data']['days_of_week'] = json_encode($data['data']['days_of_week']);
+        if (isset($data['data'][0]['days_of_week'])) {
+            $data['data'][0]['days_of_week'] = json_encode($data['data'][0]['days_of_week']);
         }
         return $data;
     }
 
     protected function decodeDays(array $data) {
-        if (isset($data['data']['days_of_week'])) {
-            $data['data']['days_of_week'] = json_decode($data['data']['days_of_week']);
+        if (isset($data) && count($data['data']) > 0) {
+            foreach($data['data'] as &$row) {
+                $row['days_of_week'] = json_decode($row['days_of_week']);
+            }
         }
         return $data;
     }
