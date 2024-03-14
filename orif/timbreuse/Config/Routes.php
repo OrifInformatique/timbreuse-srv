@@ -56,6 +56,9 @@ $routes->group('admin', function($routes) {
 
     $routes->group('event-series', function($routes) {
         $routes->get('', '\Timbreuse\Controllers\EventSeries');
+        
+        $routes->get('delete/(:num)', '\Timbreuse\Controllers\EventSeries::delete/$1');
+        $routes->post('delete/(:num)/(:num)', '\Timbreuse\Controllers\EventSeries::delete/$1/$2');
     });
 
     // Event types routes

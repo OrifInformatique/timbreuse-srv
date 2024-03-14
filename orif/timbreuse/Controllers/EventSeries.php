@@ -48,25 +48,7 @@ class EventSeries extends BaseController
             'days_of_week' => ucfirst(lang('tim_lang.field_days_of_week')),
         ];
 
-        $eventSeries = $eventSeriesModel
-            ->select('
-                event_series.id,
-                start_date,
-                end_date,
-                recurrence_frequency,
-                recurrence_interval,
-                days_of_week,
-                GROUP_CONCAT(DISTINCT event_type.name) AS event_type_name,
-                GROUP_CONCAT(DISTINCT user_group.name) AS user_group_name,
-                GROUP_CONCAT(DISTINCT user_sync.name) AS user_lastname,
-                GROUP_CONCAT(DISTINCT user_sync.surname) AS user_firstname'    
-            )
-            ->join('event_planning', 'fk_event_series_id = event_series.id', 'left')
-            ->join('event_type', 'event_type.id = fk_event_type_id', 'left')
-            ->join('user_sync', 'user_sync.id_user = fk_user_sync_id', 'left')
-            ->join('user_group', 'user_group.id = fk_user_group_id', 'left')
-            ->groupBy('event_series.id')
-            ->findAll();
+        $eventSeries = $eventSeriesModel->findAllSeries();
 
         $data['items'] = array_map(function($eventSerie) {
             return [
@@ -209,6 +191,58 @@ class EventSeries extends BaseController
         }
 
         return $planningErrors;
+    }
+
+    /**
+     * Display the delete form and delete the corresponding event planning
+     *
+     * @param  int $id
+     * @param  int $action
+     * @return string|RedirectResponse
+     */
+    public function delete(int $id, int $action = 0) : string|RedirectResponse {
+        $eventSeriesModel = model(EventSeriesModel::class);
+        $eventPlanningModel = model(EventPlanningsModel::class);
+        $eventSerie = $eventSeriesModel->findAllSeries($id);
+        $route = 'admin/event-series';
+
+        $of_group_or_user = '';
+
+        if (!is_null($eventSerie['user_group_name'])) {
+            $of_group_or_user .= lang('tim_lang.of_group');
+        } else {
+            $of_group_or_user .= lang('tim_lang.of_user');
+        }
+
+        $data = [
+            'title' => lang('tim_lang.delete_event_serie'),
+            'eventSerie' => $eventSerie,
+            'titleParameters' => [
+                'event_type_name' => $eventSerie['event_type_name'],
+                'of_group_or_user' => $of_group_or_user,
+                'group_or_user' => $eventSerie['user_group_name'] ?? 
+                    "{$eventSerie['user_firstname']} {$eventSerie['user_lastname']}",
+            ],
+            'route' => $route
+        ];
+
+        switch ($action) {
+            case 0:
+                return $this->display_view('Timbreuse\Views\eventSeries\confirm_delete', $data);
+
+            case 1:
+                // In case soft delete is implemented
+                break;
+            
+            case 2:
+                if (isset($_POST) && !empty($_POST) && !is_null($_POST['confirmation'])) {
+                    $eventPlanningModel->where('fk_event_series_id', $id)->delete(null, true);
+                    $eventSeriesModel->delete($id, true);
+                }
+                break;
+        }
+
+        return redirect()->to(base_url($route));
     }
     
     /**

@@ -77,9 +77,33 @@ class EventSeriesModel extends Model
     protected function decodeDays(array $data) {
         if (isset($data) && count($data['data']) > 0) {
             foreach($data['data'] as &$row) {
-                $row['days_of_week'] = json_decode($row['days_of_week']);
+                if (is_array($row) && array_key_exists('days_of_week', $row)) {
+                    $row['days_of_week'] = json_decode($row['days_of_week']);
+                }
             }
         }
         return $data;
+    }
+
+    public function findAllSeries(?int $eventSeriesId = null) : array {
+        return $this
+            ->select('
+                event_series.id,
+                start_date,
+                end_date,
+                recurrence_frequency,
+                recurrence_interval,
+                days_of_week,
+                GROUP_CONCAT(DISTINCT event_type.name) AS event_type_name,
+                GROUP_CONCAT(DISTINCT user_group.name) AS user_group_name,
+                GROUP_CONCAT(DISTINCT user_sync.name) AS user_lastname,
+                GROUP_CONCAT(DISTINCT user_sync.surname) AS user_firstname'    
+            )
+            ->join('event_planning', 'fk_event_series_id = event_series.id', 'left')
+            ->join('event_type', 'event_type.id = fk_event_type_id', 'left')
+            ->join('user_sync', 'user_sync.id_user = fk_user_sync_id', 'left')
+            ->join('user_group', 'user_group.id = fk_user_group_id', 'left')
+            ->groupBy('event_series.id')
+            ->find($eventSeriesId);
     }
 }

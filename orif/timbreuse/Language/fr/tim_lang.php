@@ -173,4 +173,10 @@ return [
     'event_series_list' => 'Séries d’événements',
     'group_or_user_name' => 'Groupe / utilisateur',
     'personal_event_plannings_list' => 'Événements de planning de "{firstname} {lastname}"',
+    'delete_event_serie' => 'Supprimer la série d’événement "{event_type_name}" {of_group_or_user} "{group_or_user}"',
+    'btn_hard_delete_event_serie' => 'Supprimer cette série d’événement',
+    'really_want_to_delete_event_serie' => 'Voulez-vous vraiment supprimer cette série d’événement ?',
+    'delete_event_serie_explanation' => nl2br("La suppression d’une série d’événement va également définitivement supprimer tous les événements de planning qui lui sont liés.\n\nLes événements de planning ayant été modifiés seront eux-aussi supprimés."),
+    'of_group' => 'du groupe',
+    'of_user' => 'de l’utilisateur',
 ];
