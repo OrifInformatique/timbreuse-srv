@@ -68,22 +68,26 @@ class EventSeriesModel extends Model
     }
 
     protected function encodeDays(array $data) {
-        if (isset($data['data'][0]['days_of_week'])) {
-            $data['data'][0]['days_of_week'] = json_encode($data['data'][0]['days_of_week']);
+        if (isset($data['data']['days_of_week'])) {
+            $data['data']['days_of_week'] = json_encode($data['data']['days_of_week']);
         }
         return $data;
     }
 
     protected function decodeDays(array $data) {
-        if (isset($data) && count($data['data']) > 0) {
-            foreach($data['data'] as &$row) {
-                if (is_array($row) && array_key_exists('days_of_week', $row)) {
-                    $row['days_of_week'] = json_decode($row['days_of_week']);
+        if (isset($data) && !empty($data['data'])) {
+            if (is_array($data['data']) && array_key_exists('days_of_week', $data['data'])) {
+                $data['data']['days_of_week'] = json_decode($data['data']['days_of_week']);
+            } else if (is_array($data['data'])) {
+                foreach ($data['data'] as &$row) {
+                    if (is_array($row) && array_key_exists('days_of_week', $row)) {
+                        $row['days_of_week'] = json_decode($row['days_of_week']);
+                    }
                 }
             }
         }
         return $data;
-    }
+    }    
 
     public function findAllSeries(?int $eventSeriesId = null) : array {
         return $this

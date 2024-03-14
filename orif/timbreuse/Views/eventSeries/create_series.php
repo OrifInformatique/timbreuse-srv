@@ -44,7 +44,7 @@
                     foreach ($daysOfWeek as $key => $day) :
                 ?>
                     <div class="form-check form-check-inline">
-                        <?= form_checkbox('days[]', $key, $eventSerie[$key] ?? false, ['id' => $key, 'class' => 'form-check-input']); ?>
+                        <?= form_checkbox('days[]', $key, in_array($key, $eventSerie['days_of_week']), ['id' => $key, 'class' => 'form-check-input']); ?>
                         <?= form_label(ucfirst($day), $key, ['class' => 'form-check-label']); ?>
                     </div>
                 <?php endforeach; ?>

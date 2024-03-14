@@ -193,6 +193,69 @@ class EventSeries extends BaseController
         return $planningErrors;
     }
 
+    public function update(int $id) {
+        $eventSeriesModel = model(EventSeriesModel::class);
+
+        $eventSerie = $eventSeriesModel->find($id);
+
+        if (is_null($eventSerie)) {
+            return redirect()->to(base_url('admin/event-series'));
+        }
+
+        // Todo: replace the title on the update page
+
+        $data = [
+            'daysOfWeek' => $this->getDaysOfWeek(),
+            'recurrenceFrequencies' => $this->getEnumValues(),
+            'eventSerie' => $eventSerie
+        ];
+
+        if (isset($_POST) && !empty($_POST)) {
+            $errors = $this->updateSerieAndGetErrors($id, $_POST);
+
+            if (empty($errors)) {
+                $newEventSerie = $eventSeriesModel->find($id);
+                dd($eventSerie, $newEventSerie);
+                $this->updateEventSeriesAndPlannings($eventSerie, $newEventSerie);
+            }
+        }
+
+        return $this->display_view('\Timbreuse\Views\eventSeries\update_form', $data);
+    }
+
+    public function updateSerieAndGetErrors(int $id, array $eventSerie) {
+        $eventSeriesModel = model(EventSeriesModel::class);
+
+        $eventSeriesModel->update($id, $eventSerie);
+
+        return $eventSeriesModel->errors();
+    }
+
+    public function updateEventSeriesAndPlannings(array $existingEventSeries, array $modifiedEventSeries) {  
+        // Todo: implement and test this method
+        // Update event plannings
+        $planningErrors = [];
+    
+        foreach ($existingEventSeries['plannings'] as $eventPlanning) {
+            $eventDate = new DateTime($eventPlanning['event_date']);
+    
+            if ($eventDate < $modifiedEventSeries['start_date'] || $eventDate > $modifiedEventSeries['end_date']) {
+                // Deletion logic goes here
+            } else {
+                $dayOfWeek = strtolower($eventDate->format('l'));
+                if (!in_array($dayOfWeek, $modifiedEventSeries['days_of_week'])) {
+                    // Deletion logic goes here
+                } else {
+                    // Update logic goes here
+                }
+            }
+        }
+    
+        // Creation logic goes here
+    
+        return $planningErrors;
+    }
+
     /**
      * Display the delete form and delete the corresponding event planning
      *
