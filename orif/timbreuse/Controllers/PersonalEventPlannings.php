@@ -60,23 +60,34 @@ class PersonalEventPlannings extends BaseController
             $timUserId = $this->getConnectedTimuserId();
         }
 
-        $data['title'] = lang('tim_lang.event_plannings_list');
-        $data['list_title'] = ucfirst(lang('tim_lang.event_plannings_list'));
+        $user = $this->userSyncModel->find($timUserId);
+        $titleParameters = [
+            'lastname' => $user['surname'],
+            'firstname' => $user['name']
+        ];  
+
+        $data['title'] = lang('tim_lang.personal_event_plannings_list', $titleParameters);
+        $data['list_title'] = ucfirst(lang('tim_lang.personal_event_plannings_list', $titleParameters));
         $data['isVisible'] = true;
         $data['route'] = $isAdminView ? "AdminLogs/time_list/{$timUserId}" : 'PersoLogs/perso_time';
 
         $data['columns'] = [
+            'event_type_name' => ucfirst(lang('tim_lang.event_type')),
             'event_date' => ucfirst(lang('tim_lang.field_event_date')),
             'start_time' => ucfirst(lang('tim_lang.field_start_time')),
             'end_time' => ucfirst(lang('tim_lang.field_end_time')),
             'is_work_time' => ucfirst(lang('tim_lang.field_is_work_time_short')),
         ];
 
-        $eventPlannings = $this->eventPlanningsModel->where('fk_user_sync_id', $timUserId)->findAll();
+        $eventPlannings = $this->eventPlanningsModel
+            ->join('event_type', 'event_type.id = fk_event_type_id', 'left')
+            ->where('fk_user_sync_id', $timUserId)
+            ->findAll();
 
         $data['items'] = array_map(function($eventPlanning) {
             return [
                 'id' => $eventPlanning['id'],
+                'event_type_name' => $eventPlanning['name'],
                 'event_date' => $eventPlanning['event_date'],
                 'start_time' => $eventPlanning['start_time'],
                 'end_time' => $eventPlanning['end_time'],

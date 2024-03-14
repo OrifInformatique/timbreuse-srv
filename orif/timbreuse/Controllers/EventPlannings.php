@@ -52,21 +52,42 @@ class EventPlannings extends PersonalEventPlannings
         $data['route'] = '';
 
         $data['columns'] = [
+            'group_or_user_name' => ucfirst(lang('tim_lang.group_or_user_name')),
+            'event_type_name' => ucfirst(lang('tim_lang.event_type')),
+            'event_type_name' => ucfirst(lang('tim_lang.event_type')),
             'event_date' => ucfirst(lang('tim_lang.field_event_date')),
             'start_time' => ucfirst(lang('tim_lang.field_start_time')),
             'end_time' => ucfirst(lang('tim_lang.field_end_time')),
             'is_work_time' => ucfirst(lang('tim_lang.field_is_work_time_short')),
         ];
 
-        $eventPlannings = $this->eventPlanningsModel->findAll();
+        $eventPlannings = $this->eventPlanningsModel
+            ->select('
+                event_planning.id,
+                event_date,
+                start_time,
+                end_time,
+                is_work_time,
+                event_type.name AS event_type_name,
+                user_group.name AS user_group_name,
+                user_sync.name AS user_lastname,
+                user_sync.surname AS user_firstname'    
+            )
+            ->join('event_type', 'event_type.id = fk_event_type_id', 'left')
+            ->join('user_sync', 'user_sync.id_user = fk_user_sync_id', 'left')
+            ->join('user_group', 'user_group.id = fk_user_group_id', 'left')
+            ->findAll();
 
         $data['items'] = array_map(function($eventPlanning) {
             return [
                 'id' => $eventPlanning['id'],
+                'event_type_name' => $eventPlanning['event_type_name'],
                 'event_date' => $eventPlanning['event_date'],
                 'start_time' => $eventPlanning['start_time'],
                 'end_time' => $eventPlanning['end_time'],
                 'is_work_time' => $eventPlanning['is_work_time'] ? lang('common_lang.yes') : lang('common_lang.no'),
+                'group_or_user_name' => $eventPlanning['user_group_name'] ?? 
+                    "{$eventPlanning['user_firstname']} {$eventPlanning['user_lastname']}",
             ];
         }, $eventPlannings);
 

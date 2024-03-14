@@ -172,4 +172,5 @@ return [
     'btn_add_or_delete' => 'Ajouter / supprimer',
     'event_series_list' => 'Séries d’événements',
     'group_or_user_name' => 'Groupe / utilisateur',
+    'personal_event_plannings_list' => 'Événements de planning de "{firstname} {lastname}"',
 ];

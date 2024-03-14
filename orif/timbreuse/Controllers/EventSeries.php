@@ -40,6 +40,7 @@ class EventSeries extends BaseController
 
         $data['columns'] = [
             'group_or_user_name' => ucfirst(lang('tim_lang.group_or_user_name')),
+            'event_type_name' => ucfirst(lang('tim_lang.event_type')),
             'start_date' => ucfirst(lang('tim_lang.field_start_date')),
             'end_date' => ucfirst(lang('tim_lang.field_end_date')),
             'recurrence_frequency' => ucfirst(lang('tim_lang.field_recurrence_frequency')),
@@ -55,17 +56,17 @@ class EventSeries extends BaseController
                 recurrence_frequency,
                 recurrence_interval,
                 days_of_week,
+                GROUP_CONCAT(DISTINCT event_type.name) AS event_type_name,
                 GROUP_CONCAT(DISTINCT user_group.name) AS user_group_name,
                 GROUP_CONCAT(DISTINCT user_sync.name) AS user_lastname,
                 GROUP_CONCAT(DISTINCT user_sync.surname) AS user_firstname'    
             )
             ->join('event_planning', 'fk_event_series_id = event_series.id', 'left')
+            ->join('event_type', 'event_type.id = fk_event_type_id', 'left')
             ->join('user_sync', 'user_sync.id_user = fk_user_sync_id', 'left')
             ->join('user_group', 'user_group.id = fk_user_group_id', 'left')
             ->groupBy('event_series.id')
             ->findAll();
-
-            //dd($eventSeries);
 
         $data['items'] = array_map(function($eventSerie) {
             return [
@@ -75,7 +76,9 @@ class EventSeries extends BaseController
                 'recurrence_frequency' => lang("tim_lang.{$eventSerie['recurrence_frequency']}"),
                 'recurrence_interval' => $eventSerie['recurrence_interval'],
                 'days_of_week' => $this->getDaysAsString($eventSerie['days_of_week']),
-                'group_or_user_name' => $eventSerie['user_group_name'] ?? "{$eventSerie['user_firstname']} {$eventSerie['user_lastname']}",
+                'group_or_user_name' => $eventSerie['user_group_name'] ?? 
+                    "{$eventSerie['user_firstname']} {$eventSerie['user_lastname']}",
+                'event_type_name' => $eventSerie['event_type_name'],
             ];
         }, $eventSeries);
 
