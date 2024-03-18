@@ -194,7 +194,7 @@ class PersoLogs extends BaseController
         if ($timUserId === get_tim_user_id()) {
             $button['link'] = base_url('event-plannings');
         } else {
-            $button['link'] = base_url("event-plannings/$timUserId");
+            $button['link'] = base_url("admin/event-plannings/$timUserId");
         }
         $button['label'] = ucfirst(lang('tim_lang.event_plannings_list'));
         return $button;

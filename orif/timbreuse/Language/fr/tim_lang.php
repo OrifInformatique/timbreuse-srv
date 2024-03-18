@@ -179,4 +179,8 @@ return [
     'delete_event_serie_explanation' => nl2br("La suppression d’une série d’événement va également définitivement supprimer tous les événements de planning qui lui sont liés.\n\nLes événements de planning ayant été modifiés seront eux-aussi supprimés."),
     'of_group' => 'du groupe',
     'of_user' => 'de l’utilisateur',
+    'modify_occurrence' => 'Modifier l’occurrence',
+    'modify_serie' => 'Modifier la série',
+    'modify_occurrence_or_serie' => 'Voulez-vous modifier l’occurence ou la série ?',
+    'event_part_of_serie' => 'L’événement "{event_type_name}" {of_group_or_user} "{group_or_user}" fait partie d’une série',
 ];

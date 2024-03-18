@@ -30,8 +30,6 @@ class AdminPanelConfig extends \CodeIgniter\Config\BaseConfig
             'tim_lang.Defaultplanning', 'pageLink'=>'DefaultPlannings'],
         ['label'=>'tim_lang.event_plannings_list', 'title'=>
             'tim_lang.event_plannings_list', 'pageLink'=>'admin/event-plannings'],
-        ['label'=>'tim_lang.event_series_list', 'title'=>
-            'tim_lang.event_series_list', 'pageLink'=>'admin/event-series'],
         ['label'=>'tim_lang.event_types_list', 'title'=>
             'tim_lang.event_types_list', 'pageLink'=>'admin/event-types'],
     ];

@@ -33,8 +33,11 @@ $routes->group('admin', function($routes) {
     // Event plannings
     $routes->group('event-plannings', function($routes) {
         $routes->get('', '\Timbreuse\Controllers\EventPlannings');
+        $routes->get('(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::index/$1');
 
-        $routes->get('update/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::updateRedirect/$1');
+        $routes->get('update/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::updateSerieOrOccurrence/$1');
+        $routes->get('ask-update-type/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::askUpdateType/$1');
+        $routes->post('ask-update-type/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::askUpdateType/$1');
 
         $routes->get('personal/create', '\Timbreuse\Controllers\PersonalEventPlannings::createPersonal');
         $routes->post('personal/create', '\Timbreuse\Controllers\PersonalEventPlannings::createPersonal');
@@ -55,8 +58,6 @@ $routes->group('admin', function($routes) {
     });
 
     $routes->group('event-series', function($routes) {
-        $routes->get('', '\Timbreuse\Controllers\EventSeries');
-
         $routes->get('update/(:num)', '\Timbreuse\Controllers\EventSeries::update/$1');
         $routes->post('update/(:num)', '\Timbreuse\Controllers\EventSeries::update/$1');
         
@@ -88,6 +89,10 @@ $routes->group('event-plannings', function($routes) {
     $routes->get('', '\Timbreuse\Controllers\PersonalEventPlannings::index');
     $routes->get('(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::index/$1');
 
+    $routes->get('update/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::updateSerieOrOccurrence/$1');
+    $routes->get('ask-update-type/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::askUpdateType/$1');
+    $routes->post('ask-update-type/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::askUpdateType/$1');
+
     $routes->get('personal/create', '\Timbreuse\Controllers\PersonalEventPlannings::createPersonal');
     $routes->post('personal/create', '\Timbreuse\Controllers\PersonalEventPlannings::createPersonal');
     $routes->get('personal/create/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::createPersonal/$1');
@@ -100,7 +105,11 @@ $routes->group('event-plannings', function($routes) {
 });
 
 // Event series routes
-$routes->get('event-series/html/form', '\Timbreuse\Controllers\EventSeries::getCreateSeriesHTML');
+$routes->group('event-series', function($routes) {
+    $routes->get('html/form', '\Timbreuse\Controllers\EventSeries::getCreateSeriesHTML');
+    $routes->get('update/(:num)', '\Timbreuse\Controllers\EventSeries::update/$1');
+    $routes->post('update/(:num)', '\Timbreuse\Controllers\EventSeries::update/$1');
+});
 
 $routes->group('Timbreuse', function($routes) {
     $routes->add('home','\Timbreuse\Controllers\Home');

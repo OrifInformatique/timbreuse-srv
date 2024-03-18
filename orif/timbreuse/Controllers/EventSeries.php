@@ -11,9 +11,11 @@ use DateTime;
 use Psr\Log\LoggerInterface;
 use Timbreuse\Models\EventPlanningsModel;
 use Timbreuse\Models\EventSeriesModel;
+use Timbreuse\Controllers\PersonalEventPlannings;
 
 class EventSeries extends BaseController
 {
+    public PersonalEventPlannings $personalEventPlanningController;
 
     /**
      * Constructor
@@ -30,47 +32,12 @@ class EventSeries extends BaseController
 
         // Load required helpers
         helper('form');
+
+        // Load required helpers
+        $this->personalEventPlanningController = new PersonalEventPlannings();
     }
 
-    public function index() {
-        $eventSeriesModel = model(EventSeriesModel::class);
-
-        $data['title'] = lang('tim_lang.event_series_list');
-        $data['list_title'] = ucfirst(lang('tim_lang.event_series_list'));
-
-        $data['columns'] = [
-            'group_or_user_name' => ucfirst(lang('tim_lang.group_or_user_name')),
-            'event_type_name' => ucfirst(lang('tim_lang.event_type')),
-            'start_date' => ucfirst(lang('tim_lang.field_start_date')),
-            'end_date' => ucfirst(lang('tim_lang.field_end_date')),
-            'recurrence_frequency' => ucfirst(lang('tim_lang.field_recurrence_frequency')),
-            'recurrence_interval' => ucfirst(lang('tim_lang.field_recurrence_interval')),
-            'days_of_week' => ucfirst(lang('tim_lang.field_days_of_week')),
-        ];
-
-        $eventSeries = $eventSeriesModel->findAllSeries();
-
-        $data['items'] = array_map(function($eventSerie) {
-            return [
-                'id' => $eventSerie['id'],
-                'start_date' => $eventSerie['start_date'],
-                'end_date' => $eventSerie['end_date'],
-                'recurrence_frequency' => lang("tim_lang.{$eventSerie['recurrence_frequency']}"),
-                'recurrence_interval' => $eventSerie['recurrence_interval'],
-                'days_of_week' => $this->getDaysAsString($eventSerie['days_of_week']),
-                'group_or_user_name' => $eventSerie['user_group_name'] ?? 
-                    "{$eventSerie['user_firstname']} {$eventSerie['user_lastname']}",
-                'event_type_name' => $eventSerie['event_type_name'],
-            ];
-        }, $eventSeries);
-
-        $data['url_update'] = 'admin/event-series/update/';
-        $data['url_delete'] = 'admin/event-series/delete/';
-
-        return $this->display_view(['Common\Views\items_list'], $data);
-    }
-
-    public function getDaysOfWeek() : array{
+    public function getDaysOfWeek() : array {
         return [
             'monday' => lang('tim_lang.monday'),
             'tuesday' => lang('tim_lang.tuesday'),
@@ -81,36 +48,15 @@ class EventSeries extends BaseController
     }
 
     public function getCreateSeriesHTML() : string {
+        $eventSeriesModel = model(EventSeriesModel::class);
+
         $data = [
             'daysOfWeek' => $this->getDaysOfWeek(),
             'eventSerie' => null,
-            'recurrenceFrequencies' => $this->getEnumValues()
+            'recurrenceFrequencies' => $eventSeriesModel->getReccurrenceFrequencyEnumValues()
         ];
 
         return json_encode(view('\Timbreuse\Views\eventSeries\create_series.php', $data));
-    }
-    
-    /**
-     * Get values of enum field from the DB
-     *
-     * @return array|bool
-     */
-    private function getEnumValues() : array|bool {
-        $model = model(EventSeriesModel::class);
-
-        $query = $model->query("SHOW COLUMNS FROM event_series WHERE Field = 'recurrence_frequency'");
-        $row = $query->getRow();
-
-        if ($row !== null && preg_match('/^enum\((.*)\)$/', $row->Type, $matches)) {
-            $enumValues = array();
-            foreach (explode(',', $matches[1]) as $value) {
-                $enumValue = trim($value, "'");
-                $enumValues[$enumValue] = lang("tim_lang.{$enumValue}");
-            }
-            return $enumValues;
-        } else {
-            return false;
-        }
     }
     
     /**
@@ -198,16 +144,19 @@ class EventSeries extends BaseController
 
         $eventSerie = $eventSeriesModel->find($id);
 
+        $route = $this->personalEventPlanningController->getPreviousRoute(url_is('*admin*'));
+
         if (is_null($eventSerie)) {
-            return redirect()->to(base_url('admin/event-series'));
+            return redirect()->to(base_url($route));
         }
 
         // Todo: replace the title on the update page
 
         $data = [
             'daysOfWeek' => $this->getDaysOfWeek(),
-            'recurrenceFrequencies' => $this->getEnumValues(),
-            'eventSerie' => $eventSerie
+            'recurrenceFrequencies' => $eventSeriesModel->getReccurrenceFrequencyEnumValues(),
+            'eventSerie' => $eventSerie,
+            'route' => $route
         ];
 
         if (isset($_POST) && !empty($_POST)) {
@@ -336,23 +285,5 @@ class EventSeries extends BaseController
         }
     
         return null;
-    }
-    
-    /**
-     * Get days of week for display
-     *
-     * @param  array $daysOfWeek
-     * @return string
-     */
-    private function getDaysAsString(array $daysOfWeek) : string {
-        if (!empty($daysOfWeek) && count($daysOfWeek) === 1) {
-            return ucfirst(lang("tim_lang.{$daysOfWeek[0]}"));
-        } else {
-            foreach($daysOfWeek as &$day) {
-                $day = ucfirst(lang("tim_lang.{$day}"));
-            }
-
-            return implode(', ', $daysOfWeek);
-        }
     }
 }

@@ -110,4 +110,25 @@ class EventSeriesModel extends Model
             ->groupBy('event_series.id')
             ->find($eventSeriesId);
     }
+
+    /**
+     * Get values of enum field from the DB
+     *
+     * @return array|bool
+     */
+    public function getReccurrenceFrequencyEnumValues() : bool|array {
+        $query = $this->query("SHOW COLUMNS FROM event_series WHERE Field = 'recurrence_frequency'");
+        $row = $query->getRow();
+
+        if ($row !== null && preg_match('/^enum\((.*)\)$/', $row->Type, $matches)) {
+            $enumValues = array();
+            foreach (explode(',', $matches[1]) as $value) {
+                $enumValue = trim($value, "'");
+                $enumValues[$enumValue] = lang("tim_lang.{$enumValue}");
+            }
+            return $enumValues;
+        } else {
+            return false;
+        }
+    }
 }
