@@ -11,8 +11,8 @@ use Timbreuse\Models\LogsModel;
 use Timbreuse\Models\UsersModel;
 use CodeIgniter\I18n\Time;
 use Timbreuse\Models\AccessTimModel;
+use Timbreuse\Models\EventPlanningsModel;
 use Timbreuse\Models\LogsFakeLogsModel;
-use Timbreuse\Models\FakeLogsModel;
 use Timbreuse\Models\PlanningsModel;
 
 class PersoLogs extends BaseController
@@ -255,48 +255,58 @@ class PersoLogs extends BaseController
         return $data;
     }
 
-    protected function get_detail_time_array(int $timUserId, string $day,
-        string $period, bool $asterisk=false): array
+    protected function get_detail_time_array(
+        int $timUserId, 
+        string $day,
+        string $period, 
+        bool $asterisk=false): array
     {
         $planningModel = model(PlanningsModel::class);
-        if (!$planningModel->has_planning_by_period($timUserId, $day,
-            $period))
-        {
+
+        if (!$planningModel->has_planning_by_period($timUserId, $day, $period)) {
             return $this->get_detail_time_array_null();
         }
-        $time = Time::parse($day);
+
         $data['offeredTime'] = $this->get_offered_time_show_by_period(
             $timUserId, $day, $period);
+
         $data['dueTime'] = $planningModel->get_due_time_by_period($timUserId,
             $day, $period);
+
         $data['sumTime'] = $this->get_total_time_by_period($timUserId, $day,
             $period, $asterisk);
+
         if ($asterisk) {
             $data['balance'] = $this->get_balance_by_period_asterisk(
                 $timUserId, $day, $period);
         } else {
-            $data['balance'] = $this->get_balance_by_period($timUserId, $day,
-                $period);
+            $data['balance'] = $this->get_balance_by_period($timUserId, $day, $period);
         }
+
         return $data;
     }
 
-    protected function get_offered_time_show_day(int $timUserId,
-        string $date): ?string
+    protected function get_offered_time_show_day(int $timUserId, string $date): ?string
     {
         $planningModel = model(PlanningsModel::class);
-        $planningTime = $planningModel
-                ->get_planning_time_day($date, $timUserId);
-        if (is_null($planningTime)) {
+        $eventPlanningModel = model(EventPlanningsModel::class);
+        
+        $planningTime = $planningModel->get_planning_time_day($date, $timUserId);
+
+        if (is_null($planningTime) && empty($eventPlanningTimes)) {
             return null;
         }
+
         $date = Time::parse($date);
         $logsTime = $this->get_time_day_by_period($timUserId, $date, 'day');
         $times = $this->to_seconds_for_planning_day($planningTime[0],
-                $planningTime[1], $logsTime);
+            $planningTime[1], $logsTime);
+
         $offeredTimeSeconds = $this->get_offered_time_seconds(
             $times['dueTime'], $times['offeredTime'], $times['logsTime']);
+
         $offeredTime = $this->get_hours_by_seconds($offeredTimeSeconds);
+
         return $offeredTime;
     }
 
@@ -338,10 +348,12 @@ class PersoLogs extends BaseController
         if ($dueTime === $offeredTime) {
             return $offeredTime;
         }
+        
         if ($logsTime === 0) {
             $nullTime = 0;
             return $nullTime;
         }
+
         return $offeredTime;
     }
 

@@ -4,6 +4,7 @@ namespace Timbreuse\Models;
 
 use CodeIgniter\Model;
 use CodeIgniter\Database\ConnectionInterface;
+use CodeIgniter\I18n\Time;
 use CodeIgniter\Validation\ValidationInterface;
 
 class EventPlanningsModel extends Model
@@ -83,5 +84,39 @@ class EventPlanningsModel extends Model
         $this->validationMessages = [];
 
         parent::__construct($db, $validation);
+    }
+
+    public function getOfferedTimeForDay(int $timUserId, string $date): ?array
+    {
+        // Fetch events directly linked to the user
+        $userEvents = $this
+            ->select('event_planning.start_time, event_planning.end_time')
+            ->where('fk_user_sync_id', $timUserId)
+            ->where('event_date', $date)
+            ->where('is_work_time', true)
+            ->findAll();
+
+        // Fetch events linked to groups the user is associated with
+        $groupEvents = $this
+            ->select('event_planning.start_time, event_planning.end_time')
+            ->join('user_sync_group', 'user_sync_group.fk_user_group_id = event_planning.fk_user_group_id')
+            ->where('user_sync_group.fk_user_sync_id', $timUserId)
+            ->where('event_date', $date)
+            ->where('is_work_time', true)
+            ->findAll();
+
+        // Combine both user and group events
+        $planningTime = [];
+        foreach ($userEvents as $event) {
+            $duration = strtotime($event['end_time']) - strtotime($event['start_time']);
+            $planningTime[] = $duration;
+        }
+
+        foreach ($groupEvents as $event) {
+            $duration = strtotime($event['end_time']) - strtotime($event['start_time']);
+            $planningTime[] = $duration;
+        }
+
+        return $planningTime;
     }
 }
