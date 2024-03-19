@@ -88,7 +88,13 @@ class EventSeriesModel extends Model
         }
         return $data;
     }    
-
+    
+    /**
+     * Find all series and concatenate linked events data 
+     *
+     * @param  mixed $eventSeriesId
+     * @return array
+     */
     public function findAllSeries(?int $eventSeriesId = null) : array {
         return $this
             ->select('
@@ -130,5 +136,10 @@ class EventSeriesModel extends Model
         } else {
             return false;
         }
+    }
+
+    public function findWitPlanningData(int $id) : array {
+        return $this->join('event_planning', 'fk_event_series_id = event_series.id', 'left')
+            ->find($id);
     }
 }

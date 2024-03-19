@@ -119,4 +119,17 @@ class EventPlanningsModel extends Model
 
         return $planningTime;
     }
+
+    public function getAllBySerieId(int $eventSerieId) : array {
+        return $this
+            ->where('fk_event_series_id', $eventSerieId)
+            ->findAll();
+    }
+
+    public function getByDate(int $eventSerieId, string $date) {
+        return $this
+            ->where('fk_event_series_id', $eventSerieId)
+            ->where('event_date', $date)
+            ->find();
+    }
 }

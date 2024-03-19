@@ -1,4 +1,5 @@
-<h3><?= lang('tim_lang.btn_create_series') ?></h3>
+<?php $update = boolval(isset($eventSerie)) ?>
+<h3><?= lang('tim_lang.' . ($update ? 'update_serie': 'btn_create_series')) ?></h3>
 <div class="row">
     <div class="col-sm-6">
         <div class="form-group">

@@ -105,11 +105,7 @@ class EventSeries extends BaseController
         $startDate = new DateTime($eventSerie['start_date']);
         $endDate = new DateTime($eventSerie['end_date']);
 
-        $interval = new DateInterval(
-            'P' 
-            . $eventSerie['recurrence_interval'] 
-            . strtoupper(substr($eventSerie['recurrence_frequency'], 0, 1))
-        );
+        $interval = $this->getInterval($eventSerie['recurrence_interval'], $eventSerie['recurrence_frequency']);
 
         $currentDate = clone $startDate;
 
@@ -141,6 +137,7 @@ class EventSeries extends BaseController
 
     public function update(int $id) {
         $eventSeriesModel = model(EventSeriesModel::class);
+        $eventPlanningModel = model(EventPlanningsModel::class);
 
         $eventSerie = $eventSeriesModel->find($id);
 
@@ -160,48 +157,150 @@ class EventSeries extends BaseController
         ];
 
         if (isset($_POST) && !empty($_POST)) {
-            $errors = $this->updateSerieAndGetErrors($id, $_POST);
+            $eventSerieUpdate = [
+                'start_date' =>$this->request->getPost('start_date'),
+                'end_date' => $this->request->getPost('end_date'),
+                'recurrence_frequency' => $this->request->getPost('recurrence_frequency'),
+                'recurrence_interval' => $this->request->getPost('recurrence_interval'),
+                'days_of_week' => $this->request->getPost('days')
+            ];
+            $errors = $this->updateSerieAndGetErrors($id, $eventSerieUpdate);
 
             if (empty($errors)) {
+                $eventPlannings = $eventPlanningModel->getAllBySerieId($id);
                 $newEventSerie = $eventSeriesModel->find($id);
-                dd($eventSerie, $newEventSerie);
-                $this->updateEventSeriesAndPlannings($eventSerie, $newEventSerie);
+                $errors += $this->updateLinkedEventPlannings($eventPlannings, $newEventSerie);
+
+                if (empty($errors)) {
+                    return redirect()->to(base_url('admin/event-plannings'));
+                }
             }
         }
 
         return $this->display_view('\Timbreuse\Views\eventSeries\update_form', $data);
     }
 
-    public function updateSerieAndGetErrors(int $id, array $eventSerie) {
+    public function updateSerieAndGetErrors(int $id, array $eventSerie) : array {
         $eventSeriesModel = model(EventSeriesModel::class);
 
         $eventSeriesModel->update($id, $eventSerie);
 
         return $eventSeriesModel->errors();
     }
-
-    public function updateEventSeriesAndPlannings(array $existingEventSeries, array $modifiedEventSeries) {  
+    
+    /**
+     * Update or Add event plannings linked to the updated event serie 
+     *
+     * @param  array $existingEventPlannings
+     * @param  array $modifiedEventSeries
+     * 
+     * @return array
+     */
+    public function updateLinkedEventPlannings(array $existingEventPlannings, array $modifiedEventSeries) : array {  
         // Todo: implement and test this method
+        $eventPlanningModel = model(EventPlanningsModel::class);
+
         // Update event plannings
         $planningErrors = [];
-    
-        foreach ($existingEventSeries['plannings'] as $eventPlanning) {
+        $eventPlanningCopy = [];
+        $interval = $this->getInterval($modifiedEventSeries['recurrence_interval'], $modifiedEventSeries['recurrence_frequency']);
+        $serieStartDate = new DateTime($modifiedEventSeries['start_date']);
+        $serieEndDate = new DateTime($modifiedEventSeries['end_date']);
+
+        if (!empty($existingEventPlannings)) {
+            $eventPlanningCopy = $existingEventPlannings[0];
+        }
+
+        foreach ($existingEventPlannings as $eventPlanning) {
             $eventDate = new DateTime($eventPlanning['event_date']);
     
-            if ($eventDate < $modifiedEventSeries['start_date'] || $eventDate > $modifiedEventSeries['end_date']) {
-                // Deletion logic goes here
+            if ($eventDate < $serieStartDate || $eventDate > $serieEndDate) {
+                // Not in the serie's range
+                $eventPlanningModel->delete($eventPlanning['id'], true);
             } else {
                 $dayOfWeek = strtolower($eventDate->format('l'));
+
                 if (!in_array($dayOfWeek, $modifiedEventSeries['days_of_week'])) {
-                    // Deletion logic goes here
+                    // Day does not match
+                    $eventPlanningModel->delete($eventPlanning['id'], true);
                 } else {
-                    // Update logic goes here
+                    // Event already exists
+                    // Possible improvements => update all events with newer serie's data
                 }
             }
         }
+
+        $planningErrors += $this->createEventIfNotExists(
+            $modifiedEventSeries['id'],
+            $serieStartDate,
+            $serieEndDate,
+            $interval,
+            $modifiedEventSeries['days_of_week'],
+            $eventPlanningCopy
+        );
     
-        // Creation logic goes here
+        return $planningErrors;
+    }
     
+        
+    /**
+     * Create newer event plannings with the corresponding data
+     * Only create if does not already exists
+     *
+     * @param  int $id
+     * @param  DateTime $startDate
+     * @param  DateTime $endDate
+     * @param  DateInterval $interval
+     * @param  array $daysOfWeek
+     * @param  array $eventPlanning
+     * 
+     * @return array
+     */
+    public function createEventIfNotExists(
+        int $id,
+        DateTime $startDate,
+        DateTime $endDate,
+        DateInterval $interval,
+        array $daysOfWeek,
+        array $eventPlanning) : array
+    {
+        $eventPlanningModel = model(EventPlanningsModel::class);
+        $planningErrors = [];
+        $eventPlanningUpdate = [];
+        $currentDate = clone $startDate;
+
+        while ($currentDate <= $endDate) {
+            foreach($daysOfWeek as $dayOfWeek) {
+                $nextOccurrence = $this->getNextOccurrence($currentDate, $endDate, $dayOfWeek);
+    
+                if (!is_null($nextOccurrence)) {
+                    $existingEventPlanning = $eventPlanningModel->getByDate($id, $nextOccurrence->format('Y-m-d'));
+
+                    $eventPlanningUpdate = [
+                        'fk_event_series_id' => $id,
+                        'fk_user_group_id' => $eventPlanning['fk_user_group_id'],
+                        'fk_user_sync_id' => $eventPlanning['fk_user_sync_id'],
+                        'fk_event_type_id' => $eventPlanning['fk_event_type_id'],
+                        'event_date' => $nextOccurrence->format('Y-m-d'),
+                        'start_time' => $eventPlanning['start_time'],
+                        'end_time' => $eventPlanning['end_time'],
+                        'is_work_time' => (bool)$eventPlanning['is_work_time'],
+                    ];
+
+                    if (!empty($existingEventPlanning)) {
+                        // Event already exists
+                        // Possible improvements => update event with newer serie's data
+                    } else {
+                        unset($eventPlanningUpdate['id']);
+                        $eventPlanningModel->insert($eventPlanningUpdate);
+                        $planningErrors += $eventPlanningModel->errors();
+                    }
+                }
+            }
+
+            $currentDate->add($interval);
+        }
+
         return $planningErrors;
     }
 
@@ -210,6 +309,7 @@ class EventSeries extends BaseController
      *
      * @param  int $id
      * @param  int $action
+     * 
      * @return string|RedirectResponse
      */
     public function delete(int $id, int $action = 0) : string|RedirectResponse {
@@ -263,6 +363,7 @@ class EventSeries extends BaseController
      * @param  DateTime $startDate
      * @param  DateTime $endDate
      * @param  string $dayOfWeek
+     * 
      * @return DateTime
      */
     private function getNextOccurrence(DateTime $startDate, DateTime $endDate, string $dayOfWeek) : ?DateTime {
@@ -285,5 +386,21 @@ class EventSeries extends BaseController
         }
     
         return null;
+    }
+    
+    /**
+     * Get interval from the corresponding data
+     *
+     * @param  string $recurrenceInterval
+     * @param  string $recurrenceFrequency
+     * 
+     * @return DateInterval
+     */
+    private function getInterval(string $recurrenceInterval, string $recurrenceFrequency) : DateInterval {
+        return new DateInterval(
+            'P'
+            . $recurrenceInterval
+            . strtoupper(substr($recurrenceFrequency, 0, 1))
+        );
     }
 }

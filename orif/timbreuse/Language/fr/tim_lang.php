@@ -166,6 +166,7 @@ return [
     'weekly' => 'Hebdomadaire',
     'monthly' => 'Mensuel',
     'btn_create_series' => 'Créer en série',
+    'update_serie' => 'Modifier une série',
     'title_link_user' => 'Lien entre groupe "{group_name}" ⇋ utilisateur',
     'linked_to_group' => 'Lié au groupe',
     'cannot_delete_group_has_linked' => 'Ce groupe d’utilisateurs ne peut pas être supprimé car il est lié à d’autres éléments.',
