@@ -184,7 +184,13 @@ class PersonalEventPlannings extends BaseController
 
         return redirect()->to(base_url($route));
     }
-
+    
+    /**
+     * Check if event planning is part of a serie, then redirect on corresponding page
+     *
+     * @param  mixed $id
+     * @return RedirectResponse
+     */
     public function updateSerieOrOccurrence(int $id) : RedirectResponse|string {
         $eventPlanning = $this->eventPlanningsModel->find($id);
         $isAdminRoute = url_is('*admin*');
@@ -200,7 +206,13 @@ class PersonalEventPlannings extends BaseController
             return redirect()->to(base_url($askUpdateRoute));
         }
     }
-
+    
+    /**
+     * Asks to update serie or occurrence then redirect on the corresponding page
+     *
+     * @param  int $id
+     * @return RedirectResponse|string
+     */
     public function askUpdateType(int $id) : RedirectResponse|string {
         $eventPlanning = $this->eventPlanningsModel->getWithLinkedData($id);
         $post = $this->request->getPost();
@@ -283,6 +295,12 @@ class PersonalEventPlannings extends BaseController
         return $this->display_view(['Timbreuse\Views\eventPlannings\personal\save_form'], $data);
     }
 
+    /**
+     * Asks to delete serie or occurrence then redirect on the corresponding page
+     *
+     * @param  int $id
+     * @return RedirectResponse|string
+     */
     public function askDeleteType(int $id) : RedirectResponse|string {
         $eventPlanning = $this->eventPlanningsModel->getWithLinkedData($id);
         $isAdminView = url_is('*admin*');
@@ -309,6 +327,12 @@ class PersonalEventPlannings extends BaseController
         return $this->display_view('\Timbreuse\Views\eventPlannings\ask_occurence_or_serie', $data);
     }
     
+    /**
+     * Check if event planning is part of a serie, then redirect on corresponding page
+     *
+     * @param  mixed $id
+     * @return RedirectResponse
+     */
     public function deleteSerieOrOccurrence(int $id) : RedirectResponse {
         $eventPlanning = $this->eventPlanningsModel->find($id);
         $adminRoute = url_is('*admin*') ? 'admin/' : '';
