@@ -35,6 +35,10 @@ $routes->group('admin', function($routes) {
         $routes->get('', '\Timbreuse\Controllers\EventPlannings');
         $routes->get('(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::index/$1');
 
+        $routes->get('delete/serie-or-occurence/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::deleteSerieOrOccurrence/$1');
+        $routes->get('ask-delete-type/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::askDeleteType/$1');
+        $routes->post('ask-delete-type/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::askDeleteType/$1');
+        
         $routes->get('update/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::updateSerieOrOccurrence/$1');
         $routes->get('ask-update-type/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::askUpdateType/$1');
         $routes->post('ask-update-type/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::askUpdateType/$1');
@@ -53,8 +57,8 @@ $routes->group('admin', function($routes) {
         $routes->post('group/update/(:num)', '\Timbreuse\Controllers\EventPlannings::updateGroup/$1');
         $routes->get('group/update/(:num)/(:num)', '\Timbreuse\Controllers\EventPlannings::updateGroup/$1/$2');
 
-        $routes->get('delete/(:num)', '\Timbreuse\Controllers\EventPlannings::delete/$1');
-        $routes->post('delete/(:num)/(:num)', '\Timbreuse\Controllers\EventPlannings::delete/$1/$2');
+        $routes->get('delete/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::delete/$1');
+        $routes->post('delete/(:num)/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::delete/$1/$2');
     });
 
     $routes->group('event-series', function($routes) {
@@ -93,6 +97,10 @@ $routes->group('event-plannings', function($routes) {
     $routes->get('ask-update-type/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::askUpdateType/$1');
     $routes->post('ask-update-type/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::askUpdateType/$1');
 
+    $routes->get('delete/serie-or-occurence/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::deleteSerieOrOccurrence/$1');
+    $routes->get('ask-delete-type/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::askDeleteType/$1');
+    $routes->post('ask-delete-type/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::askDeleteType/$1');
+
     $routes->get('personal/create', '\Timbreuse\Controllers\PersonalEventPlannings::createPersonal');
     $routes->post('personal/create', '\Timbreuse\Controllers\PersonalEventPlannings::createPersonal');
     $routes->get('personal/create/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::createPersonal/$1');
@@ -100,15 +108,19 @@ $routes->group('event-plannings', function($routes) {
     $routes->post('personal/update/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::updatePersonal/$1');
     $routes->get('personal/update/(:num)/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::updatePersonal/$1/$2');
 
-    $routes->get('delete/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::delete/$1');
-        $routes->post('delete/(:num)/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::delete/$1/$2');
+    $routes->get('delete/(:num)', '\Timbreuse\Controllers\EventPlannings::delete/$1');
+    $routes->post('delete/(:num)/(:num)', '\Timbreuse\Controllers\EventPlannings::delete/$1/$2');
 });
 
 // Event series routes
 $routes->group('event-series', function($routes) {
     $routes->get('html/form', '\Timbreuse\Controllers\EventSeries::getCreateSeriesHTML');
+
     $routes->get('update/(:num)', '\Timbreuse\Controllers\EventSeries::update/$1');
     $routes->post('update/(:num)', '\Timbreuse\Controllers\EventSeries::update/$1');
+
+    $routes->get('delete/(:num)', '\Timbreuse\Controllers\EventPlannings::delete/$1');
+    $routes->post('delete/(:num)/(:num)', '\Timbreuse\Controllers\EventPlannings::delete/$1/$2');
 });
 
 $routes->group('Timbreuse', function($routes) {

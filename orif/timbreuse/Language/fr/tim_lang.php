@@ -182,6 +182,8 @@ return [
     'of_user' => 'de l’utilisateur',
     'modify_occurrence' => 'Modifier l’occurrence',
     'modify_serie' => 'Modifier la série',
-    'modify_occurrence_or_serie' => 'Voulez-vous modifier l’occurence ou la série ?',
+    'delete_occurrence' => 'Supprimer l’occurrence',
+    'delete_serie' => 'Supprimer la série',
+    'modify_or_delete_occurrence_or_serie' => 'Voulez-vous {update_or_delete} l’occurence ou la série ?',
     'event_part_of_serie' => 'L’événement "{event_type_name}" {of_group_or_user} "{group_or_user}" fait partie d’une série',
 ];

@@ -99,7 +99,7 @@ class PersonalEventPlannings extends BaseController
 
         $data['url_create'] = $eventPlannigRoute . 'personal/create/' . ($isAdminView ? $timUserId : '');
         $data['url_update'] = $eventPlannigRoute . 'update/';
-        $data['url_delete'] = $eventPlannigRoute . 'delete/';
+        $data['url_delete'] = $eventPlannigRoute . 'delete/serie-or-occurence/';
 
         return $this->display_view([
             'Timbreuse\Views\common\return_button',
@@ -191,7 +191,7 @@ class PersonalEventPlannings extends BaseController
         $askUpdateRoute = ($isAdminRoute ? 'admin/' : '') . "event-plannings/ask-update-type/{$id}";
 
         if (is_null($eventPlanning)) {
-            return redirect()->to(base_url($_SESSION['_ci_previous_url']));
+            return redirect()->back();
         }
         
         if (is_null($eventPlanning['fk_event_series_id'])) {
@@ -202,43 +202,15 @@ class PersonalEventPlannings extends BaseController
     }
 
     public function askUpdateType(int $id) : RedirectResponse|string {
-        $eventPlanning = $this->eventPlanningsModel
-            ->select('
-                event_planning.id,
-                fk_user_sync_id,
-                fk_event_series_id,
-                event_type.name AS event_type_name, 
-                user_sync.name AS user_firstname, 
-                user_sync.surname AS user_lastname, 
-                user_group.name AS user_group_name')
-            ->join('event_type', 'event_type.id = fk_event_type_id', 'left')
-            ->join('user_sync', 'user_sync.id_user = fk_user_sync_id', 'left')
-            ->join('user_group', 'user_group.id = fk_user_group_id', 'left')
-            ->find($id);
+        $eventPlanning = $this->eventPlanningsModel->getWithLinkedData($id);
         $post = $this->request->getPost();
         $isAdminRoute = url_is('*admin*');
 
         if (is_null($eventPlanning)) {
-            return redirect()->to(base_url($_SESSION['_ci_previous_url']));
+            return redirect()->back();
         }
 
-        $of_group_or_user = '';
-
-        if (!is_null($eventPlanning['user_group_name'])) {
-            $of_group_or_user .= lang('tim_lang.of_group');
-        } else {
-            $of_group_or_user .= lang('tim_lang.of_user');
-        }
-
-        $data = [
-            'eventPlanning' => $eventPlanning,
-            'titleParameters' => [
-                'event_type_name' => $eventPlanning['event_type_name'],
-                'of_group_or_user' => $of_group_or_user,
-                'group_or_user' => $eventPlanning['user_group_name'] ?? 
-                    "{$eventPlanning['user_firstname']} {$eventPlanning['user_lastname']}",
-            ]
-        ];
+        $data = $this->getDataForAskUpdateOrDeleteSerie($eventPlanning, true);
 
         if ($post) {
             if (isset($post['modify_occurrence'])) {
@@ -248,7 +220,7 @@ class PersonalEventPlannings extends BaseController
             }
         }
 
-        return $this->display_view('\Timbreuse\Views\eventPlannings\ask_update_type', $data);
+        return $this->display_view('\Timbreuse\Views\eventPlannings\ask_occurence_or_serie', $data);
     }
 
     /**
@@ -263,12 +235,12 @@ class PersonalEventPlannings extends BaseController
         $eventPlanning = $this->eventPlanningsModel->find($id);
 
         if (is_null($eventPlanning)) {
-            return redirect()->to(base_url($_SESSION['_ci_previous_url']));
+            return redirect()->back();
         }
 
         if (!((int)$eventPlanning['fk_user_sync_id'] == $this->getConnectedTimuserId()
             || $isUserAdmin)) {
-            return redirect()->to(base_url($_SESSION['_ci_previous_url']));
+            return redirect()->back();
         }
 
         $eventTypes = $this->eventTypesModel->where('is_personal_event_type', true)->findAll();
@@ -310,7 +282,51 @@ class PersonalEventPlannings extends BaseController
 
         return $this->display_view(['Timbreuse\Views\eventPlannings\personal\save_form'], $data);
     }
+
+    public function askDeleteType(int $id) : RedirectResponse|string {
+        $eventPlanning = $this->eventPlanningsModel->getWithLinkedData($id);
+        $isAdminView = url_is('*admin*');
+        $adminRoute = ($isAdminView ? 'admin/' : '');
+
+        if (is_null($eventPlanning)) {
+            return redirect()->back();
+        }
+
+        $deleteRoute = 'delete/';
+
+        if (!is_null($_POST) && !empty($_POST)) {
+            $redirectRoute = "{$adminRoute}event-series/{$deleteRoute}{$eventPlanning['fk_event_series_id']}";
+
+            if (isset($_POST['delete_occurrence'])) {
+                $redirectRoute = "{$adminRoute}event-plannings/{$deleteRoute}{$id}";
+            }
+
+            return redirect()->to($redirectRoute);
+        }
+
+        $data = $this->getDataForAskUpdateOrDeleteSerie($eventPlanning, false);
+
+        return $this->display_view('\Timbreuse\Views\eventPlannings\ask_occurence_or_serie', $data);
+    }
     
+    public function deleteSerieOrOccurrence(int $id) : RedirectResponse {
+        $eventPlanning = $this->eventPlanningsModel->find($id);
+        $adminRoute = url_is('*admin*') ? 'admin/' : '';
+        $deleteEventPlanningRoute = "{$adminRoute}event-plannings/";
+        $askDeleteRoute = "{$deleteEventPlanningRoute}ask-delete-type/{$id}";
+
+        if (is_null($eventPlanning)) {
+            return redirect()->back();
+        }
+        
+        if (is_null($eventPlanning['fk_event_series_id'])) {
+            $route = "{$deleteEventPlanningRoute}delete/{$id}";
+            return redirect()->to($route);
+        } else {
+            return redirect()->to($askDeleteRoute);
+        }
+    }
+
     /**
      * Display the delete form and delete the corresponding event planning
      *
@@ -329,7 +345,7 @@ class PersonalEventPlannings extends BaseController
         }
 
         if (!$eventPlanning) {
-            return redirect()->to(base_url($_SESSION['_ci_previous_url']));
+            return redirect()->back();
         }
 
         if (!is_null($eventPlanning['fk_user_sync_id'])) {
@@ -495,5 +511,39 @@ class PersonalEventPlannings extends BaseController
 
 
         return $formAction;
+    }
+    
+    /**
+     * Get data for update and delete occurrence or serie
+     *
+     * @param  mixed $eventPlanning
+     * @param  bool $update true = update, false = delete
+     * @return array
+     */
+    private function getDataForAskUpdateOrDeleteSerie(array $eventPlanning, bool $update) : array {
+        $isAdminView = url_is('*admin*');
+        $of_group_or_user = '';
+
+        if (!is_null($eventPlanning['user_group_name'])) {
+            $of_group_or_user .= lang('tim_lang.of_group');
+        } else {
+            $of_group_or_user .= lang('tim_lang.of_user');
+        }
+
+        return [
+            'eventPlanning' => $eventPlanning,
+            'titleParameters' => [
+                'event_type_name' => $eventPlanning['event_type_name'],
+                'of_group_or_user' => $of_group_or_user,
+                'group_or_user' => $eventPlanning['user_group_name'] ?? 
+                    "{$eventPlanning['user_firstname']} {$eventPlanning['user_lastname']}",
+            ],
+            'questionParameter' => [
+                'update_or_delete' => $update ? lang('tim_lang.modify') : lang('tim_lang.delete')
+            ],
+            'btnOccurrence' => ($update ? 'modify' : 'delete') . '_occurrence',
+            'btnSerie' => ($update ? 'modify' : 'delete') . '_serie',
+            'returnRoute' => $this->getPreviousRoute($isAdminView)
+        ];
     }
 }

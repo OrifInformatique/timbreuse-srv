@@ -93,7 +93,7 @@ class EventPlannings extends PersonalEventPlannings
 
         $data['url_create'] = "admin/event-plannings/group/create";
         $data['url_update'] = 'admin/event-plannings/update/';
-        $data['url_delete'] = 'admin/event-plannings/delete/';
+        $data['url_delete'] = 'admin/event-plannings/delete/serie-or-occurence/';
 
         return $this->display_view(['Common\Views\items_list'], $data);
     }
@@ -152,7 +152,7 @@ class EventPlannings extends PersonalEventPlannings
         $eventPlanning = $this->eventPlanningsModel->find($id);
 
         if (is_null($eventPlanning)) {
-            return redirect()->to(base_url($_SESSION['_ci_previous_url']));
+            return redirect()->back();
         }
         $userGroupId = $userGroupId !== 0 ?: $eventPlanning['fk_user_group_id'];
         $eventTypes = $this->eventTypesModel->where('is_group_event_type', true)->findAll();

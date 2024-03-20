@@ -134,8 +134,14 @@ class EventSeries extends BaseController
 
         return $planningErrors;
     }
-
-    public function update(int $id) {
+    
+    /**
+     * Display update page and update an existing serie on POST
+     *
+     * @param  int $id
+     * @return RedirectResponse|string
+     */
+    public function update(int $id) : RedirectResponse|string {
         $eventSeriesModel = model(EventSeriesModel::class);
         $eventPlanningModel = model(EventPlanningsModel::class);
 
@@ -179,7 +185,14 @@ class EventSeries extends BaseController
 
         return $this->display_view('\Timbreuse\Views\eventSeries\update_form', $data);
     }
-
+    
+    /**
+     * Update serie and return errors if any
+     *
+     * @param  int $id
+     * @param  array $eventSerie
+     * @return array
+     */
     public function updateSerieAndGetErrors(int $id, array $eventSerie) : array {
         $eventSeriesModel = model(EventSeriesModel::class);
 
@@ -316,7 +329,7 @@ class EventSeries extends BaseController
         $eventSeriesModel = model(EventSeriesModel::class);
         $eventPlanningModel = model(EventPlanningsModel::class);
         $eventSerie = $eventSeriesModel->findAllSeries($id);
-        $route = 'admin/event-series';
+        $route = 'admin/event-plannings';
 
         $of_group_or_user = '';
 

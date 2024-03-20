@@ -4,7 +4,6 @@ namespace Timbreuse\Models;
 
 use CodeIgniter\Model;
 use CodeIgniter\Database\ConnectionInterface;
-use CodeIgniter\I18n\Time;
 use CodeIgniter\Validation\ValidationInterface;
 
 class EventPlanningsModel extends Model
@@ -85,7 +84,14 @@ class EventPlanningsModel extends Model
 
         parent::__construct($db, $validation);
     }
-
+    
+    /**
+     * Get all offered time for the corresponding day and user
+     *
+     * @param  int $timUserId
+     * @param  string $date
+     * @return array
+     */
     public function getOfferedTimeForDay(int $timUserId, string $date): ?array
     {
         // Fetch events directly linked to the user
@@ -119,14 +125,49 @@ class EventPlanningsModel extends Model
 
         return $planningTime;
     }
+        
+    /**
+     * Get event planning with linked data
+     *
+     * @param  int $id
+     * @return array|null
+     */
+    public function getWithLinkedData(int $id) : array|null {
+        return $this
+            ->select('
+                event_planning.id,
+                fk_user_sync_id,
+                fk_event_series_id,
+                event_type.name AS event_type_name, 
+                user_sync.name AS user_firstname, 
+                user_sync.surname AS user_lastname, 
+                user_group.name AS user_group_name')
+            ->join('event_type', 'event_type.id = fk_event_type_id', 'left')
+            ->join('user_sync', 'user_sync.id_user = fk_user_sync_id', 'left')
+            ->join('user_group', 'user_group.id = fk_user_group_id', 'left')
+            ->find($id);
+    }
 
+    /**
+     * Get all event plannings linked to a serie
+     *
+     * @param  int $eventSerieId
+     * @return array
+     */
     public function getAllBySerieId(int $eventSerieId) : array {
         return $this
             ->where('fk_event_series_id', $eventSerieId)
             ->findAll();
     }
-
-    public function getByDate(int $eventSerieId, string $date) {
+    
+    /**
+     * Get a single event planning by serie's id and a date
+     *
+     * @param  int $eventSerieId
+     * @param  string $date
+     * @return array|null
+     */
+    public function getByDate(int $eventSerieId, string $date) : array|null {
         return $this
             ->where('fk_event_series_id', $eventSerieId)
             ->where('event_date', $date)
