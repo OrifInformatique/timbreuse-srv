@@ -112,7 +112,7 @@ class EventPlannings extends PersonalEventPlannings
         }
 
         $data = [
-            'title' => lang('tim_lang.create_event_planning_title'),
+            'title' => lang('tim_lang.create_group_event_planning_title'),
             'eventPlanning' => null,
             'sessionEventPlanning' => session()->get('eventPlanningPostData'),
             'eventTypes' => $this->mapForSelectForm($eventTypes),

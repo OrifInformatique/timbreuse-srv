@@ -30,7 +30,7 @@
                 <?= form_input('', $userGroup['name'] ?? '', [
                     'class' => 'form-control', 'id' => 'linked_user_group', 'disabled' => ''
                 ]); ?>
-                <?= form_submit('select_user_group', lang('tim_lang.btn_select_user_group'), ['class' => 'mt-3 w-100 btn btn-secondary']); ?>
+                <?= form_submit('select_user_group', lang('tim_lang.select_user_group'), ['class' => 'mt-3 w-100 btn btn-secondary']); ?>
             </div>
         </div>
     </div>

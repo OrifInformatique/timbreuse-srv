@@ -131,7 +131,7 @@ class PersonalEventPlannings extends BaseController
 
         $data = [
             'formAction' => $this->getFormAction($isAdminView, "event-plannings/personal/create"),
-            'title' => lang('tim_lang.create_event_planning_title'),
+            'title' => lang('tim_lang.create_personal_event_planning_title'),
             'sessionEventPlanning' => session()->get('eventPlanningPostData'),
             'eventTypes' => $this->mapForSelectForm($eventTypes),
             'user' => $user,

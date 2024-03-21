@@ -197,8 +197,8 @@ class UserGroups extends BaseController
         $filters = $_GET;
 
         $data['route'] = $filters['path'];
-        $data['title'] = lang('tim_lang.user_group_list');
-        $data['list_title'] = ucfirst(lang('tim_lang.user_group_list'));
+        $data['title'] = lang('tim_lang.select_user_group');
+        $data['list_title'] = ucfirst(lang('tim_lang.select_user_group'));
 
         $data['columns'] = [
             'name' => ucfirst(lang('tim_lang.field_name')),
