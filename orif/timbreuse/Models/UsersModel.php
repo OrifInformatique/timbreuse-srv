@@ -2,6 +2,8 @@
 namespace Timbreuse\Models;
 
 use CodeIgniter\Model;
+use CodeIgniter\Database\ConnectionInterface;
+use CodeIgniter\Validation\ValidationInterface;
 
 class UsersModel extends Model
 {
@@ -18,13 +20,44 @@ class UsersModel extends Model
     protected $deletedField  = 'date_delete';
     protected $dateFormat = 'datetime';
 
-    public function get_users($userId=null)
+    public function __construct(ConnectionInterface &$db = null, ValidationInterface $validation = null)
     {
-        if ($userId === null) {
-            $this->orderBy('surname');
-            return $this->findAll();
-        } 
-        return $this->find($userId);
+        $this->validationRules = [
+            'name' => [
+                'label' => lang('tim_lang.surname'),
+                'rules' => 'required|trim'
+            ],
+            'surname' => [
+                'label' => lang('tim_lang.surname'),
+                'rules' => 'required|trim'
+            ],
+        ];
+
+        $this->validationMessages = [];
+
+        parent::__construct($db, $validation);
+    }
+
+    public function get_user($userId)
+    {
+        return $this->select('user_sync.id_user, surname, user_sync.name, date_delete, user.id, username, email, fk_user_type, archive, user_type.name AS user_type')
+                    ->join('access_tim_user', 'user_sync.id_user = access_tim_user.id_user', 'left')
+                    ->join('user', 'user.id = access_tim_user.id_ci_user', 'left')
+                    ->join('user_type', 'user.fk_user_type = user_type.id', 'left')
+                    ->orderBy('surname')
+                    ->withDeleted(true)
+                    ->find($userId);
+    }
+
+    public function get_users(bool $with_deleted = false)
+    {
+        return $this->select('user_sync.id_user, surname, user_sync.name, date_delete, user.id, username, email, fk_user_type, archive, user_type.name AS user_type')
+                    ->join('access_tim_user', 'user_sync.id_user = access_tim_user.id_user', 'left')
+                    ->join('user', 'user.id = access_tim_user.id_ci_user', 'left')
+                    ->join('user_type', 'user.fk_user_type = user_type.id', 'left')
+                    ->orderBy('surname')
+                    ->withDeleted($with_deleted)
+                    ->findAll();
     }
 
     public function is_replicate(string $name, string $surname): bool

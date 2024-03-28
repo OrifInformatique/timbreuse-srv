@@ -27,7 +27,7 @@ class Home extends BaseController
             #return redirect()->to(current_url() . '../user/auth/login');
             return redirect()->to(url_to('login'));
         }
-        return redirect()->to(current_url() . '/PersoLogs/perso_time');
+        return redirect()->to(base_url() . 'PersoLogs/perso_time');
 		$data['title'] = "Welcome";
 
 		/**

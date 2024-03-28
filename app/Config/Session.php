@@ -19,7 +19,7 @@ class Session extends BaseConfig
      * - `CodeIgniter\Session\Handlers\MemcachedHandler`
      * - `CodeIgniter\Session\Handlers\RedisHandler`
      *
-     * @phpstan-var class-string<BaseHandler>
+     * @var class-string<BaseHandler>
      */
     public string $driver = 'CodeIgniter\Session\Handlers\DatabaseHandler';
 
@@ -40,7 +40,7 @@ class Session extends BaseConfig
      * The number of SECONDS you want the session to last.
      * Setting to 0 (zero) means expire when the browser is closed.
      */
-    public int $expiration = 3600 * 24 * 7; # 7 days
+    public int $expiration = 7200;
 
     /**
      * --------------------------------------------------------------------------

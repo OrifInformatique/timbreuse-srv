@@ -24,6 +24,8 @@ class AdminPanelConfig extends \CodeIgniter\Config\BaseConfig
             'tim_lang.timUsersList', 'pageLink'=>'Users'],
         ['label'=>'tim_lang.user_group_list', 'title'=>
             'tim_lang.user_group_list', 'pageLink'=>'admin/user-groups'],
+        ['label'=>'tim_lang.users', 'title'=>
+            'tim_lang.users', 'pageLink'=>'Users'],
         ['label'=>'tim_lang.badgesList', 'title'=>
             'tim_lang.badgesList', 'pageLink'=>'Badges'],
         ['label'=>'tim_lang.Defaultplanning', 'title'=>
