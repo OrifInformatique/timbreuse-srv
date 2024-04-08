@@ -126,15 +126,22 @@ class EventTypes extends BaseController
      * @return string|RedirectResponse
      */
     public function delete(int $id, int $action = 0) : string|RedirectResponse {
-        $eventType = $this->eventTypesModel->find($id);
+        $eventType = $this->eventTypesModel
+            ->select('event_type.id, event_type.name, event_planning.id AS planning_id')
+            ->join('event_planning', 'fk_event_type_id = event_type.id', 'left')
+            ->find($id);
 
         if (!$eventType) {
             return redirect()->to(base_url('admin/event-types'));
         }
 
+        $canBeDeleted = is_null($eventType['planning_id']);
+
         $data = [
-            'title' => lang('tim_lang.delete_event_type'),
-            'eventType' => $eventType
+            'title' => lang('tim_lang.delete_event_type', [
+                'event_type_name' => $eventType['name']
+            ]),
+            'canBeDeleted' => $canBeDeleted
         ];
 
         switch ($action) {
