@@ -190,4 +190,6 @@ return [
     'really_want_to_delete' => 'Voulez-vous vraiment supprimer cet utilisateur ?',
     'hard_delete_explanation' => 'Toutes ses données seront effacées.',
     'btn_hard_delete_user' => 'Supprimer définitivement cet utilisateur',
+    'siteAccountNotLinked' => 'Ce compte utilisateur de la timbreuse n\'est pas lié à un compte de l\'application web.',
+    'fillFieldsToCreateAccount' => 'Complétez les champs ci-dessous et enregistrez pour lui créer un compte dans l\'application.',
 ];

@@ -289,7 +289,6 @@ class PersoLogs extends BaseController
     protected function get_offered_time_show_day(int $timUserId, string $date): ?string
     {
         $planningModel = model(PlanningsModel::class);
-        $eventPlanningModel = model(EventPlanningsModel::class);
         
         $planningTime = $planningModel->get_planning_time_day($date, $timUserId);
 

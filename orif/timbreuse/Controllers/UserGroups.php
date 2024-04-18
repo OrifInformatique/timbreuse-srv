@@ -218,8 +218,9 @@ class UserGroups extends BaseController
      */
     private function getPostDataAndSaveUserGroup() : array {
         $parentUserGroupId = $this->request->getPost('parentUserGroupId');
+        $id = $this->request->getPost('id');
         $userGroup = [
-            'id' => $this->request->getPost('id'),
+            'id' => $id == 0 ? null : $id,
             'name' => $this->request->getPost('name'),
         ];
 
