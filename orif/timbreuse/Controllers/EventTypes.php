@@ -168,8 +168,9 @@ class EventTypes extends BaseController
      * @return array Validation errors encountered during the saving process
      */
     private function getPostDataAndSaveEventType() : array {
+        $id = $this->request->getPost('id');
         $eventType = [
-            'id' => $this->request->getPost('id'),
+            'id' => $id == 0 ? null : $id,
             'name' => $this->request->getPost('name'),
             'is_group_event_type' => (bool)$this->request->getPost('isGroupEventType'),
             'is_personal_event_type' => (bool)$this->request->getPost('isPersonalEventType'),
