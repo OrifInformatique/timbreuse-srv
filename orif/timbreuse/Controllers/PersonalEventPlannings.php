@@ -53,13 +53,17 @@ class PersonalEventPlannings extends BaseController
      *
      * @return string
      */
-    public function index(?int $timUserId = null) : string {
+    public function index(?int $timUserId = null) : string|RedirectResponse {
         $isAdminView = $_SESSION['user_access'] === config('\User\Config\UserConfig')->access_lvl_admin;
         $eventPlannigRoute = ($isAdminView ? 'admin/' : '') . 'event-plannings/';
 
         if (is_null($timUserId)) {
-            $timUserId = $this->getConnectedTimuserId();
-        }
+            if (!$isAdminView) {
+                $timUserId = $this->getConnectedTimuserId();
+            }
+        } else if (!$isAdminView) {
+            return redirect()->to('event-plannings');
+        }  
 
         $user = $this->userSyncModel->find($timUserId ?? 0);
         $titleParameters = [
@@ -121,11 +125,15 @@ class PersonalEventPlannings extends BaseController
 
         $eventTypes = $this->eventTypesModel->where('is_personal_event_type', true)->findAll();
 
-        if (is_null($userId) && !$isAdminView) {
-            $userId = $this->getConnectedTimuserId();
-        } else if (is_null($userId)) {
-            $userId = 0;
-        }
+        if (is_null($userId)) {
+            if (!$isAdminView) {
+                $userId = $this->getConnectedTimuserId();
+            } else {
+                $userId = 0;
+            }
+        } else if (!$isAdminView) {
+            return redirect()->to('event-plannings/personal/create');
+        }        
 
         $user = $this->userSyncModel->find($userId);
 
