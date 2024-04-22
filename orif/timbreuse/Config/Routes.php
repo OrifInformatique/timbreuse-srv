@@ -119,8 +119,8 @@ $routes->group('event-series', function($routes) {
     $routes->get('update/(:num)', '\Timbreuse\Controllers\EventSeries::update/$1');
     $routes->post('update/(:num)', '\Timbreuse\Controllers\EventSeries::update/$1');
 
-    $routes->get('delete/(:num)', '\Timbreuse\Controllers\EventPlannings::delete/$1');
-    $routes->post('delete/(:num)/(:num)', '\Timbreuse\Controllers\EventPlannings::delete/$1/$2');
+    $routes->get('delete/(:num)', '\Timbreuse\Controllers\EventSeries::delete/$1');
+    $routes->post('delete/(:num)/(:num)', '\Timbreuse\Controllers\EventSeries::delete/$1/$2');
 });
 
 $routes->group('Timbreuse', function($routes) {

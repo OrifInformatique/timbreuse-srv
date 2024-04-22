@@ -145,12 +145,12 @@ class EventSeries extends BaseController
         $eventSeriesModel = model(EventSeriesModel::class);
         $eventPlanningModel = model(EventPlanningsModel::class);
 
-        $eventSerie = $eventSeriesModel->find($id);
+        $eventSerie = $eventSeriesModel->findAllSeries($id);
 
         $route = $this->personalEventPlanningController->getPreviousRoute(url_is('*admin*'));
 
-        if (is_null($eventSerie)) {
-            return redirect()->to(base_url($route));
+        if (is_null($eventSerie) || $this->checkPermissionBeforeDelete($eventSerie)) {
+            return redirect()->to($route);
         }
 
         // Todo: replace the title on the update page
@@ -178,7 +178,7 @@ class EventSeries extends BaseController
                 $errors += $this->updateLinkedEventPlannings($eventPlannings, $newEventSerie);
 
                 if (empty($errors)) {
-                    return redirect()->to(base_url('admin/event-plannings'));
+                    return redirect()->to($route);
                 }
             }
         }
@@ -328,8 +328,15 @@ class EventSeries extends BaseController
     public function delete(int $id, int $action = 0) : string|RedirectResponse {
         $eventSeriesModel = model(EventSeriesModel::class);
         $eventPlanningModel = model(EventPlanningsModel::class);
+
         $eventSerie = $eventSeriesModel->findAllSeries($id);
-        $route = 'admin/event-plannings';
+
+        $isAdminView = url_is('*admin*');
+        $route = ($isAdminView ? 'admin/': '') . 'event-plannings';
+
+        if (is_null($eventSerie) || $this->checkPermissionBeforeDelete($eventSerie)) {
+            return redirect()->to($route);
+        }
 
         $of_group_or_user = '';
 
@@ -367,7 +374,26 @@ class EventSeries extends BaseController
                 break;
         }
 
-        return redirect()->to(base_url($route));
+        return redirect()->to($route);
+    }
+    
+    /**
+     * Check user permission before accessing the delete page
+     *
+     * @param  mixed $eventSerie
+     * @return bool
+     */
+    private function checkPermissionBeforeDelete(array $eventSerie) : bool {
+        $userAccess = $_SESSION['user_access'];
+        $userConfig = config('\User\Config\UserConfig');
+
+        if (!is_null($eventSerie['fk_user_group_id']) && $userAccess >= $userConfig->access_lvl_admin) {
+            return false;
+        } else if (!is_null($eventSerie['fk_user_sync_id']) && $userAccess >= $userConfig->access_lvl_registered) {
+            return false;
+        } else {
+            return true;
+        }
     }
     
     /**

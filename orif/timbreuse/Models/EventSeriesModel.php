@@ -93,9 +93,9 @@ class EventSeriesModel extends Model
      * Find all series and concatenate linked events data 
      *
      * @param  mixed $eventSeriesId
-     * @return array
+     * @return array|null
      */
-    public function findAllSeries(?int $eventSeriesId = null) : array {
+    public function findAllSeries(?int $eventSeriesId = null) : array|null {
         return $this
             ->select('
                 event_series.id,
@@ -104,6 +104,8 @@ class EventSeriesModel extends Model
                 recurrence_frequency,
                 recurrence_interval,
                 days_of_week,
+                GROUP_CONCAT(DISTINCT event_planning.fk_user_group_id) AS fk_user_group_id,
+                GROUP_CONCAT(DISTINCT event_planning.fk_user_sync_id) AS fk_user_sync_id,
                 GROUP_CONCAT(DISTINCT event_type.name) AS event_type_name,
                 GROUP_CONCAT(DISTINCT user_group.name) AS user_group_name,
                 GROUP_CONCAT(DISTINCT user_sync.name) AS user_lastname,
