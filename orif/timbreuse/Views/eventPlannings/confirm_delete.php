@@ -3,7 +3,7 @@
         <div class="row">
             <div class="col-12">
                 <div>
-                    <h1><?= lang('tim_lang.delete_event_planning') . ' ""' ?></h1>
+                    <h2><?= lang('tim_lang.delete_event_planning', $titleParameters)?></h2>
                     <h4><?= lang('user_lang.what_to_do') ?></h4>
                 </div>
                 <div class="text-right">

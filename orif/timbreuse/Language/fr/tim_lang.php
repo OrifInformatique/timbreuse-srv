@@ -142,7 +142,7 @@ return [
     'really_want_to_delete_event_planning' => 'Voulez-vous vraiment supprimer cet événement de planning ?',
     'really_want_to_delete_user_group' => 'Voulez-vous vraiment supprimer ce groupe ?',
     'delete_event_type' => 'Supprimer le type d’événement "{event_type_name}"',
-    'delete_event_planning' => 'Supprimer cet événement de planning',
+    'delete_event_planning' => 'Supprimer l’événement de planning "{event_type_name}" {of_group_or_user} "{group_or_user}"',
     'delete_user_group' => 'Supprimer le groupe d’utilisateurs "{group_name}"',
     'event_plannings_list' => 'Événements de planning',
     'field_event_date' => 'Date de l’événement',

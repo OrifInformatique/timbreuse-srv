@@ -369,7 +369,7 @@ class PersonalEventPlannings extends BaseController
     public function delete(int $id, int $action = 0) : string|RedirectResponse {
         $isAdminView = url_is('*admin*');
         $isUserAdmin = $_SESSION['user_access'] >= config('\User\Config\UserConfig')->access_lvl_admin;
-        $eventPlanning = $this->eventPlanningsModel->find($id);
+        $eventPlanning = $this->eventPlanningsModel->getWithLinkedData($id);
         $userId = null;
 
         if ($isUserAdmin) {
@@ -381,7 +381,7 @@ class PersonalEventPlannings extends BaseController
         }
 
         if (!is_null($eventPlanning['fk_user_sync_id'])) {
-            $userId = $this->getTimuserId($eventPlanning['fk_user_sync_id']);
+            $userId = $eventPlanning['fk_user_sync_id'];
         }
 
         $route = $this->getPreviousRoute($isAdminView, $userId);
@@ -394,7 +394,8 @@ class PersonalEventPlannings extends BaseController
         $data = [
             'title' => lang('tim_lang.delete_event_planning'),
             'eventPlanning' => $eventPlanning,
-            'route' => $route
+            'route' => $route,
+            'titleParameters' => $this->getTitleParameters($eventPlanning)
         ];
 
         switch ($action) {
@@ -496,12 +497,6 @@ class PersonalEventPlannings extends BaseController
         return $user['id_user'] ?? null;
     }
     
-    protected function getTimuserId(int $id) : int|null {
-        $user = $this->userSyncModel->find($id);
-
-        return $user['id_user'] ?? null;
-    }
-    
     /**
      * Get route to previous URL
      *
@@ -564,18 +559,30 @@ class PersonalEventPlannings extends BaseController
 
         return [
             'eventPlanning' => $eventPlanning,
-            'titleParameters' => [
-                'event_type_name' => $eventPlanning['event_type_name'],
-                'of_group_or_user' => $of_group_or_user,
-                'group_or_user' => $eventPlanning['user_group_name'] ?? 
-                    "{$eventPlanning['user_firstname']} {$eventPlanning['user_lastname']}",
-            ],
+            'titleParameters' => $this->getTitleParameters($eventPlanning),
             'questionParameter' => [
                 'update_or_delete' => $update ? lang('tim_lang.modify') : lang('tim_lang.delete')
             ],
             'btnOccurrence' => ($update ? 'modify' : 'delete') . '_occurrence',
             'btnSerie' => ($update ? 'modify' : 'delete') . '_serie',
             'returnRoute' => $this->getPreviousRoute($isAdminView)
+        ];
+    }
+
+    private function getTitleParameters(array $eventPlanning) : array {
+        $of_group_or_user = '';
+
+        if (!is_null($eventPlanning['user_group_name'])) {
+            $of_group_or_user .= lang('tim_lang.of_group');
+        } else {
+            $of_group_or_user .= lang('tim_lang.of_user');
+        }
+
+        return [
+            'event_type_name' => $eventPlanning['event_type_name'],
+            'of_group_or_user' => $of_group_or_user,
+            'group_or_user' => $eventPlanning['user_group_name'] ?? 
+                "{$eventPlanning['user_firstname']} {$eventPlanning['user_lastname']}",
         ];
     }
 }
