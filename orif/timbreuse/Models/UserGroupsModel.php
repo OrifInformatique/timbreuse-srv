@@ -63,7 +63,7 @@ class UserGroupsModel extends Model
      * @param  mixed $timUserId
      * @return array
      */
-    public function getAllByTimUserId(int $timUserId): array {
+    private function getAllByTimUserId(int $timUserId): array {
         return $this
             ->join('user_sync_group', 'user_sync_group.fk_user_group_id = user_group.id', 'inner')
             ->where('fk_user_sync_id', $timUserId)
@@ -76,7 +76,7 @@ class UserGroupsModel extends Model
      * @param  mixed $id
      * @return array
      */
-    public function getParentGroupIdsRecusively(?int $id = null): array {
+    private function getParentGroupIdsRecusively(?int $id = null): array {
         $ids = [];
 
         $userGroup = $this->find($id ?? 0);
@@ -98,7 +98,7 @@ class UserGroupsModel extends Model
      * @param  mixed $timUserId
      * @return array
      */
-    function getAllLinkedUserGroupIds(int $timUserId) : array {
+    public function getAllLinkedUserGroupIds(int $timUserId) : array {
         $linkedUserGroupsIds = $this->getAllByTimUserId($timUserId);
         $allLinkedUserGroups = $linkedUserGroupsIds;
 
