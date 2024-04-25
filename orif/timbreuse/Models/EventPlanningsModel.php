@@ -92,24 +92,20 @@ class EventPlanningsModel extends Model
      * @param  string $date
      * @return array
      */
-    public function getOfferedTimeForDay(int $timUserId, string $date): ?array
-    {
+    public function getOfferedTimeForDay(int $timUserId, string $date) : ?array {
+        $groupEvents = [];
+
+        $userGroupModel = model(UserGroupsModel::class);
+
+        $linkedUserGroupIds = $userGroupModel->getAllLinkedUserGroupIds($timUserId);
+
         // Fetch events directly linked to the user
-        $userEvents = $this
-            ->select('event_planning.start_time, event_planning.end_time')
-            ->where('fk_user_sync_id', $timUserId)
-            ->where('event_date', $date)
-            ->where('is_work_time', true)
-            ->findAll();
+        $userEvents = $this->getEventsByFilters($date, $timUserId);
 
         // Fetch events linked to groups the user is associated with
-        $groupEvents = $this
-            ->select('event_planning.start_time, event_planning.end_time')
-            ->join('user_sync_group', 'user_sync_group.fk_user_group_id = event_planning.fk_user_group_id')
-            ->where('user_sync_group.fk_user_sync_id', $timUserId)
-            ->where('event_date', $date)
-            ->where('is_work_time', true)
-            ->findAll();
+        foreach ($linkedUserGroupIds as $linkedUserGroupId) {
+            array_push($groupEvents, ...$this->getEventsByFilters($date, null, $linkedUserGroupId));
+        }
 
         // Combine both user and group events
         $planningTime = [];
@@ -125,14 +121,39 @@ class EventPlanningsModel extends Model
 
         return $planningTime;
     }
+    
+    /**
+     * Get personal or group events corresponding to parameters
+     *
+     * @param  mixed $date
+     * @param  mixed $timUserId
+     * @param  mixed $groupId
+     * @return array
+     */
+    private function getEventsByFilters(string $date, ?int $timUserId = null, ?int $groupId = null) : array {
+        $baseSelect = 'event_planning.start_time, event_planning.end_time';
+
+        $events = $this->select($baseSelect, true);
+
+        if (is_null($timUserId)) {
+            $events = $events->where('fk_user_group_id', $groupId);
+        } else {
+            $events = $events->where('fk_user_sync_id', $timUserId);       
+        }
+
+        return $events
+            ->where('event_date', $date)
+            ->where('is_work_time', true)
+            ->findAll();
+    }
         
     /**
      * Get event planning with linked data
      *
      * @param  int $id
-     * @return array|null
+     * @return ?array
      */
-    public function getWithLinkedData(int $id) : array|null {
+    public function getWithLinkedData(int $id) : ?array {
         return $this
             ->select('
                 event_planning.id,
@@ -165,9 +186,9 @@ class EventPlanningsModel extends Model
      *
      * @param  int $eventSerieId
      * @param  string $date
-     * @return array|null
+     * @return ?array
      */
-    public function getByDate(int $eventSerieId, string $date) : array|null {
+    public function getByDate(int $eventSerieId, string $date) : ?array {
         return $this
             ->where('fk_event_series_id', $eventSerieId)
             ->where('event_date', $date)

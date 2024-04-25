@@ -56,4 +56,58 @@ class UserGroupsModel extends Model
             ->join('user_group parent', 'parent.id = child.fk_parent_user_group_id', 'left')
             ->find($id);
     }
+    
+    /**
+     * Get all user groups' ids linked to a user
+     *
+     * @param  mixed $timUserId
+     * @return array
+     */
+    public function getAllByTimUserId(int $timUserId): array {
+        return $this
+            ->join('user_sync_group', 'user_sync_group.fk_user_group_id = user_group.id', 'inner')
+            ->where('fk_user_sync_id', $timUserId)
+            ->findColumn('fk_user_group_id');
+    }
+    
+    /**
+     * Recursively get parent group's ids
+     *
+     * @param  mixed $id
+     * @return array
+     */
+    public function getParentGroupIdsRecusively(?int $id = null): array {
+        $ids = [];
+
+        $userGroup = $this->find($id ?? 0);
+
+        if (!is_null($userGroup) && !is_null($userGroup['fk_parent_user_group_id'])) {
+            $parentUserGroupId = $userGroup['fk_parent_user_group_id'];
+            $parentUserGroupIds = $this->getParentGroupIdsRecusively($parentUserGroupId);
+
+            $ids[] = $parentUserGroupId;
+            $ids = array_merge($ids, $parentUserGroupIds);
+        }
+
+        return $ids;
+    }
+    
+    /**
+     * Get all user groups' ids linked to a user, including parent groups' ids
+     *
+     * @param  mixed $timUserId
+     * @return array
+     */
+    function getAllLinkedUserGroupIds(int $timUserId) : array {
+        $linkedUserGroupsIds = $this->getAllByTimUserId($timUserId);
+        $allLinkedUserGroups = $linkedUserGroupsIds;
+
+        foreach($linkedUserGroupsIds as $userGroupId) {
+            $parentGroupIds = $this->getParentGroupIdsRecusively($userGroupId);
+
+            $allLinkedUserGroups = array_unique(array_merge($allLinkedUserGroups, $parentGroupIds));
+        }
+
+        return $allLinkedUserGroups;
+    }
 }
