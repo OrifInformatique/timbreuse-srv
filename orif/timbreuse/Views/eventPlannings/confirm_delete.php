@@ -7,7 +7,7 @@
                     <h4><?= lang('user_lang.what_to_do') ?></h4>
                 </div>
                 <div class="text-right">
-                    <a href="<?= base_url($route); ?>" class="btn btn-secondary">
+                    <a href="<?= $route; ?>" class="btn btn-secondary">
                         <?= lang('common_lang.btn_cancel'); ?>
                     </a>
                     <button class="btn btn-danger" data-toggle="modal" data-target="#confirmDeleteEventType">

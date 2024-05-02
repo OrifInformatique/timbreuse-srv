@@ -5,7 +5,7 @@
     <?= form_open(current_url()) ?>
     <div class="row mb-3 mt-3">
         <div class="col text-right">
-            <a class="btn btn-secondary" href="<?= base_url($returnRoute); ?>"><?= lang('common_lang.btn_cancel'); ?></a>
+            <a class="btn btn-secondary" href="<?= $returnRoute; ?>"><?= lang('common_lang.btn_cancel'); ?></a>
             <?= form_submit($btnOccurrence, lang("tim_lang.$btnOccurrence"), ['class' => 'btn btn-primary']); ?>
             <?= form_submit($btnSerie, lang("tim_lang.$btnSerie"), ['class' => 'btn btn-primary']); ?>
         </div>
