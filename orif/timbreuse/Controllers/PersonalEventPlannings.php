@@ -575,7 +575,7 @@ class PersonalEventPlannings extends BaseController
     }
     
     /**
-     * getTitleParameters
+     * Generate title parameters from the event planning
      *
      * @param  array $eventPlanning
      * @return array

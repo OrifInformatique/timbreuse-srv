@@ -153,8 +153,6 @@ class EventSeries extends BaseController
             return redirect()->to($route);
         }
 
-        // Todo: replace the title on the update page
-
         $data = [
             'daysOfWeek' => $this->getDaysOfWeek(),
             'recurrenceFrequencies' => $eventSeriesModel->getReccurrenceFrequencyEnumValues(),
