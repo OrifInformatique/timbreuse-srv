@@ -414,7 +414,7 @@ class PersonalEventPlannings extends BaseController
                 break;
         }
 
-        return redirect()->to(base_url($route));
+        return redirect()->to($route);
     }
 
     /**
@@ -453,7 +453,13 @@ class PersonalEventPlannings extends BaseController
 
         return $errors;
     }
-
+    
+    /**
+     * Create an array for select forms
+     *
+     * @param  mixed $array
+     * @return array
+     */
     protected function mapForSelectForm($array) : array {
         return array_combine(array_column($array, 'id'), array_map(function($row) {
             return $row['name'];
@@ -567,7 +573,13 @@ class PersonalEventPlannings extends BaseController
             'returnRoute' => $this->getPreviousRoute($isAdminView)
         ];
     }
-
+    
+    /**
+     * getTitleParameters
+     *
+     * @param  array $eventPlanning
+     * @return array
+     */
     private function getTitleParameters(array $eventPlanning) : array {
         $of_group_or_user = '';
 

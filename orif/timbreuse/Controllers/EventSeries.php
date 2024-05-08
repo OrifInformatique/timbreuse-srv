@@ -147,7 +147,7 @@ class EventSeries extends BaseController
 
         $eventSerie = $eventSeriesModel->findAllSeries($id);
 
-        $route = $this->personalEventPlanningController->getPreviousRoute(url_is('*admin*'));
+        $route = $this->personalEventPlanningController->getPreviousRoute();
 
         if (is_null($eventSerie) || $this->checkPermissionBeforeDelete($eventSerie)) {
             return redirect()->to($route);
