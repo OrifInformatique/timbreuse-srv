@@ -368,21 +368,11 @@ class PersonalEventPlannings extends BaseController
      * @return string|RedirectResponse
      */
     public function delete(int $id, int $action = 0) : string|RedirectResponse {
-        $isAdminView = url_is('*admin*');
         $isUserAdmin = $_SESSION['user_access'] >= config('\User\Config\UserConfig')->access_lvl_admin;
         $eventPlanning = $this->eventPlanningsModel->getWithLinkedData($id);
-        $userId = null;
-
-        if ($isUserAdmin) {
-            $isAdminView = true;
-        }
 
         if (!$eventPlanning) {
             return redirect()->back();
-        }
-
-        if (!is_null($eventPlanning['fk_user_sync_id'])) {
-            $userId = $eventPlanning['fk_user_sync_id'];
         }
 
         $route = $this->getPreviousRoute();
