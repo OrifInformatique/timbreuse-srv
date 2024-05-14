@@ -52,20 +52,42 @@ class UserGroups extends BaseController
      */
     public function index() : string {
         $data['title'] = lang('tim_lang.user_group_list');
-        $data['list_title'] = ucfirst(lang('tim_lang.user_group_list'));
 
-        $data['columns'] = [
-            'userGroupName' => ucfirst(lang('tim_lang.field_name')),
-            'parentUserGroupName' => ucfirst(lang('tim_lang.field_group_parent_name')),
-        ];
+        $userGroups = $this->userGroupsModel->findAll();
+        $data['userGroups'] = $this->formatForListView($userGroups);
 
-        $data['items'] = $this->userGroupsModel->getUserGroups();
+        return $this->display_view('Timbreuse\Views\userGroups\list', $data);
+    }
 
-        $data['url_create'] = "admin/user-groups/create";
-        $data['url_update'] = 'admin/user-groups/update/';
-        $data['url_delete'] = 'admin/user-groups/delete/';
+    private function formatForListView(array $userGroups) {
+        foreach ($userGroups as $item) {
+            $class = '';
+            
+            if ($item['fk_parent_user_group_id'] !== null) {
+                $class .= 'child ';
+            }
 
-        return $this->display_view('Common\Views\items_list', $data);
+            if (in_array($item['id'], array_column($userGroups, 'fk_parent_user_group_id'))) {
+                $class .= 'parent ';
+            }
+
+            $item['class'] = trim($class);
+
+            $newArray[] = $item;
+        }
+        
+        // Sort the new array by parent-child relationship
+        usort($newArray, function($a, $b) {
+            if ($a['fk_parent_user_group_id'] == $b['id']) {
+                return 1; // $a is parent of $b, so $a comes before $b
+            } elseif ($a['id'] == $b['fk_parent_user_group_id']) {
+                return -1; // $b is parent of $a, so $b comes before $a
+            } else {
+                return 0; // No parent-child relationship, maintain order
+            }
+        });
+
+        return $newArray;
     }
     
     /**

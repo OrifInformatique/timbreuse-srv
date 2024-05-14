@@ -194,3 +194,7 @@ li.nav-item {
     justify-content: center;
     align-items: center;
 }
+
+.toggle-arrow {
+  cursor: pointer;
+}
