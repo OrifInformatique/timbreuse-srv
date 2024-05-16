@@ -8,15 +8,15 @@
         </div>
     </div>
 
-    <table class="table table-striped table-hover tree-table">
+    <table class="table table-hover tree-table">
         <thead>
             <th><?= lang('tim_lang.field_name') ?></th>
             <th></th>
         </thead>
-        <tbody>
+        <tbody id="table-body">
             <?php foreach($userGroups as $userGroup): ?>
-                <tr class="<?= $userGroup['class'], str_contains($userGroup['class'], 'child') ? ' d-none' : '' ?>">
-                    <td><?= str_contains($userGroup['class'], 'parent') ? '<i class="bi bi-chevron-down toggle-arrow"> ' : '' ?><?= $userGroup['name'] ?></td>
+                <tr class="<?= is_null($userGroup['fk_parent_user_group_id']) ? 'bg-light' : '' ?>">
+                    <td><?= $userGroup['name'] ?></td>
                     <td class="text-right">
                         <a href="<?= current_url() . "/update/{$userGroup['id']}" ?>">
                         <i class="bi bi-pencil" style="font-size: 20px;"></i>
@@ -30,44 +30,3 @@
         </tbody>
     </table>
 </div>
-
-<script>
-    document.querySelectorAll(".toggle-arrow").forEach(function(arrow) {
-        arrow.addEventListener("click", function() {
-            var row = this.closest(".parent");
-            const allChildren = getAllChildrenUnderParent(row);
-
-            allChildren.forEach((child) => {
-                child.classList.toggle('d-none');
-            });
-
-            const firstChild = row.nextElementSibling;
-            const classes = this.classList;
-            if (firstChild.classList.contains("d-none")) {
-                classes.remove("bi-chevron-up");
-                classes.add("bi-chevron-down");
-            } else {
-                classes.remove("bi-chevron-down");
-                classes.add("bi-chevron-up");
-            }
-        });
-    });
-
-    function getAllChildrenUnderParent(parent) {
-        const children = [];
-        let currentElement = parent.nextElementSibling;
-        while (currentElement && currentElement.classList.contains("child")) {
-            children.push(currentElement);
-
-            if (currentElement.classList.contains("parent")) {
-                if (!currentElement.nextElementSibling.classList.contains("parent")) {
-                    break;
-                }
-            }
-
-            currentElement = currentElement.nextElementSibling;
-        }
-
-        return children;
-    }
-</script>

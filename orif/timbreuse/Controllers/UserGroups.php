@@ -58,36 +58,63 @@ class UserGroups extends BaseController
 
         return $this->display_view('Timbreuse\Views\userGroups\list', $data);
     }
-
-    private function formatForListView(array $userGroups) {
-        foreach ($userGroups as $item) {
-            $class = '';
-            
-            if ($item['fk_parent_user_group_id'] !== null) {
-                $class .= 'child ';
-            }
-
-            if (in_array($item['id'], array_column($userGroups, 'fk_parent_user_group_id'))) {
-                $class .= 'parent ';
-            }
-
-            $item['class'] = trim($class);
-
-            $newArray[] = $item;
-        }
-        
+    
+    /**
+     * Format and sort user group array for display
+     *
+     * @param  array $userGroups
+     * @return array
+     */
+    private function formatForListView(array $userGroups) : array {        
         // Sort the new array by parent-child relationship
-        usort($newArray, function($a, $b) {
+        usort($userGroups, function($a, $b) {
             if ($a['fk_parent_user_group_id'] == $b['id']) {
-                return 1; // $a is parent of $b, so $a comes before $b
+                return 1;
             } elseif ($a['id'] == $b['fk_parent_user_group_id']) {
-                return -1; // $b is parent of $a, so $b comes before $a
+                return -1;
             } else {
-                return 0; // No parent-child relationship, maintain order
+                return 0;
             }
         });
 
-        return $newArray;
+        $userGroups = $this->displayHierarchyRecursive($userGroups);
+
+        return $userGroups;
+    }
+    
+    /**
+     * Add spaces and chevron to children groups to display hierarchy
+     *
+     * @param  array $array
+     * @param  ?string $parentId
+     * @param  int $depth
+     * @return array
+     */
+    private function displayHierarchyRecursive(array $array, ?string $parentId = null, int $depth = 0) : array {
+        $result = [];
+    
+        foreach ($array as $key => $item) {
+            if ($item['fk_parent_user_group_id'] === $parentId) {
+                $prefix = str_repeat('&nbsp;', $depth * 3);
+    
+                // Add chevron icon for child items
+                if ($depth > 0) {
+                    $prefix .= str_repeat('<i class="bi bi-chevron-right"></i>', $depth) . ' ';
+                }
+    
+                $item['name'] = $prefix . $item['name'];
+                $result[] = $item;
+    
+                // Recursively process children
+                $children = $this->displayHierarchyRecursive($array, $item['id'], $depth + 1);
+                $result = array_merge($result, $children);
+    
+                // Remove processed children from the array
+                unset($array[$key]);
+            }
+        }
+    
+        return $result;
     }
     
     /**
