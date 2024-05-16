@@ -356,4 +356,57 @@ class Users extends BaseController
             return redirect()->to(base_url('Users/edit_user/' . $timUserId));
         }
     }
+
+    public function selectUser() : string {
+        $model = model(UsersModel::class);
+        $filters = $_GET;
+
+        $data['route'] = $filters['path'];
+        $data['title'] = lang('tim_lang.select_user');
+        $data['list_title'] = ucfirst(lang('tim_lang.select_user'));
+
+        $data['columns'] = [
+            'name' => ucfirst(lang('tim_lang.field_name')),
+            'surname' => ucfirst(lang('tim_lang.surname')),
+        ];
+
+        $data['primary_key_field']  = 'id_user';
+
+        $data['items'] = $model->findAll();
+
+        $data['url_update'] = $filters['path'];
+
+        return $this->display_view(['Timbreuse\Views\common\return_button', 'Common\Views\items_list'], $data);
+    }
+    
+    public function getLinkedUserList(int $groupId) : array {
+        $model = model(UsersModel::class);
+
+        $data['list_title'] = ucfirst(lang('tim_lang.linked_users'));
+
+        $data['columns'] = [
+            'name' => ucfirst(lang('tim_lang.field_name')),
+            'surname' => ucfirst(lang('tim_lang.surname')),
+        ];
+
+        $data['btn_create_label'] = lang('tim_lang.btn_add_or_delete');
+        $data['url_create'] = "admin/user-groups/{$groupId}/link-user/";
+
+        $data['items'] = $model->where('user_sync_group.fk_user_group_id', $groupId)
+            ->join('user_sync_group', 'user_sync_group.fk_user_sync_id = user_sync.id_user', 'left')
+            ->findAll();
+
+        return $data;
+    }
+
+    public function getUsersAndGroupLink() : array {
+        $model = model(UsersModel::class);
+
+        return $model->select('id_user, user_sync.name, surname, GROUP_CONCAT(user_group.name) user_group_name')
+            ->join('user_sync_group', 'user_sync_group.fk_user_sync_id = user_sync.id_user', 'left')
+            ->join('user_group', 'user_group.id = user_sync_group.fk_user_group_id', 'left')
+            ->groupBy('id_user, user_sync.name, surname')
+            ->findAll();
+    }
+
 }

@@ -120,3 +120,34 @@ function get_time_period(string $firstDay, int $numberOfDay, int $timUserId,
     $text = $instance->get_hours_by_seconds($seconds);
     return $text;
 }
+
+/**
+ * Convert a time string to seconds
+ *
+ * @param  string $timeString
+ * @return int
+ */
+function timeToSeconds(string $timeString) : int {
+    list($hours, $minutes, $seconds) = explode(':', $timeString);
+
+    $totalSeconds = ($hours * 3600) + ($minutes * 60) + $seconds;
+
+    return $totalSeconds;
+}
+
+/**
+ * Converts seconds to a time string
+ *
+ * @param  int $totalSeconds
+ * @return string
+ */
+function secondsToTimeString(int $totalSeconds) : string {
+    $hours = floor($totalSeconds / 3600);
+    $minutes = floor(($totalSeconds % 3600) / 60);
+    $seconds = $totalSeconds % 60;
+
+    // Format the time string
+    $timeString = sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
+
+    return $timeString;
+}

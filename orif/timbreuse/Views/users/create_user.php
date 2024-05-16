@@ -1,5 +1,5 @@
 <div class="container">
-    <h3><?= esc(ucfirst(lang('tim_lang.timUserEdit'))) ?></h3>
+    <h3><?= esc(ucfirst(lang('user_lang.title_user_new'))) ?></h3>
     <form method='post' action="<?= base_url('Users/create_user') ?>">
         <?= csrf_field() ?>
 
