@@ -43,7 +43,7 @@ class EventSeriesModel extends Model
             'end_date' =>
             [
                 'label' => lang('tim_lang.field_end_date'),
-                'rules' => 'required|valid_date'
+                'rules' => 'required|valid_date|cb_date_time_greater_than[start_date]'
             ],
             'recurrence_frequency' =>
             [
@@ -62,7 +62,11 @@ class EventSeriesModel extends Model
             ],
         ];
 
-        $this->validationMessages = [];
+        $this->validationMessages = [
+            'end_date' => [
+                'cb_date_time_greater_than' => lang('tim_lang.msg_err_end_date_greater_than')
+            ]
+        ];
 
         parent::__construct($db, $validation);
     }

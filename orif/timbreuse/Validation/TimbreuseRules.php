@@ -136,5 +136,19 @@ class TimbreuseRules
     public function cb_array_not_empty($array) : bool {
         return count($array) > 0;
     }
+    
+    /**
+     * Compares two date-time values to check if the end date-time is greater than the start date-time.
+     *
+     * @param  mixed $endTime
+     * @param  mixed $fieldToCompare
+     * @param  mixed $values
+     * @return bool
+     */
+    public function cb_date_time_greater_than($end, $fieldToCompare, $values) : bool {
+        $start = strtotime($values[$fieldToCompare]);
+        $end = strtotime($end);
 
+        return $start < $end;
+    }
 }
