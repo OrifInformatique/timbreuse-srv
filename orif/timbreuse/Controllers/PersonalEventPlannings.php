@@ -54,6 +54,7 @@ class PersonalEventPlannings extends BaseController
      * @return string
      */
     public function index(?int $timUserId = null) : string|RedirectResponse {
+        session()->remove('event_previous_url');
         $isAdminView = $_SESSION['user_access'] === config('\User\Config\UserConfig')->access_lvl_admin;
         $eventPlannigRoute = ($isAdminView ? 'admin/' : '') . 'event-plannings/';
 
@@ -66,10 +67,17 @@ class PersonalEventPlannings extends BaseController
         }  
 
         $user = $this->userSyncModel->find($timUserId ?? 0);
-        $titleParameters = [
-            'lastname' => $user['surname'],
-            'firstname' => $user['name']
-        ];  
+        if (!empty($user)) {
+            $titleParameters = [
+                'lastname' => $user['surname'],
+                'firstname' => $user['name']
+            ];
+        } else {
+            $titleParameters = [
+                'lastname' => ucfirst(lang('tim_lang.unknown_user')),
+                'firstname' => ''
+            ];
+        }
 
         $data['title'] = lang('tim_lang.personal_event_plannings_list', $titleParameters);
         $data['list_title'] = ucfirst(lang('tim_lang.personal_event_plannings_list', $titleParameters));
@@ -121,7 +129,7 @@ class PersonalEventPlannings extends BaseController
             'Timbreuse\Views\eventPlannings\get_event_series_form'
         ];
         $isAdminView = url_is('*admin*');
-        $route = $this->getPreviousRoute($isAdminView, $userId);
+        $route = $this->getPreviousRoute();
 
         $eventTypes = $this->eventTypesModel->where('is_personal_event_type', true)->findAll();
 
@@ -273,7 +281,7 @@ class PersonalEventPlannings extends BaseController
 
         $user = $this->userSyncModel->find($userId);
 
-        $route = $this->getPreviousRoute($isAdminView, $user['id_user'] ?? null);
+        $route = $this->getPreviousRoute();
 
 
         $data = [
@@ -367,24 +375,14 @@ class PersonalEventPlannings extends BaseController
      * @return string|RedirectResponse
      */
     public function delete(int $id, int $action = 0) : string|RedirectResponse {
-        $isAdminView = url_is('*admin*');
         $isUserAdmin = $_SESSION['user_access'] >= config('\User\Config\UserConfig')->access_lvl_admin;
         $eventPlanning = $this->eventPlanningsModel->getWithLinkedData($id);
-        $userId = null;
-
-        if ($isUserAdmin) {
-            $isAdminView = true;
-        }
 
         if (!$eventPlanning) {
             return redirect()->back();
         }
 
-        if (!is_null($eventPlanning['fk_user_sync_id'])) {
-            $userId = $eventPlanning['fk_user_sync_id'];
-        }
-
-        $route = $this->getPreviousRoute($isAdminView, $userId);
+        $route = $this->getPreviousRoute();
 
         if (!((int)$eventPlanning['fk_user_sync_id'] == $this->getConnectedTimuserId()
             || $isUserAdmin)) {
@@ -413,7 +411,7 @@ class PersonalEventPlannings extends BaseController
                 break;
         }
 
-        return redirect()->to(base_url($route));
+        return redirect()->to($route);
     }
 
     /**
@@ -452,7 +450,13 @@ class PersonalEventPlannings extends BaseController
 
         return $errors;
     }
-
+    
+    /**
+     * Create an array for select forms
+     *
+     * @param  mixed $array
+     * @return array
+     */
     protected function mapForSelectForm($array) : array {
         return array_combine(array_column($array, 'id'), array_map(function($row) {
             return $row['name'];
@@ -504,20 +508,18 @@ class PersonalEventPlannings extends BaseController
      * @param  ?int $userId
      * @return string
      */
-    public function getPreviousRoute(bool $isAdminView, ?int $userId = null) : string {
-        $route = '';
+    public function getPreviousRoute() : string {
+        $isAdminView = url_is('*admin*');
 
-        if ($isAdminView) {
-            $route .= 'admin/';
+        if (!$isAdminView) {
+            return base_url('event-plannings');
+        } else if (isset($_SESSION['event_previous_url'])) {
+            return $_SESSION['event_previous_url'];
+        } else {
+            $_SESSION['event_previous_url'] = $_SESSION['_ci_previous_url'];
+
+            return $_SESSION['event_previous_url'];
         }
-
-        $route .= 'event-plannings/';
-
-        if (!$isAdminView && !is_null($userId)) {
-            $route .= $userId;
-        }
-
-        return $route;
     }
     
     /**
@@ -568,7 +570,13 @@ class PersonalEventPlannings extends BaseController
             'returnRoute' => $this->getPreviousRoute($isAdminView)
         ];
     }
-
+    
+    /**
+     * Generate title parameters from the event planning
+     *
+     * @param  array $eventPlanning
+     * @return array
+     */
     private function getTitleParameters(array $eventPlanning) : array {
         $of_group_or_user = '';
 

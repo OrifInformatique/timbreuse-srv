@@ -46,10 +46,11 @@ class EventPlannings extends PersonalEventPlannings
      */
     #[\Override]
     public function index(?int $timUserId = null) : string {
+        session()->remove('event_previous_url');
+
         $data['title'] = lang('tim_lang.event_plannings_list');
         $data['list_title'] = ucfirst(lang('tim_lang.event_plannings_list'));
         $data['isVisible'] = true;
-        $data['route'] = '';
 
         $data['columns'] = [
             'group_or_user_name' => ucfirst(lang('tim_lang.group_or_user_name')),
