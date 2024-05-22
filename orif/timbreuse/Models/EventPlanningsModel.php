@@ -71,7 +71,7 @@ class EventPlanningsModel extends Model
             'end_time' =>
             [
                 'label' => lang('tim_lang.field_event_end_time'),
-                'rules' => 'required|valid_date'
+                'rules' => 'required|valid_date|cb_date_time_greater_than[start_time]'
             ],
             'is_work_time' =>
             [
@@ -80,7 +80,11 @@ class EventPlanningsModel extends Model
             ],
         ];
 
-        $this->validationMessages = [];
+        $this->validationMessages = [
+            'end_time' => [
+                'cb_date_time_greater_than' => lang('tim_lang.msg_err_end_time_greater_than')
+            ]
+        ];
 
         parent::__construct($db, $validation);
     }

@@ -34,7 +34,7 @@
                 <?= form_input('', !is_null($user) ? "{$user['name']} {$user['surname']}" : '', [
                     'class' => 'form-control', 'id' => 'linked_user', 'disabled' => ''
                 ]); ?>
-                <span class="text-danger"><?= isset($errors['end_time']) ? esc($errors['end_time']) : ''; ?></span>
+                <span class="text-danger"><?= isset($errors['fk_user_sync_id']) ? esc($errors['fk_user_sync_id']) : ''; ?></span>
                 <?php if (url_is('*admin*')) : ?>
                     <?= form_submit('select_linked_user', lang('tim_lang.btn_select_linked_user'), ['class' => 'mt-3 w-100 btn btn-secondary']); ?>
                 <?php endif; ?>

@@ -70,8 +70,7 @@ return [
     'edit_badge' => 'modifier attribution du badge ID %s.',
     'dealloc' => 'désattribuer',
     'badgesList' => 'Badges',
-    'timUsersList' => 'Utilisateurs de la pointeuse',
-    'webUsersList' => 'Utilisateurs du site web',
+    'timUsersList' => 'Utilisateurs',
     'timUserRelation' => 'utilisateur lié à ce badge',
     'badge_not_available' => 'Ce numéro de badge n’est pas disponible, merci de choisir dans la liste.',
     'user_not_available' => 'Cet utilisateur n’est pas disponible, merci de choisir dans la liste.',
@@ -192,4 +191,6 @@ return [
     'btn_hard_delete_user' => 'Supprimer définitivement cet utilisateur',
     'siteAccountNotLinked' => 'Ce compte utilisateur de la timbreuse n\'est pas lié à un compte de l\'application web.',
     'fillFieldsToCreateAccount' => 'Complétez les champs ci-dessous et enregistrez pour lui créer un compte dans l\'application.',
+    'msg_err_end_time_greater_than' => 'L\'heure de fin doit être supérieure à l\'heure de début.',
+    'msg_err_end_date_greater_than' => 'La date de fin doit être supérieure à la date de début.',
 ];

@@ -64,10 +64,18 @@ class UserGroupsModel extends Model
      * @return array
      */
     private function getAllByTimUserId(int $timUserId): array {
-        return $this
+        $result = $this
             ->join('user_sync_group', 'user_sync_group.fk_user_group_id = user_group.id', 'inner')
             ->where('fk_user_sync_id', $timUserId)
             ->findColumn('fk_user_group_id');
+        
+        if (!empty($result)) {
+            // Return an array containing the user's groups ids
+            return $result;
+        } else {
+            // Return an empty array
+            return [];
+        }
     }
     
     /**

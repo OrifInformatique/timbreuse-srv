@@ -24,11 +24,11 @@ class AdminPanelConfig extends \CodeIgniter\Config\BaseConfig
             'tim_lang.user_group_list', 'pageLink'=>'admin/user-groups'],
         ['label'=>'tim_lang.badgesList', 'title'=>
             'tim_lang.badgesList', 'pageLink'=>'Badges'],
-        ['label'=>'tim_lang.Defaultplanning', 'title'=>
-            'tim_lang.Defaultplanning', 'pageLink'=>'DefaultPlannings'],
         ['label'=>'tim_lang.event_plannings_list', 'title'=>
             'tim_lang.event_plannings_list', 'pageLink'=>'admin/event-plannings'],
         ['label'=>'tim_lang.event_types_list', 'title'=>
             'tim_lang.event_types_list', 'pageLink'=>'admin/event-types'],
+        ['label'=>'tim_lang.Defaultplanning', 'title'=>
+            'tim_lang.Defaultplanning', 'pageLink'=>'DefaultPlannings'],
     ];
 }
