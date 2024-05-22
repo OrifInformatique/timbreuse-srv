@@ -193,4 +193,5 @@ return [
     'fillFieldsToCreateAccount' => 'Complétez les champs ci-dessous et enregistrez pour lui créer un compte dans l\'application.',
     'msg_err_end_time_greater_than' => 'L\'heure de fin doit être supérieure à l\'heure de début.',
     'msg_err_end_date_greater_than' => 'La date de fin doit être supérieure à la date de début.',
+    'unknown_user' => 'Utilisateur inconnu',
 ];

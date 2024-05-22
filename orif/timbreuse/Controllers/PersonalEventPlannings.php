@@ -67,10 +67,17 @@ class PersonalEventPlannings extends BaseController
         }  
 
         $user = $this->userSyncModel->find($timUserId ?? 0);
-        $titleParameters = [
-            'lastname' => $user['surname'],
-            'firstname' => $user['name']
-        ];  
+        if (!empty($user)) {
+            $titleParameters = [
+                'lastname' => $user['surname'],
+                'firstname' => $user['name']
+            ];
+        } else {
+            $titleParameters = [
+                'lastname' => ucfirst(lang('tim_lang.unknown_user')),
+                'firstname' => ''
+            ];
+        }
 
         $data['title'] = lang('tim_lang.personal_event_plannings_list', $titleParameters);
         $data['list_title'] = ucfirst(lang('tim_lang.personal_event_plannings_list', $titleParameters));
