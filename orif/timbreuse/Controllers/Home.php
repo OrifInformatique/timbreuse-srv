@@ -21,27 +21,17 @@ class Home extends BaseController
             >= config('\User\Config\UserConfig')->access_lvl_registered;
     }
 
-	public function index()
-	{
-        if (!$this->is_connected_user()) {
-            #return redirect()->to(current_url() . '../user/auth/login');
-            return redirect()->to(url_to('login'));
+	public function index() {
+        if ($this->is_connected_user()) {
+            return redirect()->to(base_url() . 'PersoLogs/perso_time');
         }
-        return redirect()->to(base_url() . 'PersoLogs/perso_time');
-		$data['title'] = "Welcome";
 
-		/**
-         * Display a test of the generic "items_list" view 
-         * (defined in common module)
-         */
+        if (session()->get('user_access') == config('\User\Config\UserConfig')->access_lvl_guest) {
+            $data['message'] = lang('tim_lang.403_error_message');
 
-        $data['buttons'] = [
-            ['link' => 'logs', 'label' => 'Logs'],
-            ['link' => 'users', 'label' => 'Users'],
-            ['link' => 'persoLogs\perso_time', 'label' => 'perso_time'],
-        ];
-
-		return $this->display_view(['Timbreuse\Views\menu'], $data);
+            return $this->display_view('User\Views\errors\403error', $data);
+        } else {
+            return redirect()->to('user/auth/login');
+        }
 	}
-
 }
