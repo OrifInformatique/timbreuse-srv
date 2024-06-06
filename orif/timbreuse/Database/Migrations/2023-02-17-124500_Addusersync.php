@@ -26,6 +26,9 @@ class Addusersync extends Migration
 		$this->forge->addField($field);
 		$this->forge->addPrimaryKey('id_user');
         $this->forge->createTable('user_sync');
+
+		$seeder=\Config\Database::seeder();
+        $seeder->call('\Timbreuse\Database\Seeds\AddUserSyncDatas');
 	}
 
 	public function down()

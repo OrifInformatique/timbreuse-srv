@@ -24,6 +24,9 @@ class AddaccessTimUser extends Migration
 		$this->forge->addForeignKey('id_user', 'user_sync', 'id_user');
 		$this->forge->addForeignKey('id_ci_user', 'user', 'id');
         $this->forge->createTable('access_tim_user');
+
+		$seeder=\Config\Database::seeder();
+        $seeder->call('\Timbreuse\Database\Seeds\AddAccessTimUserDatas');
 	}
 
 	public function down()
