@@ -140,8 +140,9 @@ class PersonalEventPlannings extends BaseController
                 $userId = 0;
             }
         } else if (!$isAdminView) {
+            // The user can only create an event for himself. Remove the userId from the URL.
             return redirect()->to('event-plannings/personal/create');
-        }        
+        }
 
         $user = $this->userSyncModel->find($userId);
 
