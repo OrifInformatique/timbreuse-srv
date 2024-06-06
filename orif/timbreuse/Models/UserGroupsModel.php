@@ -48,14 +48,6 @@ class UserGroupsModel extends Model
 
         parent::__construct($db, $validation);
     }
-
-    public function getUserGroups(?int $id = null): array {
-        return $this->select('child.id, child.name AS userGroupName, parent.name AS parentUserGroupName')
-            ->distinct()
-            ->from('user_group child')
-            ->join('user_group parent', 'parent.id = child.fk_parent_user_group_id', 'left')
-            ->find($id);
-    }
     
     /**
      * Get all user groups' ids linked to a user
