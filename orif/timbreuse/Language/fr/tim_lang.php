@@ -194,4 +194,5 @@ return [
     'msg_err_end_time_greater_than' => 'L\'heure de fin doit être supérieure à l\'heure de début.',
     'msg_err_end_date_greater_than' => 'La date de fin doit être supérieure à la date de début.',
     'unknown_user' => 'Utilisateur inconnu',
+    '403_error_message' => 'Vous n\'avez pas la permission d\'accéder à cette page.',
 ];
