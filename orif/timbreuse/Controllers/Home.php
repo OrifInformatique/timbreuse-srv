@@ -15,23 +15,16 @@ class Home extends BaseController
         $this->session=\Config\Services::session();
     }
 
-	public function index()
-	{
-        return redirect()->to(current_url() . '/PersoLogs/perso_time');
-		$data['title'] = "Welcome";
-
-		/**
-         * Display a test of the generic "items_list" view 
-         * (defined in common module)
-         */
-
-        $data['buttons'] = [
-            ['link' => 'logs', 'label' => 'Logs'],
-            ['link' => 'users', 'label' => 'Users'],
-            ['link' => 'persoLogs\perso_time', 'label' => 'perso_time'],
-        ];
-
-		return $this->display_view(['Timbreuse\Views\menu'], $data);
+	public function index() {
+        // Check user access level
+        if (session()->get('user_access') >= config('\User\Config\UserConfig')->access_lvl_registered) {
+            return redirect()->to(base_url() . 'PersoLogs/perso_time');
+        } elseif (session()->get('user_access') == config('\User\Config\UserConfig')->access_lvl_guest) {
+            // Guest users are not managed in this application
+            $data['message'] = lang('tim_lang.403_error_message');
+            return $this->display_view('User\Views\errors\403error', $data);
+        } else {
+            return redirect()->to('user/auth/login');
+        }
 	}
-
 }

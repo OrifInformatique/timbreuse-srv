@@ -10,6 +10,8 @@ use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use CodeIgniter\HTTP\Response;
 
+use Common\Exceptions\AccessDeniedException;
+
 /**
  * Class BaseController
  *
@@ -71,10 +73,7 @@ abstract class BaseController extends Controller
         
         // Check permission on construct
         if (!$this->check_permission()) {
-            echo $this->display_view('\User\errors\403error');
-            exit();
-            //throw new \Exception("some message here",403);
-            //show_error(lang('msg_err_access_denied_message'), 403, lang('msg_err_access_denied_header'));
+            throw AccessDeniedException::forPageAccessDenied();
         }
     }
 
@@ -109,7 +108,7 @@ abstract class BaseController extends Controller
             // check if user is logged in, if not access is not allowed
             if ($_SESSION['logged_in'] != true) {
                 // The usual redirect()->to() doesn't work here. Keep this kind of redirect.
-                return $this->response->redirect(base_url('user/auth/login'));
+                return false;
             }
             // check if page is accessible for all logged in users
             elseif ($required_level == "@") {
@@ -136,38 +135,42 @@ abstract class BaseController extends Controller
     public function display_view(string|array $view_parts,
         ?array $data = NULL): string
     {
-        $textView = '';
+        // The view to be constructed and displayed
+        $viewToDisplay = '';
+        
         // If not defined in $data, set page title to empty string
         if (!isset($data['title'])) {
             $data['title'] = '';
         }
 
-        // Display common headers
-        $textView .=  view('Common\header', $data);
+        // Add common headers to the view
+        $viewToDisplay .=  view('Common\header', $data);
 
-        // Display login bar
-        $textView .= view('Common\login_bar');
+        // Add login bar to the view
+        $viewToDisplay .= view('Common\login_bar');
 
-        // Display admin menu if appropriate
+        // Add admin menu to the view if the current url is an admin url
         foreach (config('Common\Config\AdminPanelConfig')->tabs as $tab){
             if (strstr(current_url(),$tab['pageLink'])) {
-                $textView .= view('\Common\adminMenu');
+                $viewToDisplay .= view('\Common\adminMenu');
             }
         }
 
         if (is_array($view_parts)) {
-            // Display multiple view parts
+            // Add multiple parts to the view
             foreach ($view_parts as $view_part) {
-                $textView .= view($view_part, $data);
+                $viewToDisplay .= view($view_part, $data);
             }
         }
         elseif (is_string($view_parts)) {
-            // Display unique view part
-            $textView .= view($view_parts, $data);
+            // Add unique part to the view
+            $viewToDisplay .= view($view_parts, $data);
         }
 
-        // Display common footer
-        $textView .= view('Common\footer');
-        return $textView;
+        // Add common footers to the view
+        $viewToDisplay .= view('Common\footer');
+        
+        // Return the complete view to display
+        return $viewToDisplay;
     }
 }

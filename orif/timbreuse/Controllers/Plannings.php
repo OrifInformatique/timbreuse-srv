@@ -122,7 +122,7 @@ class Plannings extends BaseController
         $data['friday'] = ucfirst(lang('tim_lang.friday'));
         $data['dueTime'] = ucfirst(lang('tim_lang.dueTime'));
         $data['offeredTime'] = ucfirst(lang('tim_lang.offeredTime'));
-        $data['cancel'] = ucfirst(lang('tim_lang.cancel'));
+        $data['cancel'] = ucfirst(lang('common_lang.btn_cancel'));
         $data['save'] = ucfirst(lang('common_lang.btn_save'));
         $data['dateBegin'] = ucfirst(lang('tim_lang.dateBegin'));
         $data['dateEnd'] = lang('tim_lang.dateEnd');

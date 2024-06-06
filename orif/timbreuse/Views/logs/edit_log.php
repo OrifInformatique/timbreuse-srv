@@ -34,7 +34,7 @@ input:invalid {
             </div>
         </div>
         <div class="form-group text-right">
-            <a href="<?= esc($cancel_link) ?>"><input type="button" value="<?= esc(ucfirst(lang("tim_lang.cancel"))) ?>" class="btn btn-secondary"></a>
+            <a href="<?= esc($cancel_link) ?>"><input type="button" value="<?= esc(ucfirst(lang("common_lang.btn_cancel"))) ?>" class="btn btn-secondary"></a>
             <input type="submit" class="btn btn-primary" value=<?= esc(ucfirst(lang('tim_lang.modify'))) ?>>
         </div>
         <div class="form-group">

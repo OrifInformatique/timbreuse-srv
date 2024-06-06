@@ -10,11 +10,11 @@
 return[
 // Application name
     #'app_title'                      => 'Titre de l\'application',
-    'app_title'                      => 'Pointeuse',
+    'app_title'                      => 'Timbreuse',
 
 // Page titles
     #'page_prefix'                    => 'Packbase V4',
-    'page_prefix'                    => 'Pointeuse',
+    'page_prefix'                    => 'Timbreuse',
 
 // Buttons
     'btn_admin'                      => 'Administration',

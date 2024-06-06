@@ -46,9 +46,18 @@ class AccessTimModel extends Model
         return $this->select('id_user')
             ->where('id_ci_user', $ciUserId)->first()['id_user'] ?? null;
     }
-
-
-
-
-
+    
+    /**
+     * Insert new access_tim_user
+     *
+     * @param  int $timUserId
+     * @param  int $ciUserId
+     * @return int|bool
+     */
+    public function add_access(int $timUserId, int $ciUserId): int|bool {
+        return $this->insert([
+            'id_user' => $timUserId,
+            'id_ci_user' => $ciUserId
+        ]);
+    }
 }

@@ -161,7 +161,7 @@ class Badges extends BaseController
             $userModel->get_available_users_info());
 
         $data['labels']['user'] = ucfirst(lang('tim_lang.timUserRelation'));
-        $data['labels']['back'] = ucfirst(lang('tim_lang.cancel'));
+        $data['labels']['back'] = ucfirst(lang('common_lang.btn_cancel'));
         $data['labels']['modify'] = ucfirst(lang('common_lang.btn_save'));
         $data['labels']['dealloc'] = ucfirst(lang('tim_lang.dealloc'));
         $data['labels']['delete'] = ucfirst(lang('tim_lang.delete'));

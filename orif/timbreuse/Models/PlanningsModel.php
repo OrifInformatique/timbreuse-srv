@@ -4,8 +4,9 @@ namespace Timbreuse\Models;
 
 use CodeIgniter\Model;
 use CodeIgniter\I18n\Time;
+use DateTime;
 
-class PlanningModel extends Model 
+class PlanningsModel extends Model 
 {
     protected $table = 'planning';
     protected $primaryKey ='id_planning';
@@ -67,21 +68,21 @@ class PlanningModel extends Model
                 ->find($planningId);
     }
 
-    public function select_date_and_id_planning(): PlanningModel 
+    public function select_date_and_id_planning(): PlanningsModel 
     {
         return $this->select(
             'date_begin, date_end, user_planning.id_planning, '
             .'planning.date_delete');
     }
 
-    public function select_due_time(): PlanningModel 
+    public function select_due_time(): PlanningsModel 
     {
         return $this->select('due_time_monday, due_time_tuesday, '
         . 'due_time_wednesday, due_time_thursday, due_time_friday');
 
     }
 
-    public function select_time(): PlanningModel 
+    public function select_time(): PlanningsModel 
     {
         return $this->select('due_time_monday, offered_time_monday, '
         . 'due_time_tuesday, offered_time_tuesday, due_time_wednesday, '
@@ -90,20 +91,20 @@ class PlanningModel extends Model
 
     }
 
-    public function join_tim_user_and_planning(): PlanningModel 
+    public function join_tim_user_and_planning(): PlanningsModel 
     {
         return $this->join_planning_and_user_planning()
              ->join('user_sync', 'user_sync.id_user = user_planning.id_user');
     }
 
-    public function join_ci_user_and_tim_user(): PlanningModel 
+    public function join_ci_user_and_tim_user(): PlanningsModel 
     {
         return $this->join_tim_user_and_planning()->join('access_tim_user',
             'access_tim_user.id_user = user_planning.id_user')
             ->join('user', 'user.id = access_tim_user.id_ci_user');
     }
 
-    public function join_planning_and_user_planning(): PlanningModel 
+    public function join_planning_and_user_planning(): PlanningsModel 
     {
         return $this->join('user_planning',
             'user_planning.id_planning = planning.id_planning');
@@ -384,24 +385,47 @@ class PlanningModel extends Model
     */
     public function get_planning_time_day(string $date, int $timUserId): ?array
     {
+        helper('UtilityFunctions');
+        $eventPlanningModel = model(EventPlanningsModel::class);
         $columns = $this->get_columns_day_name($date);
+
         if (is_null($columns)) {
-            # return array(0 , 0);
             return null;
         }
+
+        $notEscapedDate = $date;
         $date = $this->db->escape($date);
         $timUserId = $this->db->escape($timUserId);
+
         $where = "(date_begin <= $date) AND ((date_end >= $date) OR "
                 . "(date_end IS NULL)) AND (id_user = $timUserId)";
         $this->join_planning_and_user_planning();
+
         $columnsData = $this->select("$columns[0],  $columns[1]")
-                ->where($where)
-                ->first();
+            ->where($where)
+            ->first();
+ 
         if (is_null($columnsData)) {
-            # return array(0 , 0);
             return null;
         }
+
+        $offeredTimeSecondsArray = $eventPlanningModel->getOfferedTimeForDay($timUserId, $notEscapedDate);
+        $offeredTimeSeconds = 0;
         $keys = array_keys($columnsData);
+
+        if (!empty($offeredTimeSecondsArray)) {
+            foreach ($offeredTimeSecondsArray as $offeredTimeSecond) {
+                $offeredTimeSeconds += $offeredTimeSecond;
+            }
+        }
+
+        if ($offeredTimeSeconds >= timeToSeconds($columnsData[$keys[0]])) {
+            $columnsData[$keys[1]] = $columnsData[$keys[0]];
+        } else {
+            $sumOfOfferedTime = timeToSeconds($columnsData[$keys[1]]) + $offeredTimeSeconds;
+            $columnsData[$keys[1]] = secondsToTimeString($sumOfOfferedTime);
+        }
+
         return array($columnsData[$keys[0]], $columnsData[$keys[1]]);
     }
 
@@ -567,9 +591,11 @@ class PlanningModel extends Model
     public function get_due_time_day(int $timUserId, string $date): ?string
     {
         $planningTimeDay = $this->get_planning_time_day($date, $timUserId);
+
         if (is_null($planningTimeDay)) {
             return null;
         }
+
         return $this->get_planning_time_day($date, $timUserId)[0];
     }
 
@@ -717,10 +743,4 @@ class PlanningModel extends Model
     {
         return config('\Timbreuse\Config\TimbreuseConfig')->defaultPlanningId;
     }
-
-
-
-   
-
-
 }

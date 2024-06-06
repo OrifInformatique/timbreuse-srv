@@ -5,6 +5,7 @@ use Timbreuse\Models\BadgesModel;
 use Timbreuse\Models\UsersModel;
 use Timbreuse\Models\PlanningsModel;
 use CodeIgniter\I18n\Time;
+use Timbreuse\Models\UserSyncGroupsModel;
 
 class TimbreuseRules
 {
@@ -118,4 +119,36 @@ class TimbreuseRules
         return $model->is_available_period($timUserId, $period, $planningId);
     }
 
+    public function cb_is_unique($groupId, $fk_user_sync_id) : bool {
+        $model = model(UserSyncGroupsModel::class);
+        $userSyncGroup = $model
+            ->where('fk_user_group_id', $groupId)
+            ->where('fk_user_sync_id', $fk_user_sync_id)
+            ->find();
+
+        return empty($userSyncGroup);
+    }
+    
+    public function cb_valid_array($array) : bool {
+        return is_array($array);
+    }
+    
+    public function cb_array_not_empty($array) : bool {
+        return count($array) > 0;
+    }
+    
+    /**
+     * Compares two date-time values to check if the end date-time is greater than the start date-time.
+     *
+     * @param  mixed $endTime
+     * @param  mixed $fieldToCompare
+     * @param  mixed $values
+     * @return bool
+     */
+    public function cb_date_time_greater_than($end, $fieldToCompare, $values) : bool {
+        $start = strtotime($values[$fieldToCompare]);
+        $end = strtotime($end);
+
+        return $start < $end;
+    }
 }
