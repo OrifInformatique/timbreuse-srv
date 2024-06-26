@@ -11,7 +11,6 @@ use Timbreuse\Models\LogsModel;
 use Timbreuse\Models\UsersModel;
 use CodeIgniter\I18n\Time;
 use Timbreuse\Models\AccessTimModel;
-use Timbreuse\Models\EventPlanningsModel;
 use Timbreuse\Models\LogsFakeLogsModel;
 use Timbreuse\Models\PlanningsModel;
 
@@ -179,7 +178,7 @@ class PersoLogs extends BaseController
     {
         helper('UtilityFunctions');
         if ($timUserId === get_tim_user_id()) {
-            $button['link'] = base_url('/Plannings/get_plannings_list/');
+            $button['link'] = base_url('/Plannings/get_plannings_list');
         } else {
             $button['link'] = base_url(
                 "/Plannings/get_plannings_list/$timUserId");
@@ -200,16 +199,16 @@ class PersoLogs extends BaseController
         return $button;
     }
 
-    protected function get_buttons_for_log_views($day, $period,
-            ?int $timUserId=null): array
+    public function get_buttons_for_log_views($day, string $period,
+        ?int $timUserId=null): array
     {
-        $data['buttons'] = $this->create_buttons($period);
-        $data['buttons'] = array_merge(
-            $this->create_time_links($day, $period),
-            $data['buttons']
-        );
+        $data['buttons'] = array();
+
+        $data['buttons'] = array_merge($this->create_buttons($period, $timUserId), $data['buttons']);
+        $data['buttons'] = array_merge($this->create_time_links($day, $period), $data['buttons']);
         array_push($data['buttons'], $this->create_planning_link($timUserId));
         array_push ($data['buttons'], $this->create_event_planning_link($timUserId));
+
         return $data;
     }
 
@@ -753,28 +752,42 @@ class PersoLogs extends BaseController
         }
     }
 
-    protected function create_buttons(string $period): array
+    protected function create_buttons(string $period, $timUserId = null): array
     {
         $data = array();
-        array_push($data,
+        $today = Time::today()->toDateString();
+        $uriSegments = explode('/', current_url());
+        $lastSegment = array_pop($uriSegments);
+
+        if (filter_var($lastSegment, FILTER_VALIDATE_INT) !== false) {
+            $path = "AdminLogs/time_list/$timUserId";
+        } else {
+            if (url_is('*get_plannings_list') || url_is('*event-plannings') || url_is('*PersoLogs/perso_time*')) {
+                $path = "PersoLogs/perso_time";
+            } else {
+                $path = "AdminLogs/time_list/$timUserId";
+            }
+        }
+        
+        array_push($data, 
             [
-                'link' => '../' . Time::today()->toDateString() . '/' .
-                    $period,
+                'link' => base_url("$path/$today/$period"),
                 'label' => ucfirst(lang('tim_lang.today')),
+            ],
+            [
+                'link' => base_url("$path/$today/day"),
+                'label' => ucfirst(lang('tim_lang.day'))
+            ],
+            [
+                'link' => base_url("$path/$today/week"),
+                'label' => ucfirst(lang('tim_lang.week'))
+            ],
+            [
+                'link' => base_url("$path/$today/month"),
+                'label' => ucfirst(lang('tim_lang.month'))
             ]
         );
-        array_push($data, [
-            'link' => 'day',
-            'label' => ucfirst(lang('tim_lang.day'))
-        ]);
-        array_push($data, [
-            'link' => 'week',
-            'label' => ucfirst(lang('tim_lang.week'))
-        ]);
-        array_push($data, [
-            'link' => 'month',
-            'label' => ucfirst(lang('tim_lang.month'))
-        ]);
+
         return $data;
     }
 
