@@ -7,6 +7,7 @@ $routes->group('admin', function($routes) {
     // User groups routes
     $routes->group('user-groups', function($routes) {
         $routes->get('', '\Timbreuse\Controllers\UserGroups');
+        $routes->get('(:num)', '\Timbreuse\Controllers\UserGroups::displayByUserId/$1');
 
         $routes->get('create', '\Timbreuse\Controllers\UserGroups::create');
         $routes->get('create/(:num)', '\Timbreuse\Controllers\UserGroups::create/$1');

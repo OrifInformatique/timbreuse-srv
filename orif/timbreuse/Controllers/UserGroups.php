@@ -11,6 +11,9 @@ use Timbreuse\Models\UserGroupsModel;
 use Timbreuse\Models\UserSyncGroupsModel;
 use Timbreuse\Models\EventPlanningsModel;
 use Timbreuse\Controllers\Users;
+use Timbreuse\Models\UsersModel;
+use Timbreuse\Controllers\PersoLogs;
+use CodeIgniter\I18n\Time;
 
 class UserGroups extends BaseController
 {
@@ -18,7 +21,9 @@ class UserGroups extends BaseController
     private UserGroupsModel $userGroupsModel;
     private UserSyncGroupsModel $userSyncGroupsModel;
     private EventPlanningsModel $eventPlanningsModel;
+    private UsersModel $userSyncModel;
     private Users $userSyncController;
+    private PersoLogs $persoLogsController;
 
     /**
      * Constructor
@@ -40,9 +45,11 @@ class UserGroups extends BaseController
         $this->userGroupsModel = new UserGroupsModel();
         $this->userSyncGroupsModel = new UserSyncGroupsModel();
         $this->eventPlanningsModel = new EventPlanningsModel();
+        $this->userSyncModel = new UsersModel();
 
         // Load required controllers
         $this->userSyncController = new Users();
+        $this->persoLogsController = new PersoLogs();
     }
     
     /**
@@ -57,6 +64,70 @@ class UserGroups extends BaseController
         $data['userGroups'] = $this->formatForListView($userGroups);
 
         return $this->display_view('Timbreuse\Views\userGroups\list', $data);
+    }
+
+    private function getParents(?int $groupId): array|null {
+        // todo: change the logic to get parents on the same level
+        if (is_null($groupId)) {
+            return null;
+        }
+
+        $allParentGroups = [];
+
+        $parentGroup = $this->userGroupsModel->find($groupId);
+
+        if ($parentGroup && !is_null($parentGroup['fk_parent_user_group_id'])) {
+            $parents = $this->getParents($parentGroup['fk_parent_user_group_id']);
+            
+            foreach($parents as $parent) {
+                array_push($allParentGroups, $parent);
+            }
+        }
+
+        array_push($allParentGroups, $parentGroup);
+    
+        return $allParentGroups;
+    }
+    
+    /**
+     * Display the user group list
+     *
+     * @return string
+     */
+    public function displayByUserId(int $timUserId) : string {
+        $allParentGroups = [];
+        $user = $this->userSyncModel->find($timUserId);
+
+        $data['title'] = lang('tim_lang.title_user_group_of', [
+            'firstname' => $user['name'],
+            'lastname' => $user['surname']
+        ]);
+
+        $userGroups = $this->userGroupsModel
+            ->select('user_group.id, fk_parent_user_group_id, name')
+            ->join('user_sync_group', 'fk_user_group_id = user_group.id')
+            ->where('fk_user_sync_id', $timUserId)
+            ->findAll();
+
+        foreach ($userGroups as $userGroup) {
+            $parentGroups = $this->getParents($userGroup['fk_parent_user_group_id']);
+            
+            if (!is_null($parentGroups)) {
+                array_push($allParentGroups, ...$parentGroups);
+            }
+        }
+
+        $userGroups = array_merge($userGroups, $allParentGroups);
+
+        $data['userGroups'] = $this->formatForListView($userGroups);
+
+        $data['period'] = 'day';
+        $data['buttons'] = $this->persoLogsController->get_buttons_for_log_views(Time::today(), $data['period'], $timUserId)['buttons'];
+
+        return $this->display_view([
+            'Timbreuse\Views\period_menu',
+            'Timbreuse\Views\userGroups\list'
+        ], $data);
     }
     
     /**
@@ -102,7 +173,7 @@ class UserGroups extends BaseController
                     $prefix .= str_repeat('<i class="bi bi-chevron-right"></i>', $depth) . ' ';
                 }
     
-                $item['name'] = $prefix . $item['name'];
+                $item['name'] = $prefix . esc($item['name']);
                 $result[] = $item;
     
                 // Recursively process children
