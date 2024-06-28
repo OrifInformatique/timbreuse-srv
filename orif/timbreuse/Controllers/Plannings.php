@@ -10,6 +10,7 @@ use Timbreuse\Models\PlanningsModel;
 use Timbreuse\Models\AccessTimModel;
 use Timbreuse\Models\UsersModel;
 use CodeIgniter\Model;
+use Timbreuse\Controllers\PersoLogs;
 
 use CodeIgniter\I18n\Time;
 use CodeIgniter\API\ResponseTrait;
@@ -20,6 +21,9 @@ class Plannings extends BaseController
     use ResponseTrait; # API Response Trait
     # to rename, common it is confus, 
     # here common is beetween create and edit
+
+    private PersoLogs $persoLogsController;
+
     protected function get_common_rules(): array
     {
         $rules['dateEnd'] = 'permit_empty';
@@ -103,6 +107,7 @@ class Plannings extends BaseController
              ->access_lvl_registered;
         parent::initController($request, $response, $logger);
         $this->session = \Config\Services::session();
+        $this->persoLogsController = new PersoLogs();
     }
 
 
@@ -541,9 +546,9 @@ class Plannings extends BaseController
                 $withDeleted);
         $data['url_create'] = $this->get_link_with_id_or_not(
                 'Plannings/create_planning', $timUserId);
-        $data['buttons'][0]['link'] =
+        /* $data['buttons'][0]['link'] =
                 "../../AdminLogs/time_list/$timUserId";
-        $data['buttons'][0]['label'] = ucfirst(lang('tim_lang.back'));
+        $data['buttons'][0]['label'] = ucfirst(lang('tim_lang.back')); */
         $data['url_getView'] =
                 "Plannings/get_plannings_list/$timUserId/$withDeleted";
         $data['url_duplicate'] = 'Plannings/copy_planning/';
@@ -610,16 +615,23 @@ class Plannings extends BaseController
             ?bool $withDeleted=false): string
     {
         $timUserId = $timUserId ?? $this->get_tim_user_id();
-        if (!$this->is_access($timUserId))
-        {
+        $data['period'] = 'day';
+        $data['buttons'] = $this->persoLogsController->get_buttons_for_log_views(Time::today(), $data['period'], $timUserId)['buttons'];
+
+        //dd(current_url(), $data['buttons']);
+
+        if (!$this->is_access($timUserId)) {
             return $this->display_unauthorize();
         }
-        $data = $this->get_data_for_plannings_list($timUserId, $withDeleted);
-        # check if the user check himself and show return button if not himself
+
+        $data = array_merge($data, $this->get_data_for_plannings_list($timUserId, $withDeleted));
+
+        // check if the user check himself and show return button if not himself
         if ($timUserId === $this->get_tim_user_id()) {
-            return $this->display_view('Common\Views\items_list', $data);
+            return $this->display_view(['Timbreuse\Views\period_menu', 'Common\Views\items_list'], $data);
         }
-        return $this->display_view(['Timbreuse\Views\menu',
+
+        return $this->display_view(['Timbreuse\Views\period_menu',
                     'Common\Views\items_list'], $data);
     }
 
