@@ -177,7 +177,9 @@ class PersoLogs extends BaseController
     protected function create_planning_link(?int $timUserId=null): array
     {
         helper('UtilityFunctions');
-        if ($timUserId === get_tim_user_id()) {
+        if ($timUserId === get_tim_user_id() 
+            && $_SESSION['user_access'] < config('\User\Config\UserConfig')->access_lvl_admin
+        ) {
             $button['link'] = base_url('/Plannings/get_plannings_list');
         } else {
             $button['link'] = base_url(
@@ -190,10 +192,12 @@ class PersoLogs extends BaseController
     protected function create_event_planning_link(?int $timUserId=null): array
     {
         helper('UtilityFunctions');
-        if ($timUserId === get_tim_user_id()) {
+        if ($timUserId === get_tim_user_id() 
+            && $_SESSION['user_access'] < config('\User\Config\UserConfig')->access_lvl_admin
+        ) {
             $button['link'] = base_url('event-plannings');
         } else {
-            $button['link'] = base_url("admin/event-plannings/$timUserId");
+            $button['link'] = base_url("event-plannings/$timUserId");
         }
         $button['label'] = ucfirst(lang('tim_lang.event_plannings_list'));
         return $button;
