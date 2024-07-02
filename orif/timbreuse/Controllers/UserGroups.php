@@ -35,7 +35,7 @@ class UserGroups extends BaseController
     ): void {
         // Set Access level before calling parent constructor
         // Accessibility reserved to admin users
-        $this->access_level = config('\User\Config\UserConfig')->access_lvl_admin;
+        $this->access_level = config('\User\Config\UserConfig')->access_lvl_registered;
         parent::initController($request, $response, $logger);
 
         // Load required helpers
@@ -94,8 +94,14 @@ class UserGroups extends BaseController
      *
      * @return string
      */
-    public function displayByUserId(int $timUserId) : string {
+    public function displayByUserId(?int $timUserId = null) : string {
+        helper('UtilityFunctions');
+        if (is_null($timUserId)) {
+            $timUserId = get_tim_user_id();
+        }
+
         $allParentGroups = [];
+        $linkedUserGroups = [];
         $user = $this->userSyncModel->find($timUserId);
 
         $data['title'] = lang('tim_lang.title_user_group_of', [
@@ -110,16 +116,18 @@ class UserGroups extends BaseController
             ->findAll();
 
         foreach ($userGroups as $userGroup) {
+            array_push($linkedUserGroups, $userGroup['id']);
             $parentGroups = $this->getParents($userGroup['fk_parent_user_group_id']);
             
             if (!is_null($parentGroups)) {
                 array_push($allParentGroups, ...$parentGroups);
             }
-        }
+        } 
 
         $userGroups = array_merge($userGroups, $allParentGroups);
 
         $data['userGroups'] = $this->formatForListView($userGroups);
+        $data['linkedUserGroups'] = $linkedUserGroups;
 
         $data['period'] = 'day';
         $data['buttons'] = $this->persoLogsController->get_buttons_for_log_views(Time::today(), $data['period'], $timUserId)['buttons'];

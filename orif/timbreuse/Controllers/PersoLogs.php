@@ -206,10 +206,11 @@ class PersoLogs extends BaseController
     public function create_user_group_link(?int $timUserId=null): array
     {
         helper('UtilityFunctions');
-        if ($timUserId === get_tim_user_id()) {
+        if ($timUserId === get_tim_user_id()
+            && $_SESSION['user_access'] < config('\User\Config\UserConfig')->access_lvl_admin) {
             $button['link'] = base_url('user-groups');
         } else {
-            $button['link'] = base_url("admin/user-groups/$timUserId");
+            $button['link'] = base_url("user-groups/$timUserId");
         }
         $button['label'] = ucfirst(lang('tim_lang.user_group_list'));
         return $button;
