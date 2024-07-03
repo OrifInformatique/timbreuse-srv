@@ -65,7 +65,13 @@ class UserGroups extends BaseController
 
         return $this->display_view('Timbreuse\Views\userGroups\list', $data);
     }
-
+    
+    /**
+     * Get all parents recursively
+     *
+     * @param  mixed $groupId
+     * @return array
+     */
     private function getParents(?int $groupId): array|null {
         // todo: change the logic to get parents on the same level
         if (is_null($groupId)) {
@@ -90,18 +96,42 @@ class UserGroups extends BaseController
     }
     
     /**
-     * Display the user group list
+     * Format parent and child hierarchy as a breadcrumb
      *
+     * @param  array $group
+     * @param  array $parentGroups
+     * @return string
+     */
+    private function formatBreadCrumb(array $group, array $parentGroups) : string {
+        $groupBreadCrumb = '';
+        $arrow = ' <i class="bi bi-arrow-right"></i> ';
+
+        foreach ($parentGroups as $i => $parentGroup) {
+            if ($i > 0) {
+                $groupBreadCrumb .= $arrow;
+            }
+
+            $groupBreadCrumb .= esc($parentGroup['name']);
+        }
+
+        $groupBreadCrumb .= $arrow . esc($group['name']);
+
+        return $groupBreadCrumb;
+    }
+        
+    /**
+     * Display user groups by corresponding user id
+     *
+     * @param  mixed $timUserId
      * @return string
      */
     public function displayByUserId(?int $timUserId = null) : string {
         helper('UtilityFunctions');
+
         if (is_null($timUserId)) {
             $timUserId = get_tim_user_id();
         }
 
-        $allParentGroups = [];
-        $linkedUserGroups = [];
         $user = $this->userSyncModel->find($timUserId);
 
         $data['title'] = lang('tim_lang.title_user_group_of', [
@@ -115,22 +145,17 @@ class UserGroups extends BaseController
             ->where('fk_user_sync_id', $timUserId)
             ->findAll();
 
-        foreach ($userGroups as $userGroup) {
-            array_push($linkedUserGroups, $userGroup['id']);
+        foreach ($userGroups as &$userGroup) {
             $parentGroups = $this->getParents($userGroup['fk_parent_user_group_id']);
             
+            
             if (!is_null($parentGroups)) {
-                array_push($allParentGroups, ...$parentGroups);
+                $userGroup['name'] = $this->formatBreadCrumb($userGroup, $parentGroups);
             }
-        } 
+        }
 
-        $userGroups = array_merge($userGroups, $allParentGroups);
-
-        $data['userGroups'] = $this->formatForListView($userGroups);
-        $data['linkedUserGroups'] = $linkedUserGroups;
-
-        $data['period'] = 'day';
-        $data['buttons'] = $this->persoLogsController->get_buttons_for_log_views(Time::today(), $data['period'], $timUserId)['buttons'];
+        $data['userGroups'] = $userGroups;
+        $data['buttons'] = $this->persoLogsController->get_buttons_for_log_views(Time::today(), 'day', $timUserId)['buttons'];
 
         return $this->display_view([
             'Timbreuse\Views\period_menu',
