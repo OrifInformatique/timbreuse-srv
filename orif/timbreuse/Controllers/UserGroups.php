@@ -17,6 +17,7 @@ use CodeIgniter\I18n\Time;
 
 class UserGroups extends BaseController
 {
+    // todo: manage rights to methods and add link and unlink user from a group
     // Class properties
     private UserGroupsModel $userGroupsModel;
     private UserSyncGroupsModel $userSyncGroupsModel;
@@ -61,7 +62,22 @@ class UserGroups extends BaseController
         $data['title'] = lang('tim_lang.user_group_list');
 
         $userGroups = $this->userGroupsModel->findAll();
+
+        $userGroups = array_map(function($userGroup) {
+            if (is_null($userGroup['fk_parent_user_group_id'])) {
+                $userGroup['class'] = 'bg-light';
+            }
+
+            $userGroup['updateUrl'] = base_url("admin/user-groups/update/{$userGroup['id']}");
+            $userGroup['deleteUrl'] = base_url("admin/user-groups/delete/{$userGroup['id']}");
+
+            return $userGroup;
+        }, $userGroups);
+
         $data['userGroups'] = $this->formatForListView($userGroups);
+
+        $data['createUrl'] = base_url('admin/user-groups/create');
+        $data['updateUrl'] = base_url('admin/user-groups/update'); 
 
         return $this->display_view('Timbreuse\Views\userGroups\list', $data);
     }
@@ -73,7 +89,6 @@ class UserGroups extends BaseController
      * @return array
      */
     private function getParents(?int $groupId): array|null {
-        // todo: change the logic to get parents on the same level
         if (is_null($groupId)) {
             return null;
         }
@@ -132,6 +147,10 @@ class UserGroups extends BaseController
             $timUserId = get_tim_user_id();
         }
 
+        if (is_admin()) {
+            $data['createUrl'] = base_url("user-groups/select/$timUserId");
+        }
+
         $user = $this->userSyncModel->find($timUserId);
 
         $data['title'] = lang('tim_lang.title_user_group_of', [
@@ -145,16 +164,22 @@ class UserGroups extends BaseController
             ->where('fk_user_sync_id', $timUserId)
             ->findAll();
 
-        foreach ($userGroups as &$userGroup) {
+        $userGroups = array_map(function($userGroup) use ($timUserId) {
             $parentGroups = $this->getParents($userGroup['fk_parent_user_group_id']);
-            
-            
+
             if (!is_null($parentGroups)) {
                 $userGroup['name'] = $this->formatBreadCrumb($userGroup, $parentGroups);
             }
-        }
 
-        $data['userGroups'] = $userGroups;
+            if (is_admin()) {
+                $userGroup['deleteUrl'] = base_url("admin/user-groups/{$userGroup['id']}/unlink-user/$timUserId");
+            }
+
+            return $userGroup;
+        }, $userGroups);
+
+        $data['userGroups'] = $userGroups;    
+
         $data['buttons'] = $this->persoLogsController->get_buttons_for_log_views(Time::today(), 'day', $timUserId)['buttons'];
 
         return $this->display_view([
@@ -162,7 +187,46 @@ class UserGroups extends BaseController
             'Timbreuse\Views\userGroups\list'
         ], $data);
     }
-    
+        
+    /**
+     * Display page to link groups to a user
+     *
+     * @param  int $timUserId
+     * @return string
+     */
+    public function selectGroupsLinkToUser(int $timUserId) : string {
+        $user = $this->userSyncModel->find($timUserId);
+        $data['title'] = lang('tim_lang.title_add_groups_to', [
+            'firstname' => $user['name'],
+            'lastname' => $user['surname']
+        ]);
+        $linkedUserGroups = $this->userGroupsModel
+            ->select('user_group.id, fk_parent_user_group_id, name')
+            ->join('user_sync_group', 'fk_user_group_id = user_group.id')
+            ->where('fk_user_sync_id', $timUserId)
+            ->findAll();
+
+        $allUserGroups = $this->userGroupsModel->findAll();
+
+        $allUserGroups = array_map(function($userGroup) use ($linkedUserGroups, $timUserId) {
+            if (in_array($userGroup, $linkedUserGroups)) {
+                $userGroup['class'] = 'bg-secondary';
+            } else {
+                $userGroup['addUrl'] = base_url("admin/user-groups/{$userGroup['id']}/link-user/$timUserId");
+            }
+
+            return $userGroup;
+        }, $allUserGroups);
+
+        $data['userGroups'] = $this->formatForListView($allUserGroups);
+        $data['buttons'] = $this->persoLogsController->get_buttons_for_log_views(Time::today(), 'day', $timUserId)['buttons'];
+
+        return $this->display_view([
+            'Timbreuse\Views\period_menu',
+            'Timbreuse\Views\userGroups\list'
+        ], $data);
+    }
+
     /**
      * Format and sort user group array for display
      *

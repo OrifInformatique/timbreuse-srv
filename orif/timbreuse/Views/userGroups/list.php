@@ -4,9 +4,9 @@
         <div class="text-left col-12">
             <h3><?= esc($title) ?></h3>
         </div>
-        <?php if ($isAdminView): ?>
+        <?php if (isset($createUrl)): ?>
             <div class="col-sm-6 text-left">
-                <a class="btn btn-primary" href="<?= current_url() . '/create' ?>"><?= lang('common_lang.btn_add') ?></a>
+                <a class="btn btn-primary" href="<?= $createUrl ?>"><?= lang('common_lang.btn_add') ?></a>
             </div>
         <?php endif; ?>
     </div>
@@ -18,17 +18,26 @@
         </thead>
         <tbody id="table-body">
             <?php foreach($userGroups as $userGroup): ?>
-                <tr class="<?= is_null($userGroup['fk_parent_user_group_id']) ? 'bg-light' : '' ?>">
+                <tr class="<?= isset($userGroup['class']) ? $userGroup['class'] : '' ?>">
                     <td>
                         <?= (isset($linkedUserGroups) 
                         && in_array($userGroup['id'], $linkedUserGroups) ? '<i class="bi bi-circle-fill"></i> ': '') . $userGroup['name'] ?>
                     </td>
                     <td class="text-right">
-                        <?php if ($isAdminView): ?>
-                            <a href="<?= current_url() . "/update/{$userGroup['id']}" ?>">
-                            <i class="bi bi-pencil" style="font-size: 20px;"></i>
+                        <?php if (isset($userGroup['addUrl'])): ?>
+                            <a href="<?= $userGroup['addUrl'] ?>">
+                                <i class="bi bi-plus-circle" style="font-size: 20px;"></i>
                             </a>
-                            <a href="<?= current_url() . "/delete/{$userGroup['id']}" ?>">
+                        <?php endif; ?>
+
+                        <?php if (isset($userGroup['updateUrl'])): ?>
+                            <a href="<?= $userGroup['updateUrl'] ?>">
+                                <i class="bi bi-pencil" style="font-size: 20px;"></i>
+                            </a>
+                        <?php endif; ?>
+
+                        <?php if (isset($userGroup['deleteUrl'])): ?>
+                            <a href="<?= $userGroup['deleteUrl'] ?>">
                                 <i class="bi bi-trash" style="font-size: 20px;"></i>
                             </a>
                         <?php endif; ?>

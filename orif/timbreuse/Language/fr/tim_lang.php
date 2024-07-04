@@ -196,4 +196,5 @@ return [
     'unknown_user' => 'Utilisateur inconnu',
     '403_error_message' => 'Vous n\'avez pas la permission d\'accéder à cette page.',
     'title_user_group_of' => 'Groupes d\'utilisateurs liés à {firstname} {lastname}',
+    'title_add_groups_to' => 'Ajouter des groupes d\'utilisateurs à {firstname} {lastname}'
 ];
