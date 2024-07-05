@@ -17,7 +17,6 @@ use CodeIgniter\I18n\Time;
 
 class UserGroups extends BaseController
 {
-    // todo: manage rights to methods and add link and unlink user from a group
     // Class properties
     private UserGroupsModel $userGroupsModel;
     private UserSyncGroupsModel $userSyncGroupsModel;
@@ -41,6 +40,7 @@ class UserGroups extends BaseController
 
         // Load required helpers
         helper('form');
+        helper('UtilityFunctions');
 
         // Load required models
         $this->userGroupsModel = new UserGroupsModel();
@@ -59,6 +59,10 @@ class UserGroups extends BaseController
      * @return string
      */
     public function index() : string {
+        if (!is_admin()) {
+            return redirect()->to(base_url('user-groups'));
+        }
+
         $data['title'] = lang('tim_lang.user_group_list');
 
         $userGroups = $this->userGroupsModel->findAll();
@@ -140,11 +144,13 @@ class UserGroups extends BaseController
      * @param  mixed $timUserId
      * @return string
      */
-    public function displayByUserId(?int $timUserId = null) : string {
-        helper('UtilityFunctions');
-
+    public function displayByUserId(?int $timUserId = null) : string|RedirectResponse {
         if (is_null($timUserId)) {
             $timUserId = get_tim_user_id();
+        }
+
+        if ($timUserId != get_tim_user_id() && !is_admin()) {
+            return redirect()->to(base_url('user-groups'));
         }
 
         if (is_admin()) {
@@ -152,6 +158,10 @@ class UserGroups extends BaseController
         }
 
         $user = $this->userSyncModel->find($timUserId);
+
+        if (is_null($user)) {
+            return redirect()->to($_SESSION['_ci_previous_url']);
+        }
 
         $data['title'] = lang('tim_lang.title_user_group_of', [
             'firstname' => $user['name'],
@@ -194,7 +204,11 @@ class UserGroups extends BaseController
      * @param  int $timUserId
      * @return string
      */
-    public function selectGroupsLinkToUser(int $timUserId) : string {
+    public function selectGroupsLinkToUser(int $timUserId) : string|RedirectResponse {
+        if (!is_admin()) {
+            return redirect()->to(base_url('user-groups'));
+        }
+
         $user = $this->userSyncModel->find($timUserId);
         $data['title'] = lang('tim_lang.title_add_groups_to', [
             'firstname' => $user['name'],
@@ -291,6 +305,10 @@ class UserGroups extends BaseController
      * @return string|RedirectResponse
      */
     public function create(int $parentId = null) : string|RedirectResponse {
+        if (!is_admin()) {
+            return redirect()->to(base_url('user-groups'));
+        }
+
         $parentUserGroup = $this->userGroupsModel->find($parentId);
 
         $data = [
@@ -324,6 +342,10 @@ class UserGroups extends BaseController
      * @return string|RedirectResponse
      */
     public function update(int $id, int $parentId = null) : string|RedirectResponse {
+        if (!is_admin()) {
+            return redirect()->to(base_url('user-groups'));
+        }
+
         $userGroup = $this->userGroupsModel->find($id);
         $parentUserGroupId = $parentId ?? $userGroup['fk_parent_user_group_id'] ?? null;
         
@@ -369,6 +391,10 @@ class UserGroups extends BaseController
      * @return string|RedirectResponse
      */
     public function delete(int $id, int $action = 0) : string|RedirectResponse {
+        if (!is_admin()) {
+            return redirect()->to(base_url('user-groups'));
+        }
+
         $userGroup = $this->userGroupsModel->find($id);
 
         if (!$userGroup) {
@@ -408,9 +434,13 @@ class UserGroups extends BaseController
      * Display select user group page
      *
      * @param  int $id
-     * @return string
+     * @return string|RedirectResponse
      */
-    public function selectUserGroup(?int $id = null) : string {
+    public function selectUserGroup(?int $id = null) : string|RedirectResponse {
+        if (!is_admin()) {
+            return redirect()->to(base_url('user-groups'));
+        }
+
         $filters = $_GET;
 
         $data['route'] = $filters['path'];

@@ -89,6 +89,7 @@ $routes->group('admin', function($routes) {
     });
 });
 
+// User groups
 $routes->get('user-groups', '\Timbreuse\Controllers\UserGroups::displayByUserId');
 $routes->get('user-groups/(:num)', '\Timbreuse\Controllers\UserGroups::displayByUserId/$1');
 $routes->get('user-groups/select/(:num)', '\Timbreuse\Controllers\UserGroups::selectGroupsLinkToUser/$1');

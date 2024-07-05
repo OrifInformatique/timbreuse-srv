@@ -20,8 +20,7 @@
             <?php foreach($userGroups as $userGroup): ?>
                 <tr class="<?= isset($userGroup['class']) ? $userGroup['class'] : '' ?>">
                     <td>
-                        <?= (isset($linkedUserGroups) 
-                        && in_array($userGroup['id'], $linkedUserGroups) ? '<i class="bi bi-circle-fill"></i> ': '') . $userGroup['name'] ?>
+                        <?= $userGroup['name'] ?>
                     </td>
                     <td class="text-right">
                         <?php if (isset($userGroup['addUrl'])): ?>
