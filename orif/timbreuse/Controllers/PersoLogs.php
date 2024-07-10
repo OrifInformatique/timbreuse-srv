@@ -779,7 +779,7 @@ class PersoLogs extends BaseController
         if (filter_var($lastSegment, FILTER_VALIDATE_INT) !== false) {
             $path = "AdminLogs/time_list/$timUserId";
         } else {
-            if (url_is('*get_plannings_list') || url_is('*event-plannings') || url_is('*PersoLogs/perso_time*')) {
+            if (url_is('*get_plannings_list') || url_is('*event-plannings') || url_is('*PersoLogs/perso_time*') || url_is('*user-groups*')) {
                 $path = "PersoLogs/perso_time";
             } else {
                 $path = "AdminLogs/time_list/$timUserId";
