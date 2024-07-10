@@ -210,7 +210,7 @@ class UserGroups extends BaseController
         }
 
         $user = $this->userSyncModel->find($timUserId);
-        $data['title'] = lang('tim_lang.title_add_groups_to', [
+        $data['title'] = lang('tim_lang.title_manage_user_groups', [
             'firstname' => $user['name'],
             'lastname' => $user['surname']
         ]);

@@ -195,6 +195,6 @@ return [
     'msg_err_end_date_greater_than' => 'La date de fin doit être supérieure à la date de début.',
     'unknown_user' => 'Utilisateur inconnu',
     '403_error_message' => 'Vous n\'avez pas la permission d\'accéder à cette page.',
-    'title_user_group_of' => 'Groupes d\'utilisateurs liés à {firstname} {lastname}',
-    'title_add_groups_to' => 'Ajouter des groupes d\'utilisateurs à {firstname} {lastname}'
+    'title_user_group_of' => 'Groupes dont {firstname} {lastname} est membre',
+    'title_manage_user_groups' => 'Gestion des groupes dont {firstname} {lastname} est membre'
 ];
