@@ -21,6 +21,7 @@ $routes->group('admin', function($routes) {
         
         // Select
         $routes->get('select', '\Timbreuse\Controllers\UserGroups::selectUserGroup');
+        $routes->get('select/(:num)', '\Timbreuse\Controllers\UserGroups::selectUserGroup/$1');
         $routes->get('select-parent', '\Timbreuse\Controllers\UserGroups::selectUserGroup');
         $routes->get('select-parent/(:num)', '\Timbreuse\Controllers\UserGroups::selectUserGroup/$1');
 
@@ -87,6 +88,11 @@ $routes->group('admin', function($routes) {
         $routes->get('select', '\Timbreuse\Controllers\Users::selectUser');
     });
 });
+
+// User groups
+$routes->get('user-groups', '\Timbreuse\Controllers\UserGroups::displayByUserId');
+$routes->get('user-groups/(:num)', '\Timbreuse\Controllers\UserGroups::displayByUserId/$1');
+$routes->get('user-groups/select/(:num)', '\Timbreuse\Controllers\UserGroups::selectGroupsLinkToUser/$1');
 
 // Personal event planning
 $routes->group('event-plannings', function($routes) {

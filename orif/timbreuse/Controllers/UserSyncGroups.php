@@ -89,7 +89,7 @@ class UserSyncGroups extends BaseController
             'fk_user_group_id' => $groupId
         ]);
 
-        return redirect()->to(base_url("admin/user-groups/{$groupId}/link-user"));
+        return redirect()->to($_SESSION['_ci_previous_url']);
     }
     
     /**
@@ -104,7 +104,7 @@ class UserSyncGroups extends BaseController
             ->where('fk_user_sync_id', $userId)
             ->delete();
         
-        return redirect()->to(base_url("admin/user-groups/{$groupId}/link-user"));
+        return redirect()->to($_SESSION['_ci_previous_url']);
     }
     
     /**

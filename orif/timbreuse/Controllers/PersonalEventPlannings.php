@@ -12,11 +12,14 @@ use Timbreuse\Models\EventTypesModel;
 use Timbreuse\Models\UsersModel;
 use User\Models\User_model;
 use Timbreuse\Controllers\EventSeries;
+use Timbreuse\Controllers\PersoLogs;
+use CodeIgniter\I18n\Time;
 
 class PersonalEventPlannings extends BaseController
 {
     // Class properties
     protected EventSeries $eventSeriesController;
+    private PersoLogs $persoLogsController;
     private EventPlanningsModel $eventPlanningsModel;
     private EventTypesModel $eventTypesModel;
     private UsersModel $userSyncModel;
@@ -46,6 +49,7 @@ class PersonalEventPlannings extends BaseController
 
         // Load required controllers
         $this->eventSeriesController = new EventSeries();
+        $this->persoLogsController = new PersoLogs();
     }
 
     /**
@@ -84,6 +88,9 @@ class PersonalEventPlannings extends BaseController
         $data['isVisible'] = true;
         $data['route'] = $isAdminView ? "AdminLogs/time_list/{$timUserId}" : 'PersoLogs/perso_time';
 
+        $data['period'] = 'day';
+        $data['buttons'] = $this->persoLogsController->get_buttons_for_log_views(Time::today(), $data['period'], $timUserId)['buttons'];
+
         $data['columns'] = [
             'event_type_name' => ucfirst(lang('tim_lang.event_type')),
             'event_date' => ucfirst(lang('tim_lang.field_event_date')),
@@ -114,7 +121,7 @@ class PersonalEventPlannings extends BaseController
         $data['url_delete'] = $eventPlannigRoute . 'delete/serie-or-occurence/';
 
         return $this->display_view([
-            'Timbreuse\Views\common\return_button',
+           'Timbreuse\Views\period_menu',
             'Common\Views\items_list'], $data);
     }
 
