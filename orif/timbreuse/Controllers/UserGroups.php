@@ -11,6 +11,9 @@ use Timbreuse\Models\UserGroupsModel;
 use Timbreuse\Models\UserSyncGroupsModel;
 use Timbreuse\Models\EventPlanningsModel;
 use Timbreuse\Controllers\Users;
+use Timbreuse\Models\UsersModel;
+use Timbreuse\Controllers\PersoLogs;
+use CodeIgniter\I18n\Time;
 
 class UserGroups extends BaseController
 {
@@ -18,7 +21,9 @@ class UserGroups extends BaseController
     private UserGroupsModel $userGroupsModel;
     private UserSyncGroupsModel $userSyncGroupsModel;
     private EventPlanningsModel $eventPlanningsModel;
+    private UsersModel $userSyncModel;
     private Users $userSyncController;
+    private PersoLogs $persoLogsController;
 
     /**
      * Constructor
@@ -30,19 +35,22 @@ class UserGroups extends BaseController
     ): void {
         // Set Access level before calling parent constructor
         // Accessibility reserved to admin users
-        $this->access_level = config('\User\Config\UserConfig')->access_lvl_admin;
+        $this->access_level = config('\User\Config\UserConfig')->access_lvl_registered;
         parent::initController($request, $response, $logger);
 
         // Load required helpers
         helper('form');
+        helper('UtilityFunctions');
 
         // Load required models
         $this->userGroupsModel = new UserGroupsModel();
         $this->userSyncGroupsModel = new UserSyncGroupsModel();
         $this->eventPlanningsModel = new EventPlanningsModel();
+        $this->userSyncModel = new UsersModel();
 
         // Load required controllers
         $this->userSyncController = new Users();
+        $this->persoLogsController = new PersoLogs();
     }
     
     /**
@@ -51,14 +59,188 @@ class UserGroups extends BaseController
      * @return string
      */
     public function index() : string {
+        if (!is_admin()) {
+            return redirect()->to(base_url('user-groups'));
+        }
+
         $data['title'] = lang('tim_lang.user_group_list');
 
         $userGroups = $this->userGroupsModel->findAll();
+
+        $userGroups = array_map(function($userGroup) {
+            if (is_null($userGroup['fk_parent_user_group_id'])) {
+                $userGroup['class'] = 'bg-light';
+            }
+
+            $userGroup['updateUrl'] = base_url("admin/user-groups/update/{$userGroup['id']}");
+            $userGroup['deleteUrl'] = base_url("admin/user-groups/delete/{$userGroup['id']}");
+
+            return $userGroup;
+        }, $userGroups);
+
         $data['userGroups'] = $this->formatForListView($userGroups);
+
+        $data['createUrl'] = base_url('admin/user-groups/create');
+        $data['updateUrl'] = base_url('admin/user-groups/update'); 
 
         return $this->display_view('Timbreuse\Views\userGroups\list', $data);
     }
     
+    /**
+     * Get all parents recursively
+     *
+     * @param  mixed $groupId
+     * @return array
+     */
+    private function getParents(?int $groupId): array|null {
+        if (is_null($groupId)) {
+            return null;
+        }
+
+        $allParentGroups = [];
+
+        $parentGroup = $this->userGroupsModel->find($groupId);
+
+        if ($parentGroup && !is_null($parentGroup['fk_parent_user_group_id'])) {
+            $parents = $this->getParents($parentGroup['fk_parent_user_group_id']);
+            
+            foreach($parents as $parent) {
+                array_push($allParentGroups, $parent);
+            }
+        }
+
+        array_push($allParentGroups, $parentGroup);
+    
+        return $allParentGroups;
+    }
+    
+    /**
+     * Format parent and child hierarchy as a breadcrumb
+     *
+     * @param  array $group
+     * @param  array $parentGroups
+     * @return string
+     */
+    private function formatBreadCrumb(array $group, array $parentGroups) : string {
+        $groupBreadCrumb = '';
+        $arrow = ' <i class="bi bi-arrow-right"></i> ';
+
+        foreach ($parentGroups as $i => $parentGroup) {
+            if ($i > 0) {
+                $groupBreadCrumb .= $arrow;
+            }
+
+            $groupBreadCrumb .= esc($parentGroup['name']);
+        }
+
+        $groupBreadCrumb .= $arrow . esc($group['name']);
+
+        return $groupBreadCrumb;
+    }
+        
+    /**
+     * Display user groups by corresponding user id
+     *
+     * @param  mixed $timUserId
+     * @return string
+     */
+    public function displayByUserId(?int $timUserId = null) : string|RedirectResponse {
+        if (is_null($timUserId)) {
+            $timUserId = get_tim_user_id();
+        }
+
+        if ($timUserId != get_tim_user_id() && !is_admin()) {
+            return redirect()->to(base_url('user-groups'));
+        }
+
+        if (is_admin()) {
+            $data['createUrl'] = base_url("user-groups/select/$timUserId");
+        }
+
+        $user = $this->userSyncModel->find($timUserId);
+
+        if (is_null($user)) {
+            return redirect()->to($_SESSION['_ci_previous_url']);
+        }
+
+        $data['title'] = lang('tim_lang.title_user_group_of', [
+            'firstname' => $user['name'],
+            'lastname' => $user['surname']
+        ]);
+
+        $userGroups = $this->userGroupsModel
+            ->select('user_group.id, fk_parent_user_group_id, name')
+            ->join('user_sync_group', 'fk_user_group_id = user_group.id')
+            ->where('fk_user_sync_id', $timUserId)
+            ->findAll();
+
+        $userGroups = array_map(function($userGroup) use ($timUserId) {
+            $parentGroups = $this->getParents($userGroup['fk_parent_user_group_id']);
+
+            if (!is_null($parentGroups)) {
+                $userGroup['name'] = $this->formatBreadCrumb($userGroup, $parentGroups);
+            }
+
+            if (is_admin()) {
+                $userGroup['deleteUrl'] = base_url("admin/user-groups/{$userGroup['id']}/unlink-user/$timUserId");
+            }
+
+            return $userGroup;
+        }, $userGroups);
+
+        $data['userGroups'] = $userGroups;    
+
+        $data['buttons'] = $this->persoLogsController->get_buttons_for_log_views(Time::today(), 'day', $timUserId)['buttons'];
+
+        return $this->display_view([
+            'Timbreuse\Views\period_menu',
+            'Timbreuse\Views\userGroups\list'
+        ], $data);
+    }
+        
+    /**
+     * Display page to link groups to a user
+     *
+     * @param  int $timUserId
+     * @return string
+     */
+    public function selectGroupsLinkToUser(int $timUserId) : string|RedirectResponse {
+        if (!is_admin()) {
+            return redirect()->to(base_url('user-groups'));
+        }
+
+        $user = $this->userSyncModel->find($timUserId);
+        $data['title'] = lang('tim_lang.title_manage_user_groups', [
+            'firstname' => $user['name'],
+            'lastname' => $user['surname']
+        ]);
+        $linkedUserGroups = $this->userGroupsModel
+            ->select('user_group.id, fk_parent_user_group_id, name')
+            ->join('user_sync_group', 'fk_user_group_id = user_group.id')
+            ->where('fk_user_sync_id', $timUserId)
+            ->findAll();
+
+        $allUserGroups = $this->userGroupsModel->findAll();
+
+        $allUserGroups = array_map(function($userGroup) use ($linkedUserGroups, $timUserId) {
+            if (in_array($userGroup, $linkedUserGroups)) {
+                $userGroup['class'] = 'bg-secondary';
+            } else {
+                $userGroup['addUrl'] = base_url("admin/user-groups/{$userGroup['id']}/link-user/$timUserId");
+            }
+
+            return $userGroup;
+        }, $allUserGroups);
+
+        $data['userGroups'] = $this->formatForListView($allUserGroups);
+        $data['buttons'] = $this->persoLogsController->get_buttons_for_log_views(Time::today(), 'day', $timUserId)['buttons'];
+
+        return $this->display_view([
+            'Timbreuse\Views\period_menu',
+            'Timbreuse\Views\userGroups\list'
+        ], $data);
+    }
+
     /**
      * Format and sort user group array for display
      *
@@ -102,7 +284,7 @@ class UserGroups extends BaseController
                     $prefix .= str_repeat('<i class="bi bi-chevron-right"></i>', $depth) . ' ';
                 }
     
-                $item['name'] = $prefix . $item['name'];
+                $item['name'] = $prefix . esc($item['name']);
                 $result[] = $item;
     
                 // Recursively process children
@@ -123,6 +305,10 @@ class UserGroups extends BaseController
      * @return string|RedirectResponse
      */
     public function create(int $parentId = null) : string|RedirectResponse {
+        if (!is_admin()) {
+            return redirect()->to(base_url('user-groups'));
+        }
+
         $parentUserGroup = $this->userGroupsModel->find($parentId);
 
         $data = [
@@ -156,6 +342,10 @@ class UserGroups extends BaseController
      * @return string|RedirectResponse
      */
     public function update(int $id, int $parentId = null) : string|RedirectResponse {
+        if (!is_admin()) {
+            return redirect()->to(base_url('user-groups'));
+        }
+
         $userGroup = $this->userGroupsModel->find($id);
         $parentUserGroupId = $parentId ?? $userGroup['fk_parent_user_group_id'] ?? null;
         
@@ -201,6 +391,10 @@ class UserGroups extends BaseController
      * @return string|RedirectResponse
      */
     public function delete(int $id, int $action = 0) : string|RedirectResponse {
+        if (!is_admin()) {
+            return redirect()->to(base_url('user-groups'));
+        }
+
         $userGroup = $this->userGroupsModel->find($id);
 
         if (!$userGroup) {
@@ -240,9 +434,13 @@ class UserGroups extends BaseController
      * Display select user group page
      *
      * @param  int $id
-     * @return string
+     * @return string|RedirectResponse
      */
-    public function selectUserGroup(?int $id = null) : string {
+    public function selectUserGroup(?int $id = null) : string|RedirectResponse {
+        if (!is_admin()) {
+            return redirect()->to(base_url('user-groups'));
+        }
+
         $filters = $_GET;
 
         $data['route'] = $filters['path'];

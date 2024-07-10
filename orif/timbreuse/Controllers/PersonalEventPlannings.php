@@ -121,7 +121,7 @@ class PersonalEventPlannings extends BaseController
         $data['url_delete'] = $eventPlannigRoute . 'delete/serie-or-occurence/';
 
         return $this->display_view([
-            'Timbreuse\Views\period_menu',
+           'Timbreuse\Views\period_menu',
             'Common\Views\items_list'], $data);
     }
 
