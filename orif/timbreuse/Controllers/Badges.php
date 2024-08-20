@@ -23,12 +23,12 @@ class Badges extends BaseController
         $this->session = \Config\Services::session();
     }
 
-    public function index()
+    public function index(bool $with_deleted = false)
     {
-        return $this->badges_list();
+        return $this->badges_list($with_deleted);
     }
 
-    public function badges_list()
+    public function badges_list(bool $with_deleted = false)
     {
         $model = model(badgesModel::class);
         $data['title'] = lang('tim_lang.badges');
@@ -43,7 +43,7 @@ class Badges extends BaseController
             'surname' =>ucfirst(lang('tim_lang.surname')),
             'name' =>ucfirst(lang('tim_lang.name')),
         ];
-        $data['items'] = $model->get_badges_and_user_info();
+        $data['items'] = $model->get_badges_and_user_info($with_deleted);
 
 
         $data['primary_key_field']  = 'id_badge';

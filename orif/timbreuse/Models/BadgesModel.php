@@ -12,7 +12,7 @@ class BadgesModel extends Model
 
     protected $useSoftDeletes = true;
 
-    protected $allowedFields = ['id_user'];
+    protected $allowedFields = ['id_user', 'date_delete'];
 
     protected $useTimestamps = true;
     protected $createdField  = '';
@@ -34,21 +34,24 @@ class BadgesModel extends Model
         parent::__construct($db, $validation);
     }
 
-    public function get_badges($userId=null)
+    public function get_badges($userId = null, bool $with_deleted = false)
     {
         if ($userId === null) {
             # $this->orderBy('id_badge');
-            return $this->findAll();
+            return $this->withDeleted($with_deleted)
+                        ->findAll();
         } else {
             return $this->where('id_user', $userId)
+                        ->withDeleted($with_deleted)
                         ->findColumn('id_badge');
         }
     }
 
-    public function get_available_badges(): array
+    public function get_available_badges(bool $with_deleted = false): array
     {
         #$this->orderBy('id_badge');
         $data = $this->where('id_user', null)
+                ->withDeleted($with_deleted)
                 ->findColumn('id_badge');
         return $data ?? array();
         
@@ -110,11 +113,12 @@ class BadgesModel extends Model
     }
 
 
-    public function get_badges_and_user_info()
+    public function get_badges_and_user_info(bool $with_deleted = false)
     {
         return $this->select('id_badge, name, surname')
             ->join('user_sync', 'user_sync.id_user = badge_sync.id_user',
                 'left')
+            ->withDeleted($with_deleted)
             ->findAll();
     }
 
