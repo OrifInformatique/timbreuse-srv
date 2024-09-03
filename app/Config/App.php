@@ -16,7 +16,7 @@ class App extends BaseConfig
      *
      *    http://example.com/
      */
-    public string $baseURL = 'http://localhost/ci_packbase_v4/public/';
+    public string $baseURL = 'http://localhost/timbreuse-srv/public/';
 
     /**
      * Allowed Hostnames in the Site URL other than the hostname in the baseURL.
