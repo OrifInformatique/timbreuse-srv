@@ -42,7 +42,7 @@ class Badges extends BaseController
             'id_badge' =>ucfirst(lang('tim_lang.badgeId')),
             'surname' =>ucfirst(lang('tim_lang.surname')),
             'name' =>ucfirst(lang('tim_lang.name')),
-            'date_delete' =>ucfirst(lang('user_lang.field_user_active')),
+            'date_delete' =>ucfirst(lang('tim_lang.field_active')),
         ];
         $data['items'] = $model->get_badges_and_user_info($with_deleted);
 
