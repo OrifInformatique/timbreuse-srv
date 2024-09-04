@@ -42,9 +42,13 @@ class Badges extends BaseController
             'id_badge' =>ucfirst(lang('tim_lang.badgeId')),
             'surname' =>ucfirst(lang('tim_lang.surname')),
             'name' =>ucfirst(lang('tim_lang.name')),
+            'date_delete' =>ucfirst(lang('user_lang.field_user_active')),
         ];
         $data['items'] = $model->get_badges_and_user_info($with_deleted);
 
+        foreach($data['items'] as $i => $item) {
+            $data['items'][$i]['date_delete'] = lang(!($item['name'] || $item['surname']) || $item['date_delete'] ? 'common_lang.no' : 'common_lang.yes');
+        }
 
         $data['primary_key_field']  = 'id_badge';
         # $data['btn_create_label']  = lang('common_lang.btn_new_m');

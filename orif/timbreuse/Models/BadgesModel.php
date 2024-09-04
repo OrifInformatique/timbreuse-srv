@@ -115,7 +115,7 @@ class BadgesModel extends Model
 
     public function get_badges_and_user_info(bool $with_deleted = false)
     {
-        return $this->select('id_badge, name, surname')
+        return $this->select('id_badge, name, surname, badge_sync.date_delete AS date_delete')
             ->join('user_sync', 'user_sync.id_user = badge_sync.id_user', 'left')
             ->withDeleted($with_deleted)
             ->findAll();
