@@ -47,7 +47,7 @@ class Badges extends BaseController
         $data['items'] = $model->get_badges_and_user_info($with_deleted);
 
         foreach($data['items'] as $i => $item) {
-            $data['items'][$i]['date_delete'] = lang(!($item['name'] || $item['surname']) || $item['date_delete'] ? 'common_lang.no' : 'common_lang.yes');
+            $data['items'][$i]['date_delete'] = lang($item['date_delete'] || !$item['name'] ? 'common_lang.no' : 'common_lang.yes');
         }
 
         $data['primary_key_field']  = 'id_badge';
