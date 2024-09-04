@@ -9,7 +9,7 @@ class BadgesModel extends Model
 {
     protected $table = 'badge_sync';
     protected $primaryKey = 'id_badge';
-    protected $allowedFields = ['id_user', 'date_delete'];
+    protected $allowedFields = ['id_user', 'date_modif', 'date_delete'];
 
     protected $useAutoIncrement = true;
     protected $useSoftDeletes = true;
