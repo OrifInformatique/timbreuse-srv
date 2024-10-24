@@ -23,12 +23,12 @@ class Badges extends BaseController
         $this->session = \Config\Services::session();
     }
 
-    public function index()
+    public function index(bool $with_deleted = false)
     {
-        return $this->badges_list();
+        return $this->badges_list($with_deleted);
     }
 
-    public function badges_list()
+    public function badges_list(bool $with_deleted = false)
     {
         $model = model(badgesModel::class);
         $data['title'] = lang('tim_lang.badges');
@@ -42,16 +42,19 @@ class Badges extends BaseController
             'id_badge' =>ucfirst(lang('tim_lang.badgeId')),
             'surname' =>ucfirst(lang('tim_lang.surname')),
             'name' =>ucfirst(lang('tim_lang.name')),
+            'date_delete' =>ucfirst(lang('tim_lang.field_active')),
         ];
-        $data['items'] = $model->get_badges_and_user_info();
+        $data['items'] = $model->get_badges_and_user_info($with_deleted);
 
+        foreach($data['items'] as $i => $item) {
+            $data['items'][$i]['date_delete'] = lang($item['date_delete'] ? 'common_lang.no' : 'common_lang.yes');
+        }
 
         $data['primary_key_field']  = 'id_badge';
-        # $data['btn_create_label']   = 'Add an item';
-        # $data['url_detail'] = "AdminLogs/time_list/";
         $data['url_update'] = 'Badges/edit_badge_relation/';
         $data['url_delete'] = 'Badges/delete_badge/';
-        # $data['url_create'] = "items_list/create/";
+        $data['with_deleted'] = $with_deleted;
+        $data['url_getView'] = 'Badges/badges_list/';
 
         return $this->display_view('Common\Views\items_list', $data);
     }
