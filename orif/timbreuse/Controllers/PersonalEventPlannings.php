@@ -172,7 +172,7 @@ class PersonalEventPlannings extends BaseController
             $data['errors'] = $this->getPostDataAndSaveEventPlanning();
 
             if (empty($data['errors'])) {
-                return redirect()->to(base_url($route));
+                return redirect()->to($route);
             }
         }
 
