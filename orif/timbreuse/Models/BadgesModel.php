@@ -9,10 +9,10 @@ class BadgesModel extends Model
 {
     protected $table = 'badge_sync';
     protected $primaryKey = 'id_badge';
-    protected $allowedFields = ['id_user', 'date_modif', 'date_delete'];
 
-    protected $useAutoIncrement = true;
     protected $useSoftDeletes = true;
+
+    protected $allowedFields = ['id_user', 'date_modif', 'date_delete'];
 
     protected $useTimestamps = true;
     protected $createdField  = '';
@@ -42,16 +42,15 @@ class BadgesModel extends Model
                         ->findAll();
         } else {
             return $this->where('id_user', $userId)
-                        ->withDeleted($with_deleted)
+                        ->withDeleted()
                         ->findColumn('id_badge');
         }
     }
 
-    public function get_available_badges(bool $with_deleted = false): array
+    public function get_available_badges(): array
     {
         #$this->orderBy('id_badge');
         $data = $this->where('id_user', null)
-                ->withDeleted($with_deleted)
                 ->findColumn('id_badge');
         return $data ?? array();
         
