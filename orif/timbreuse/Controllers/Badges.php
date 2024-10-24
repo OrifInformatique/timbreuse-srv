@@ -51,13 +51,10 @@ class Badges extends BaseController
         }
 
         $data['primary_key_field']  = 'id_badge';
-        # $data['btn_create_label']  = lang('common_lang.btn_new_m');
-        # $data['url_detail'] = "AdminLogs/time_list/";
         $data['url_update'] = 'Badges/edit_badge_relation/';
         $data['url_delete'] = 'Badges/delete_badge/';
         $data['with_deleted'] = $with_deleted;
         $data['url_getView'] = 'Badges/badges_list/';
-        # $data['url_create'] = "Badges/create_badge";
 
         return $this->display_view('Common\Views\items_list', $data);
     }
