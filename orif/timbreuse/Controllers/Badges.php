@@ -42,18 +42,20 @@ class Badges extends BaseController
             'id_badge' =>ucfirst(lang('tim_lang.badgeId')),
             'surname' =>ucfirst(lang('tim_lang.surname')),
             'name' =>ucfirst(lang('tim_lang.name')),
-            'date_delete' =>ucfirst(lang('tim_lang.field_active')),
+            'active' =>ucfirst(lang('tim_lang.field_active')),
         ];
         $data['items'] = $model->get_badges_and_user_info($with_deleted);
 
         foreach($data['items'] as $i => $item) {
-            $data['items'][$i]['date_delete'] = lang($item['date_delete'] ? 'common_lang.no' : 'common_lang.yes');
+            $data['items'][$i]['active'] = lang($item['date_delete'] ? 'common_lang.no' : 'common_lang.yes');
         }
 
-        $data['primary_key_field']  = 'id_badge';
+        $data['primary_key_field'] = 'id_badge';
+        $data['deleted_field'] = 'date_delete';
         $data['url_update'] = 'Badges/edit_badge_relation/';
         $data['url_delete'] = 'Badges/delete_badge/';
         $data['with_deleted'] = $with_deleted;
+        $data['url_restore'] = 'Badges/reactivate_badge/';
         $data['url_getView'] = 'Badges/badges_list/';
 
         return $this->display_view('Common\Views\items_list', $data);
@@ -102,6 +104,17 @@ class Badges extends BaseController
         }
         $badgeModel->transComplete();
         return redirect()->to(current_url() . '/../..');
+    }
+
+    public function reactivate_badge(int $badgeId)
+    {
+        $badgeModel = model(badgesModel::class);
+
+        if (!is_null($badgeId)) {
+            $badgeModel->update($badgeId, ['date_delete' => null]);
+        }
+
+        return $this->badges_list(true);
     }
 
     public function edit_badge_relation($badgeId=null)
