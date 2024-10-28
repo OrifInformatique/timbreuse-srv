@@ -50,12 +50,14 @@ class Users extends BaseController
             $data['items'][$i]['archive'] =  lang($item['archive'] || $item['date_delete'] ? 'common_lang.no' : 'common_lang.yes');
         }
 
-        $data['primary_key_field']  = 'id_user';
-        $data['btn_create_label']  = lang('common_lang.btn_new_m');;
+        $data['primary_key_field'] = 'id_user';
+        $data['deleted_field'] = 'date_delete';
+        $data['btn_create_label'] = lang('common_lang.btn_new_m');
         $data['url_detail'] = "AdminLogs/time_list/";
         $data['url_update'] = 'Users/edit_user/';
         $data['url_delete'] = 'Users/delete_tim_user/';
         $data['with_deleted'] = $with_deleted;
+        $data['url_restore'] = 'Users/reactivate_user/';
         $data['url_getView'] = 'Users/index/';
         $data['url_create'] = 'Users/create_user';
 
