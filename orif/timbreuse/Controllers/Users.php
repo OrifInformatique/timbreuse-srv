@@ -355,7 +355,7 @@ class Users extends BaseController
         } else {
             $userSyncModel->update($timUserId, ['date_delete' => null]);
             is_null($user['id']) ?: $userModel->update($user['id'], ['archive' => null]);
-            return redirect()->to(base_url('Users/edit_user/' . $timUserId));
+            return redirect()->to(previous_url());
         }
     }
 
