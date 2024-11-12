@@ -1,5 +1,5 @@
 <?php
-   /** @author      Orif, section informatique (ViDi, AeDa, PoMa)
+   /** @author      Orif, section informatique (ViDi, AeDa, PoMa, ViLu)
      * @link        https://github.com/OrifInformatique
      * @copyright   Copyright (c), Orif (https://www.orif.ch)
      * 
@@ -14,8 +14,13 @@
      * @param with_deleted : 
      *                     Bool used to display or not the soft deleted items of the list.
      *                     If null, the "Display disabled items" checkbox won't be displayed.
+     * @param with_past_events :
+     *                     Bool used to display or not the past items of the events list.
+     *                     If null, the "Display past events" checkbox won't be displayed.
      * @param display_deleted_label :
      *                     String for the label displayed near the soft delete checkbox.
+     * @param display_past_events_label :
+     *                     String for the label displayed near the past events checkbox.
      * @param primary_key_field :
      *                     String containing the name of the primary key of the items.
      *                     Used to construct the links to details/update/delete controllers.
@@ -99,9 +104,19 @@
         $display_deleted_label = lang('common_lang.btn_show_disabled');
     }
 
+    // If no label for display past events checkbox is sent as parameter, use default label
+    if (!isset($display_past_events_label)) {
+        $display_past_events_label = lang('common_lang.btn_show_past');
+    }
+
     // If no with_deleted variable is sent as parameter, set it to null
     if (!isset($with_deleted)) {
         $with_deleted = null;
+    }
+
+    // If no with_past_events variable is sent as parameter, set it to null
+    if (!isset($with_past_events)) {
+        $with_past_events = null;
     }
 
     // If no url_getView variable is sent as parameter, set it to null
@@ -141,6 +156,13 @@
             <?php endif ?>
         </div>
         <div class="col-sm-6 text-right">
+            <!-- Display the "with_past_events" checkbox if with_past_events and url_getView variables are defined -->
+            <?php if (isset($with_past_events) && isset($url_getView)): ?>
+                <label class="form-check-label" for="toggle_past_events">
+                    <?= lang($display_past_events_label); ?>
+                </label>
+                <?= form_checkbox('toggle_past_events', '', $with_past_events, ['id' => 'toggle_past_events']); ?>
+            <?php endif ?>
             <!-- Display the "with_deleted" checkbox if with_deleted and url_getView variables are defined -->
             <?php if (isset($with_deleted) && isset($url_getView)): ?>
                 <label class="form-check-label" for="toggle_deleted">
@@ -247,6 +269,18 @@ $(document).ready(function() {
     // "Display disabled items" checkbox value change
     $('#toggle_deleted').change(e => {
         let checked = e.currentTarget.checked;
+
+        // Get view content corresponding to the new parameters and replace current displayed content
+        $.post('<?= base_url($url_getView); ?>/'+(+checked), {}, data => {
+            $('#itemsList').empty();
+            $('#itemsList')[0].innerHTML = $(data).find('#itemsList')[0].innerHTML;
+        });
+    });
+
+
+    // "Display past events" checkbox value change
+    $('#toggle_past_events').change(p => {
+        let checked = p.currentTarget.checked;
 
         // Get view content corresponding to the new parameters and replace current displayed content
         $.post('<?= base_url($url_getView); ?>/'+(+checked), {}, data => {

@@ -32,6 +32,7 @@ return[
     'btn_disable'                    => 'Désactiver',
     'btn_reactivate'                 => 'Réactiver',
     'btn_show_disabled'              => 'Afficher les éléments désactivés',
+    'btn_show_past'                  => 'Afficher les évènements déjà passés',
     'btn_delete'                     => 'Supprimer',
     'btn_hard_delete'                => 'Supprimer définitivement',
     'btn_search'                     => 'Rechercher',

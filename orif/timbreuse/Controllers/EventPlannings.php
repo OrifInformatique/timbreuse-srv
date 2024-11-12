@@ -45,7 +45,7 @@ class EventPlannings extends PersonalEventPlannings
      * @return string
      */
     #[\Override]
-    public function index(?int $timUserId = null) : string {
+    public function index(bool $with_past_events = false, int $timUserId = null, int $userGroupId = null) : string {
         session()->remove('event_previous_url');
 
         $data['title'] = lang('tim_lang.event_plannings_list');
@@ -76,8 +76,21 @@ class EventPlannings extends PersonalEventPlannings
             )
             ->join('event_type', 'event_type.id = fk_event_type_id', 'left')
             ->join('user_sync', 'user_sync.id_user = fk_user_sync_id', 'left')
-            ->join('user_group', 'user_group.id = fk_user_group_id', 'left')
-            ->findAll();
+            ->join('user_group', 'user_group.id = fk_user_group_id', 'left');
+        if (!is_null($userGroupId)) {
+            $parentGroups = $this->userGroupsModel->getParentGroupIdsRecusively($userGroupId);
+            $eventPlannings = $eventPlannings->where('user_group.id = ', $userGroupId, 
+            ' OR user_group.id IN ', $parentGroups);
+        } else if (!is_null($timUserId)) {
+            $parentGroups = $this->userGroupsModel->getAllLinkedUserGroupIds($timUserId);
+            $eventPlannings = $eventPlannings->where('user_sync.id_user = ', $timUserId, 
+            ' OR user_group.id IN ', $parentGroups);
+        }
+        if (!$with_past_events) {
+            $today = date('Y-m-d');
+            $eventPlannings = $eventPlannings->where('event_date >= ', $today);
+        }
+        $eventPlannings = $eventPlannings->findAll();
 
         $data['items'] = array_map(function($eventPlanning) {
             return [
@@ -95,6 +108,8 @@ class EventPlannings extends PersonalEventPlannings
         $data['url_create'] = "admin/event-plannings/group/create";
         $data['url_update'] = 'admin/event-plannings/update/';
         $data['url_delete'] = 'admin/event-plannings/delete/serie-or-occurence/';
+        $data['with_past_events'] = $with_past_events;
+        $data['url_getView'] = 'admin/event-plannings/';
 
         return $this->display_view(['Common\Views\items_list'], $data);
     }
