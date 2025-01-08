@@ -9,6 +9,7 @@ use Psr\Log\LoggerInterface;
 use Timbreuse\Models\EventPlanningsModel;
 use Timbreuse\Models\EventTypesModel;
 use Timbreuse\Models\UserGroupsModel;
+use Timbreuse\Models\UsersModel;
 
 class EventPlannings extends PersonalEventPlannings
 {
@@ -16,6 +17,7 @@ class EventPlannings extends PersonalEventPlannings
     private EventPlanningsModel $eventPlanningsModel;
     private EventTypesModel $eventTypesModel;
     private UserGroupsModel $userGroupsModel;
+    private UsersModel $usersModel;
 
     /**
      * Constructor
@@ -37,6 +39,7 @@ class EventPlannings extends PersonalEventPlannings
         $this->eventPlanningsModel = new EventPlanningsModel();
         $this->eventTypesModel = new EventTypesModel();
         $this->userGroupsModel = new UserGroupsModel();
+        $this->usersModel = new UsersModel();
     }
 
     /**
@@ -62,6 +65,13 @@ class EventPlannings extends PersonalEventPlannings
             'is_work_time' => ucfirst(lang('tim_lang.field_is_work_time_short')),
         ];
 
+        if (is_null($timUserId)) {
+            $timUserId = 0;
+        }
+        if (is_null($userGroupId)) {
+            $userGroupId = 0;
+        }
+
         $eventPlannings = $this->eventPlanningsModel
             ->select('
                 event_planning.id,
@@ -77,11 +87,11 @@ class EventPlannings extends PersonalEventPlannings
             ->join('event_type', 'event_type.id = fk_event_type_id', 'left')
             ->join('user_sync', 'user_sync.id_user = fk_user_sync_id', 'left')
             ->join('user_group', 'user_group.id = fk_user_group_id', 'left');
-        if (!is_null($userGroupId)) {
+        if ($userGroupId > 0) {
             $parentGroups = $this->userGroupsModel->getParentGroupIdsRecusively($userGroupId);
             $eventPlannings = $eventPlannings->where('user_group.id = ', $userGroupId, 
             ' OR user_group.id IN ', $parentGroups);
-        } else if (!is_null($timUserId)) {
+        } else if ($timUserId > 0) {
             $parentGroups = $this->userGroupsModel->getAllLinkedUserGroupIds($timUserId);
             $eventPlannings = $eventPlannings->where('user_sync.id_user = ', $timUserId, 
             ' OR user_group.id IN ', $parentGroups);
@@ -105,13 +115,41 @@ class EventPlannings extends PersonalEventPlannings
             ];
         }, $eventPlannings);
 
+        $users_list = $this->usersModel
+            ->select('id_user, name, surname')
+            ->orderBy('id_user')
+            ->withDeleted(false)
+            ->findAll();
+
+        $data['users_list'] = array_map(function($user_info) {
+            return [
+                'id_user' => $user_info['id_user'],
+                'name' => $user_info['name'],
+                'surname' => $user_info['surname'],
+            ];
+        }, $users_list);
+
+        $groups_list = $this->userGroupsModel
+            ->select('id, name')
+            ->orderBy('id')
+            ->findAll();
+        
+        $data['groups_list'] = array_map(function($group_info) {
+            return [
+                'id' => $group_info['id'],
+                'name' => $group_info['name'],
+            ];
+        }, $groups_list);
+
         $data['url_create'] = "admin/event-plannings/group/create";
         $data['url_update'] = 'admin/event-plannings/update/';
         $data['url_delete'] = 'admin/event-plannings/delete/serie-or-occurence/';
         $data['with_past_events'] = $with_past_events;
+        $data['timUserId'] = $timUserId;
+        $data['userGroupId'] = $userGroupId;
         $data['url_getView'] = 'admin/event-plannings/';
 
-        return $this->display_view(['Common\Views\items_list'], $data);
+        return $this->display_view(['Timbreuse\Views\eventPlannings\events_list'], $data);
     }
     
     /**
