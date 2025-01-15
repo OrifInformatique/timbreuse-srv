@@ -155,7 +155,7 @@
             <!-- Display the "user_filter" list if timUserId and users_list variables are defined -->
             <?php if (isset($timUserId) && isset($users_list)): ?>
                 <label for="user_filter">Filtrer par utilisateur : </label>
-                <select id="user_filter" name="user_filter">
+                <select id="user_filter" name="user_filter" onchange="getEventsFiltered()">
                     <option value="0">Tous les utilisateurs</option>
                     <?php foreach ($users_list as $user): ?>
                         <option value=<?= $user['id_user'] ?> 
@@ -168,7 +168,7 @@
             <!-- Display the "group_filter" list if userGroupId and groups_list variables are defined -->
             <?php if (isset($userGroupId) && isset($groups_list)): ?>
                 <label for="group_filter">Filtrer par groupe : </label>
-                <select id="group_filter" name="group_filter">
+                <select id="group_filter" name="group_filter" onchange="getEventsFiltered()">
                     <option value="0">Tous les groupes</option>
                     <?php foreach ($groups_list as $group): ?>
                         <option value=<?= $group['id'] ?> 
@@ -189,7 +189,7 @@
                 <label class="form-check-label" for="toggle_past_events">
                     <?= lang($display_past_events_label); ?>
                 </label>
-                <?= form_checkbox('toggle_past_events', '', $with_past_events, ['id' => 'toggle_past_events']); ?>
+                <?= form_checkbox('toggle_past_events', '', $with_past_events, ['id' => 'toggle_past_events', 'onchange' => 'getEventsFiltered()']); ?>
             <?php endif ?>
             <!-- Display the "with_deleted" checkbox if with_deleted and url_getView variables are defined -->
             <?php if (isset($with_deleted) && isset($url_getView)): ?>
@@ -292,8 +292,24 @@
 <!-- JQuery script to refresh items list after user action -->
 <?php if (isset($url_getView)): ?>
 <script>
+function getEventsFiltered() {
+    // "Display past events" checkbox value
+    let withPassed = $('#toggle_past_events').prop('checked');
+    // "user_filter" list selected value
+    let user = $('#user_filter').val();
+    // "group_filter" list selected value
+    let group = $('#group_filter').val();
+    // Get view content corresponding to the new parameters and replace current displayed content
+    $.post('<?= base_url($url_getView); ?>'+(+withPassed)+'/'+(+user)+'/'+(+group), {}, data => {
+        $('#itemsList').empty();
+        $('#itemsList')[0].innerHTML = $(data).find('#itemsList')[0].innerHTML;
+    });
+}
 $(document).ready(function() {
 
+    getEventsFiltered();
+    
+    /*
     // "Display disabled items" checkbox value change
     $('#toggle_deleted').change(e => {
         let checked = e.currentTarget.checked;
@@ -304,44 +320,7 @@ $(document).ready(function() {
             $('#itemsList')[0].innerHTML = $(data).find('#itemsList')[0].innerHTML;
         });
     });
-
-
-    // "Display past events" checkbox value change
-    $('#toggle_past_events').change(p => {
-        let checked = p.currentTarget.checked;
-
-        // Get view content corresponding to the new parameters and replace current displayed content
-        $.post('<?= base_url($url_getView); ?>/'+(+checked), {}, data => {
-            $('#itemsList').empty();
-            $('#itemsList')[0].innerHTML = $(data).find('#itemsList')[0].innerHTML;
-        });
-    });
-
-
-    // "user_filter" list selected value change
-    $('#user_filter').change(u => {
-        let user = u.currentTarget.val();
-        let checked = $('#toggle_past_events').checked;
-
-        // Get view content corresponding to the new parameters and replace current displayed content
-        $.post('<?= base_url($url_getView); ?>/'+(+checked)+'/'+(+user)+'/0', {}, data => {
-            $('#itemsList').empty();
-            $('#itemsList')[0].innerHTML = $(data).find('#itemsList')[0].innerHTML;
-        });
-    });
-
-
-    // "group_filter" list selected value change
-    $('#group_filter').change(g => {
-        let group = g.currentTarget.val();
-        let checked = $('#toggle_past_events').checked;
-
-        // Get view content corresponding to the new parameters and replace current displayed content
-        $.post('<?= base_url($url_getView); ?>/'+(+checked)+'/0/'+(+group), {}, data => {
-            $('#itemsList').empty();
-            $('#itemsList')[0].innerHTML = $(data).find('#itemsList')[0].innerHTML;
-        });
-    });
+    */
 });
 </script>
 <?php endif; ?>
