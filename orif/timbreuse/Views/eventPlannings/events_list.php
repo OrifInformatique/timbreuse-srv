@@ -167,7 +167,7 @@
             <?php endif ?>
             <!-- Display the "group_filter" list if userGroupId and groups_list variables are defined -->
             <?php if (isset($userGroupId) && isset($groups_list)): ?>
-                <label for="group_filter">Filtrer par groupe : </label>
+                <br><label for="group_filter">Filtrer par groupe : </label>
                 <select id="group_filter" name="group_filter" onchange="getEventsFiltered()">
                     <option value="0">Tous les groupes</option>
                     <?php foreach ($groups_list as $group): ?>
@@ -304,6 +304,16 @@ function getEventsFiltered() {
         $('#itemsList').empty();
         $('#itemsList')[0].innerHTML = $(data).find('#itemsList')[0].innerHTML;
     });
+    if (user > 0) {
+        $('#user_filter').attr('disabled', false);
+        $('#group_filter').attr('disabled', true);
+    } else if (group > 0) {
+        $('#user_filter').attr('disabled', true);
+        $('#group_filter').attr('disabled', false);
+    } else {
+        $('#user_filter').attr('disabled', false);
+        $('#group_filter').attr('disabled', false);
+    }
 }
 $(document).ready(function() {
 

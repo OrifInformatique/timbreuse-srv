@@ -87,26 +87,11 @@ class EventPlannings extends PersonalEventPlannings
             ->join('event_type', 'event_type.id = fk_event_type_id', 'left')
             ->join('user_sync', 'user_sync.id_user = fk_user_sync_id', 'left')
             ->join('user_group', 'user_group.id = fk_user_group_id', 'left');
-        if ($timUserId > 0 and $userGroupId > 0) {
+        if ($timUserId > 0) {
             $eventPlannings = $eventPlannings->groupStart()
-            ->where('user_sync.id_user = ', $timUserId)
-            ->orWhere('user_group.id = ', $userGroupId);
-            $parentGroupsOfUser = $this->userGroupsModel->getAllLinkedUserGroupIds($timUserId);
-            $parentGroupsOfGroup = $this->userGroupsModel->getParentGroupIdsRecusively($userGroupId);
-            foreach ($parentGroupsOfUser as $number) {
-                $eventPlannings = $eventPlannings->orWhere('user_group.id = ', $number);
-            }
-            foreach ($parentGroupsOfGroup as $number) {
-                $eventPlannings = $eventPlannings->orWhere('user_group.id = ', $number);
-            }
-            $childGroups = [];
-            $allGroups = $this->userGroupsModel->findColumn('id');
-            foreach ($allGroups as $number) {
-                if (in_array($userGroupId, $this->userGroupsModel->getParentGroupIdsRecusively($number))) {
-                    $childGroups[] = $number;
-                }
-            }
-            foreach ($childGroups as $number) {
+            ->where('user_sync.id_user = ', $timUserId);
+            $parentGroups = $this->userGroupsModel->getAllLinkedUserGroupIds($timUserId);
+            foreach ($parentGroups as $number) {
                 $eventPlannings = $eventPlannings->orWhere('user_group.id = ', $number);
             }
             $eventPlannings = $eventPlannings->groupEnd();
@@ -117,26 +102,46 @@ class EventPlannings extends PersonalEventPlannings
             foreach ($parentGroups as $number) {
                 $eventPlannings = $eventPlannings->orWhere('user_group.id = ', $number);
             }
-            $childGroups = [];
-            $allGroups = $this->userGroupsModel->findColumn('id');
-            foreach ($allGroups as $number) {
-                if (in_array($userGroupId, $this->userGroupsModel->getParentGroupIdsRecusively($number))) {
-                    $childGroups[] = $number;
-                }
-            }
-            foreach ($childGroups as $number) {
-                $eventPlannings = $eventPlannings->orWhere('user_group.id = ', $number);
-            }
-            $eventPlannings = $eventPlannings->groupEnd();
-        } else if ($timUserId > 0) {
-            $eventPlannings = $eventPlannings->groupStart()
-            ->where('user_sync.id_user = ', $timUserId);
-            $parentGroups = $this->userGroupsModel->getAllLinkedUserGroupIds($timUserId);
-            foreach ($parentGroups as $number) {
-                $eventPlannings = $eventPlannings->orWhere('user_group.id = ', $number);
-            }
+            /**
+             * $childGroups = [];
+             * $allGroups = $this->userGroupsModel->findColumn('id');
+             * foreach ($allGroups as $number) {
+             *     if (in_array($userGroupId, $this->userGroupsModel->getParentGroupIdsRecusively($number))) {
+             *         $childGroups[] = $number;
+             *     }
+             * }
+             * foreach ($childGroups as $number) {
+             *     $eventPlannings = $eventPlannings->orWhere('user_group.id = ', $number);
+             * }
+             */
             $eventPlannings = $eventPlannings->groupEnd();
         }
+        /**
+         * if ($timUserId > 0 and $userGroupId > 0) {
+         *     $eventPlannings = $eventPlannings->groupStart()
+         *     ->where('user_sync.id_user = ', $timUserId)
+         *     ->orWhere('user_group.id = ', $userGroupId);
+         *     $parentGroupsOfUser = $this->userGroupsModel->getAllLinkedUserGroupIds($timUserId);
+         *     $parentGroupsOfGroup = $this->userGroupsModel->getParentGroupIdsRecusively($userGroupId);
+         *     foreach ($parentGroupsOfUser as $number) {
+         *         $eventPlannings = $eventPlannings->orWhere('user_group.id = ', $number);
+         *     }
+         *     foreach ($parentGroupsOfGroup as $number) {
+         *         $eventPlannings = $eventPlannings->orWhere('user_group.id = ', $number);
+         *     }
+         *     $childGroups = [];
+         *     $allGroups = $this->userGroupsModel->findColumn('id');
+         *     foreach ($allGroups as $number) {
+         *         if (in_array($userGroupId, $this->userGroupsModel->getParentGroupIdsRecusively($number))) {
+         *             $childGroups[] = $number;
+         *         }
+         *     }
+         *     foreach ($childGroups as $number) {
+         *         $eventPlannings = $eventPlannings->orWhere('user_group.id = ', $number);
+         *     }
+         *     $eventPlannings = $eventPlannings->groupEnd();
+         * } 
+         */
         if (!$with_past_events) {
             $today = date('Y-m-d');
             $eventPlannings = $eventPlannings->where('event_date >= ', $today);
