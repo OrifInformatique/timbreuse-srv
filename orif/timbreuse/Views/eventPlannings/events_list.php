@@ -163,11 +163,11 @@
                             <?= $user['id_user'] . " " . $user['name'] . " " . $user['surname'] ?>
                         </option>
                     <?php endforeach ?>
-                </select>
+                </select><br>
             <?php endif ?>
             <!-- Display the "group_filter" list if userGroupId and groups_list variables are defined -->
             <?php if (isset($userGroupId) && isset($groups_list)): ?>
-                <br><label for="group_filter">Filtrer par groupe : </label>
+                <label for="group_filter">Filtrer par groupe : </label>
                 <select id="group_filter" name="group_filter" onchange="getEventsFiltered()">
                     <option value="0">Tous les groupes</option>
                     <?php foreach ($groups_list as $group): ?>
@@ -176,7 +176,7 @@
                             <?= $group['id'] . " " . $group['name'] ?>
                         </option>
                     <?php endforeach ?>
-                </select>
+                </select><br>
             <?php endif ?>
             <!-- Display the "create" button if url_create is defined -->
             <?php if(isset($url_create)): ?>
