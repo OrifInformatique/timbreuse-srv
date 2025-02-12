@@ -554,6 +554,8 @@ class AuthTest extends CIUnitTestCase
     }
 
     /*
+    * This test is not working on github action
+    
     public function test_azure_login_code_fake(): void
     {
         if (!getenv('CLIENT_ID')) {
