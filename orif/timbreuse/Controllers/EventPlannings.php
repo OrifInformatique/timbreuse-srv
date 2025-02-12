@@ -145,6 +145,9 @@ class EventPlannings extends PersonalEventPlannings
         if (!$with_past_events) {
             $today = date('Y-m-d');
             $eventPlannings = $eventPlannings->where('event_date >= ', $today);
+            $eventPlannings = $eventPlannings->orderBy('event_date', 'ASC');
+        } else {
+            $eventPlannings = $eventPlannings->orderBy('event_date', 'DESC');
         }
         $eventPlannings = $eventPlannings->findAll();
 
