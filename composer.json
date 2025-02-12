@@ -38,7 +38,7 @@
         "post-update-cmd": [
 			"CodeIgniter\\ComposerScripts::postUpdate"
 		],
-        "test": "phpunit"
+        "test": "vendor/bin/phpunit"
     },
     "support": {
         "forum": "https://forum.codeigniter.com/",
