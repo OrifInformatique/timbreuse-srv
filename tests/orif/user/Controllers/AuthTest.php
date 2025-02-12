@@ -622,5 +622,3 @@ class AuthTest extends CIUnitTestCase
 
 
 }
-
-
