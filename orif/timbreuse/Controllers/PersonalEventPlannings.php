@@ -57,7 +57,7 @@ class PersonalEventPlannings extends BaseController
      *
      * @return string
      */
-    public function index(?int $timUserId = null) : string|RedirectResponse {
+    public function index(bool $with_past_events = false, int $timUserId = null, int $userGroupId = null) : string|RedirectResponse {
         session()->remove('event_previous_url');
         $isAdminView = $_SESSION['user_access'] === config('\User\Config\UserConfig')->access_lvl_admin;
         $eventPlannigRoute = ($isAdminView ? 'admin/' : '') . 'event-plannings/';
