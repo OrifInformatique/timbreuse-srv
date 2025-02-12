@@ -76,7 +76,7 @@ class UserGroupsModel extends Model
      * @param  mixed $id
      * @return array
      */
-    private function getParentGroupIdsRecusively(?int $id = null): array {
+    public function getParentGroupIdsRecusively(?int $id = null): array {
         $ids = [];
 
         $userGroup = $this->find($id ?? 0);

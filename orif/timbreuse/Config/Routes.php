@@ -35,6 +35,9 @@ $routes->group('admin', function($routes) {
     $routes->group('event-plannings', function($routes) {
         $routes->get('', '\Timbreuse\Controllers\EventPlannings');
         $routes->get('(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::index/$1');
+        $routes->post('', '\Timbreuse\Controllers\EventPlannings::index');
+        $routes->post('(:num)', '\Timbreuse\Controllers\EventPlannings::index/$1');
+        $routes->post('(:num)/(:num)/(:num)', '\Timbreuse\Controllers\EventPlannings::index/$1/$2/$3');
 
         $routes->get('delete/serie-or-occurence/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::deleteSerieOrOccurrence/$1');
         $routes->get('ask-delete-type/(:num)', '\Timbreuse\Controllers\PersonalEventPlannings::askDeleteType/$1');

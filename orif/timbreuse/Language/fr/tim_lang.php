@@ -196,5 +196,6 @@ return [
     'unknown_user' => 'Utilisateur inconnu',
     '403_error_message' => 'Vous n\'avez pas la permission d\'accéder à cette page.',
     'title_user_group_of' => 'Groupes dont {firstname} {lastname} est membre',
-    'title_manage_user_groups' => 'Gestion des groupes dont {firstname} {lastname} est membre'
+    'title_manage_user_groups' => 'Gestion des groupes dont {firstname} {lastname} est membre',
+    'field_active' => 'Activé',
 ];
