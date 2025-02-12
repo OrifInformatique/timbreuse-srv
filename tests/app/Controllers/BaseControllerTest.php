@@ -197,16 +197,14 @@ class BaseControllerTest extends CIUnitTestCase
     private function get_registered_data(): array
     {
         $data['logged_in'] = true;
-        $data['user_access'] = Config('\User\Config\UserConfig')
-           ->access_lvl_registered;
+        $data['user_access'] = Config('\User\Config\UserConfig')->access_lvl_registered;
         return $data;
     }
 
     private function get_admin_data(): array
     {
         $data['logged_in'] = true;
-        $data['user_access'] = Config('\User\Config\UserConfig')
-           ->access_lvl_admin;
+        $data['user_access'] = Config('\User\Config\UserConfig')->access_lvl_admin;
         return $data;
     }
 
