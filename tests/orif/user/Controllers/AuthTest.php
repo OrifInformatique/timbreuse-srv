@@ -556,7 +556,7 @@ class AuthTest extends CIUnitTestCase
     public function test_azure_login_code_fake(): void
     {
         if (!getenv('CLIENT_ID')) {
-            d($this->get_cannot_github_action_message());
+            error_log($this->get_cannot_github_action_message());
             return;
         }
         $_GET["state"] = session_id(); 
