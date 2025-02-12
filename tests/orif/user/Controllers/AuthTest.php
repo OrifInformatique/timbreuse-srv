@@ -469,7 +469,7 @@ class AuthTest extends CIUnitTestCase
     public function test_login_begin_with_azure_account(): void
     {
         if (!getenv('CLIENT_ID')) {
-            d($this->get_cannot_github_action_message());
+            error_log($this->get_cannot_github_action_message());
             return;
         }
         $_POST['btn_login_microsoft'] = true;
@@ -493,7 +493,7 @@ class AuthTest extends CIUnitTestCase
     public function test_azure_login_begin_client_id_fake(): void
     {
         if (!getenv('CLIENT_ID')) {
-            d($this->get_cannot_github_action_message());
+            error_log($this->get_cannot_github_action_message());
             return;
         }
         putenv('CLIENT_ID=fake');
@@ -508,7 +508,7 @@ class AuthTest extends CIUnitTestCase
     public function test_azure_begin_tenant_id_fake(): void
     {
         if (!getenv('CLIENT_ID')) {
-            d($this->get_cannot_github_action_message());
+            error_log($this->get_cannot_github_action_message());
             return;
         }
         putenv('TENANT_ID=fake');
@@ -524,7 +524,7 @@ class AuthTest extends CIUnitTestCase
     public function test_azure_begin_graph_user_scopes_fake(): void
     {
         if (!getenv('CLIENT_ID')) {
-            d($this->get_cannot_github_action_message());
+            error_log($this->get_cannot_github_action_message());
             return;
         }
         putenv('GRAPH_USER_SCOPES=fake');
@@ -540,7 +540,7 @@ class AuthTest extends CIUnitTestCase
     public function test_azure_begin_redirect_uri_fake(): void
     {
         if (!getenv('CLIENT_ID')) {
-            d($this->get_cannot_github_action_message());
+            error_log($this->get_cannot_github_action_message());
             return;
         }
         putenv('REDIRECT_URI=fake');
