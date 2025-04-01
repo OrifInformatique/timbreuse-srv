@@ -38,7 +38,8 @@ class UsersModel extends Model
         parent::__construct($db, $validation);
     }
 
-    public function get_user($userId)
+    
+    /*public function get_user($userId)
     {
         return $this->select('user_sync.id_user, surname, user_sync.name, date_delete, user.id, username, email, fk_user_type, archive, user_type.name AS user_type')
                     ->join('access_tim_user', 'user_sync.id_user = access_tim_user.id_user', 'left')
@@ -47,8 +48,12 @@ class UsersModel extends Model
                     ->orderBy('surname')
                     ->withDeleted(true)
                     ->find($userId);
-    }
+    }*/
 
+
+
+ 
+    /*
     public function get_users(bool $with_deleted = false)
     {
         return $this->select('user_sync.id_user, surname, user_sync.name, date_delete, user.id, username, email, fk_user_type, archive, user_type.name AS user_type')
@@ -58,7 +63,61 @@ class UsersModel extends Model
                     ->orderBy('surname')
                     ->withDeleted($with_deleted)
                     ->findAll();
+    }*/
+
+    public function get_user($userId)
+    {
+        $sql = "SELECT user_sync.id_user, user_sync.surname, user_sync.name, user_sync.date_delete, user.id AS user_id, user.username, user.email, user.fk_user_type, user.archive, 
+                user_type.name AS user_type
+                FROM user_sync
+                LEFT JOIN access_tim_user ON user_sync.id_user = access_tim_user.id_user
+                LEFT JOIN user ON user.id = access_tim_user.id_ci_user
+                LEFT JOIN user_type ON user.fk_user_type = user_type.id
+                WHERE user.id = ? OR user.id IS NULL
+                UNION
+                SELECT user_sync.id_user, user_sync.surname, user_sync.name, user_sync.date_delete, 
+                user.id AS user_id, user.username, user.email, user.fk_user_type, user.archive, 
+                user_type.name AS user_type
+                FROM access_tim_user
+                RIGHT JOIN user_sync ON user_sync.id_user = access_tim_user.id_user
+                RIGHT JOIN user ON user.id = access_tim_user.id_ci_user
+                LEFT JOIN user_type ON user.fk_user_type = user_type.id
+                WHERE user.id = ? OR user_sync.id_user IS NULL
+    
+                ORDER BY surname";
+    
+        return $this->db->query($sql, [$userId, $userId])->getResultArray();
     }
+    
+
+
+    public function get_users(bool $with_deleted = false)
+    {
+        $sql = "SELECT user_sync.id_user, user_sync.surname, user_sync.name, user_sync.date_delete, user.id AS user_id, user.username, user.email, user.fk_user_type, user.archive, user_type.name AS user_type
+            FROM user_sync
+            LEFT JOIN access_tim_user ON user_sync.id_user = access_tim_user.id_user
+            LEFT JOIN user ON user.id = access_tim_user.id_ci_user
+            LEFT JOIN user_type ON user.fk_user_type = user_type.id";
+
+    if (!$with_deleted) {
+        $sql .= " WHERE user_sync.date_delete IS NULL";
+        }       
+
+        $sql .= " UNION                
+            SELECT user_sync.id_user, user_sync.surname, user_sync.name, user_sync.date_delete, user.id AS user_id, user.username, user.email, user.fk_user_type, user.archive, user_type.name AS user_type
+            FROM access_tim_user
+            RIGHT JOIN user_sync ON user_sync.id_user = access_tim_user.id_user
+            RIGHT JOIN user ON user.id = access_tim_user.id_ci_user
+            LEFT JOIN user_type ON user.fk_user_type = user_type.id";
+
+    if (!$with_deleted) {
+        $sql .= " WHERE user_sync.date_delete IS NULL";
+    }
+
+        $sql .= " ORDER BY surname;";
+        return $this->db->query($sql)->getResultArray();
+    }
+
 
     public function is_replicate(string $name, string $surname): bool
     {
