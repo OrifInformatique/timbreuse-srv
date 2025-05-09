@@ -6,7 +6,15 @@ input:invalid {
 </style>
 <section class="container">
     <h3><?= esc(ucfirst(lang('user_lang.title_user_update'))) ?></h3>
+
+    <?php if (empty($id_user)){    
+        $id_user = $id;
+    }
+
+    ?>
     <form method='post' action="<?= '../edit_user/' . $id_user ?>">
+
+
         <?= csrf_field() ?>
 
         <!-- User Sync (timbreuse) -->
@@ -49,6 +57,10 @@ input:invalid {
                 <?php if ($_SESSION['user_id'] == $id): ?>
                     <div class="alert alert-info" style="margin-bottom: .71rem;"><?= esc(lang('user_lang.user_update_usertype_himself')) ?></div>
                 <?php endif ?>
+                <!--Test-->
+                <?php if (!isset($userTypes)) {
+                    $userTypes = "";
+                } ?>
                 <?= form_dropdown('fk_user_type', $userTypes, $fk_user_type, [
                         'class' => 'form-control',
                         'id' => 'fk_user_type',
@@ -77,23 +89,32 @@ input:invalid {
                 <div class="input-group-prepend">
                     <button type='button' id='delete_badge_id_text' class="btn input-group-text" ><?= esc(ucfirst(lang('tim_lang.erase'))) ?></button>
                 </div>
-    
-                <?= form_input('badgeId', esc($badgeId), [
-                    'id' => 'badgeId',
-                    'class' => 'form-control',
-                    'list' => 'badgeId_list',
-                    'disabled' => 'disabled',
-                    'autocomplete' => 'off',
-                    'pattern' => '^\d*$'
-                ]) ?>
-            </div>
-            <datalist id='badgeId_list'>
-                <?php foreach ($availableBadges as $badge):?>
-                    <option value='<?=esc($badge)?>'>
-                <?php endforeach?>
-            </datalist>
-            <span class="text-danger"><?= isset($errors['badgeId']) ? $errors['badgeId'] : ''; ?></span>
-        </div>
+                
+                <!--Test-->
+                <?php if (!isset($badgeId)){
+                    $badgeId = "";
+                } ?>
+                    <?= form_input('badgeId', esc($badgeId), [
+                        'id' => 'badgeId',
+                        'class' => 'form-control',
+                        'list' => 'badgeId_list',
+                        'disabled' => 'disabled',
+                        'autocomplete' => 'off',
+                        'pattern' => '^\d*$'
+                    ]) ?>
+                </div>
+
+                <!--Test-->
+                <?php if (!isset($availableBadges)){
+                    $availableBadges[0] = "";
+                } ?>
+                    <datalist id='badgeId_list'>
+                        <?php foreach ($availableBadges as $badge):?>
+                            <option value='<?=esc($badge)?>'>
+                        <?php endforeach?>
+                    </datalist>
+                    <span class="text-danger"><?= isset($errors['badgeId']) ? $errors['badgeId'] : ''; ?></span>
+                </div>
         
         <!-- Buttons -->
         <?php if ($archive || $date_delete): ?>
@@ -108,9 +129,12 @@ input:invalid {
             <input type='submit' value='<?= esc(lang('common_lang.btn_save')) ?>' class="btn btn-primary">
         </div>
 
+        <!---Test-->
+        <?php if(isset($badgeId)): ?>
         <input type="hidden" name="timUserId" value="<?= esc($id_user) ?>"/>
         <input type="hidden" name="userId" value="<?= esc($id) ?>"/>
         <input id='hiddenBadgeId' type="hidden" name="badgeId" value="<?= esc($badgeId) ?>"/>
+        <?php endif ?>
     </form>
     
 </section>

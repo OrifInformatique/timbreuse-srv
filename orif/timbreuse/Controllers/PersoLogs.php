@@ -160,7 +160,7 @@ class PersoLogs extends BaseController
     protected function get_page_title_for_log_views($timUserId, $day, $period)
     {
         $usersModel = model(UsersModel::class);
-        $user = $usersModel->get_user($timUserId);
+        $user = $usersModel->get_tim_user($timUserId);
         $data['list_title'] = $this->create_title($user, $day, $period);
         return $data;
     }
@@ -766,7 +766,9 @@ class PersoLogs extends BaseController
                 return $user['surname'] . ' ' . $user['name'] . '   '
                     . $weekText;
                 break;
-        }
+            }
+
+        
     }
 
     protected function create_buttons(string $period, $timUserId = null): array
@@ -815,7 +817,7 @@ class PersoLogs extends BaseController
         $usersModel = model(UsersModel::class);
         $badgeId = $badgesModel->get_badges($timUserId);
         $data['logs'] = $logsModel->get_logs($badgeId);
-        $data['user'] = $usersModel->get_user($timUserId);
+        $data['user'] = $usersModel->get_tim_user($timUserId);
         return $data;
     }
 

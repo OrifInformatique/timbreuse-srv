@@ -45,23 +45,24 @@ class Users extends BaseController
             'archive' => ucfirst(lang('user_lang.field_user_active')),
         ];
         $data['items'] = $model->get_users($with_deleted);
-
         foreach($data['items'] as $i => $item) {
             $data['items'][$i]['archive'] =  lang($item['archive'] || $item['date_delete'] ? 'common_lang.no' : 'common_lang.yes');
         }
-
+        
         $data['primary_key_field'] = 'id_user';
+        $data['primary_key_field_user'] = 'user_id';
         $data['deleted_field'] = 'date_delete';
         $data['btn_create_label'] = lang('common_lang.btn_new_m');
         $data['url_detail'] = "AdminLogs/time_list/";
-        $data['url_update'] = 'Users/edit_user/';
+        $data['url_update'] = 'Users/edit_tim_user/';
+        $data['url_update_user'] = 'Users/edit_user/';
         $data['url_delete'] = 'Users/delete_tim_user/';
         $data['with_deleted'] = $with_deleted;
         $data['url_restore'] = 'Users/reactivate_user/';
         $data['url_getView'] = 'Users/index/';
         $data['url_create'] = 'Users/create_user';
 
-        return $this->display_view('Common\Views\items_list', $data);
+        return $this->display_view('Timbreuse\Views\users\users_list', $data);
     }
 
     /**
@@ -81,7 +82,7 @@ class Users extends BaseController
         $planningModel = model(PlanningsModel::class);
         $userPlanningModel = model(UserPlanningsModel::class);
 
-        $user = $userSyncModel->get_user($timUserId);
+        $user = $userSyncModel->get_tim_user($timUserId);
 
         if (!$user) {
             return redirect()->to(base_url('Users'));
@@ -142,10 +143,26 @@ class Users extends BaseController
     {
         $userSyncModel = model(UsersModel::class);
 
-        $userSync = $userSyncModel->get_user($timUserId);
+        $userSync = $userSyncModel->get_tim_user($timUserId);
 
         $badgeIds = $this->get_badge_id_for_edit_tim_user($timUserId);
         $data = array_merge($userSync, $badgeIds);
+
+        return $data;
+    }
+
+    protected function get_user_data_for_edit_user($userId){
+        $userModel = model(UsersModel::class);
+        $user = $userModel->get_user($userId);
+        $user = $user[0];
+        $data = $user;
+
+        foreach ($data as $key => $value) {
+            if ($value === null) {
+                $data[$key] = "";
+            }        
+        }
+
         return $data;
     }
 
@@ -155,10 +172,9 @@ class Users extends BaseController
      * @param  int $timUserId
      * @return string|Response
      */
-    public function edit_user(int $timUserId): string|Response
+    public function edit_tim_user(int $timUserId): string|Response
     {
         $userTypeModel = model(User_type_model::class);
-
         $data = $this->get_user_data_for_edit_tim_user($timUserId);
         $userTypes = $userTypeModel->orderBy('access_level')->select('id, name')->findAll();
         $data['userTypes'] = array_column($userTypes, 'name', 'id');
@@ -171,10 +187,29 @@ class Users extends BaseController
                 return redirect()->to(base_url('Users'));
             }
         }
+        
+        return $this->display_view('Timbreuse\Views\users\edit_user', $data);
+    }
+
+    public function edit_user(int $userId): string|Response
+    {
+        $userTypeModel = model(User_type_model::class);
+        $data = $this->get_user_data_for_edit_user($userId);        
+        $userTypes = $userTypeModel->orderBy('access_level')->select('id, name')->findAll();
+        $data['userTypes'] = array_column($userTypes, 'name', 'id');
+        $data['errors'] = [];
+        if ($this->request->getMethod() === 'post') {
+            $data['errors'] = $this->post_edit_tim_user($userId);
+
+            if (empty($data['errors'])) {
+                return redirect()->to(base_url('Users'));
+            }
+        }
+
 
         return $this->display_view('Timbreuse\Views\users\edit_user', $data);
     }
-    
+
     /**
      * Get POST data to edit user, user_sync and access_tim_user.
      * Also link a badge if provided in the form
@@ -348,7 +383,7 @@ class Users extends BaseController
         $userSyncModel = model(UsersModel::class);
         $userModel = model(User_model::class);
 
-        $user = $userSyncModel->get_user($timUserId);
+        $user = $userSyncModel->get_tim_user($timUserId);
 
         if (is_null($user)) {
             return redirect()->to(base_url('Users'));
