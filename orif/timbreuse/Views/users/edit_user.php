@@ -5,8 +5,13 @@ input:invalid {
 }
 </style>
 <section class="container">
-    <h3><?= esc(ucfirst(lang('user_lang.title_user_update'))) ?></h3>
-    <from method='post' action="<? '../edit_tim_user/' . $id_user ?>">
+        <h3><?= esc(ucfirst(lang('user_lang.title_user_update'))) ?></h3>
+        <?php if (isset($id_user) && !empty($id_user)): ?>
+            <form method='post' action="<?= '../edit_tim_user/' . intval($id_user); ?>">
+        <?php elseif (empty($id_user) && isset($id)): ?>
+            <form method='post' action="<?= '../edit_user/' . intval($id); ?>">
+        <?php endif; ?>
+
 
         <?= csrf_field() ?>
 

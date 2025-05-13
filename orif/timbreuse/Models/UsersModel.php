@@ -59,8 +59,8 @@ class UsersModel extends Model
                     ->orderBy('surname')
                     ->withDeleted(true)
                     ->where('user.id', $userId)
-                    ->find();
-    }
+                    ->first();
+                }
 
 
     

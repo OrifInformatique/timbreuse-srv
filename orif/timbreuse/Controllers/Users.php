@@ -57,6 +57,7 @@ class Users extends BaseController
         $data['url_update'] = 'Users/edit_tim_user/';
         $data['url_update_user'] = 'Users/edit_user/';
         $data['url_delete'] = 'Users/delete_tim_user/';
+        $data['url_delete_user'] = 'Users/delete_user/';
         $data['with_deleted'] = $with_deleted;
         $data['url_restore'] = 'Users/reactivate_user/';
         $data['url_getView'] = 'Users/index/';
@@ -117,6 +118,52 @@ class Users extends BaseController
 
         return redirect()->to(base_url('Users'));
     }
+
+        public function delete_user($userId, $action = 0)
+    {
+        $userModel = model(UsersModel::class);
+        $AccessTimModel = model(AccessTimModel::class);
+        $badgeModel = model(BadgesModel::class);
+        $logSyncModel = model(LogsModel::class);
+        $planningModel = model(PlanningsModel::class);
+        $userPlanningModel = model(UserPlanningsModel::class);
+
+        $user = $userModel->get_user($userId);
+
+        if (!$user) {
+            return redirect()->to(base_url('Users'));
+        }
+
+        switch ($action) {
+            case 0:
+                return $this->display_view('Timbreuse\Views\users\delete_user', $user);
+                break;
+
+            case 1:
+                is_null($user['id']) ?: $userModel->delete($user['id']);
+                $userModel->delete($timUserId);
+                break;
+            
+            case 2:
+                $confirmation = $this->request->getPost('confirmation');
+                if ($this->request->getMethod() === 'post' && !is_null($confirmation)) {
+                    $userPlannings = $userPlanningModel->where('id_user', $userId)->findAll();
+                    $AccessTimModel->where('id_user', $userId)->where('id_ci_user', $user['id'])->delete(null, true);
+                    is_null($user['id']) ?: $userModel->delete($user['id'], true);
+                    $badgeModel->set_user_id_to_null($userId);
+                    $logSyncModel->where('id_user', $userId)->delete(null, true);
+                    $userPlanningModel->where('id_user', $userId)->delete(null, true);
+                    foreach($userPlannings as $userPlanning) {
+                        $planningModel->delete($userPlanning['id_planning'], true);
+                    }
+                    $userModel->delete($userId, true);
+                }
+                break;
+        }
+
+        return redirect()->to(base_url('Users'));
+    }
+
     
     protected function get_badge_id_for_edit_tim_user($timUserId)
     {
@@ -154,7 +201,6 @@ class Users extends BaseController
     protected function get_user_data_for_edit_user($userId){
         $userModel = model(UsersModel::class);
         $user = $userModel->get_user($userId);
-        $user = $user[0];
         $data = $user;
 
         foreach ($data as $key => $value) {
@@ -205,7 +251,6 @@ class Users extends BaseController
                 return redirect()->to(base_url('Users'));
             }
         }
-
 
         return $this->display_view('Timbreuse\Views\users\edit_user', $data);
     }
