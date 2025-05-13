@@ -6,14 +6,7 @@ input:invalid {
 </style>
 <section class="container">
     <h3><?= esc(ucfirst(lang('user_lang.title_user_update'))) ?></h3>
-
-    <?php if (empty($id_user)){    
-        $id_user = $id;
-    }
-
-    ?>
-    <form method='post' action="<?= '../edit_user/' . $id_user ?>">
-
+    <from method='post' action="<? '../edit_tim_user/' . $id_user ?>">
 
         <?= csrf_field() ?>
 
