@@ -119,34 +119,34 @@ class Users extends BaseController
         return redirect()->to(base_url('Users'));
     }
 
-        public function delete_user($userId, $action = 0)
-    {
-        $userModel = model(UsersModel::class);
+public function delete_user($userId, $action = 0)
+{
+    $userModel = model(UsersModel::class);
         $AccessTimModel = model(AccessTimModel::class);
         $badgeModel = model(BadgesModel::class);
         $logSyncModel = model(LogsModel::class);
         $planningModel = model(PlanningsModel::class);
         $userPlanningModel = model(UserPlanningsModel::class);
 
-        $user = $userModel->get_user($userId);
+    $user = $userModel->get_user($userId);
 
-        if (!$user) {
-            return redirect()->to(base_url('Users'));
-        }
+    if (!$user) {
+        return redirect()->to(base_url('Users'));
+    }
 
-        switch ($action) {
-            case 0:
-                return $this->display_view('Timbreuse\Views\users\delete_user', $user);
-                break;
+    switch ($action) {
+        case 0:
+            return $this->display_view('Timbreuse\Views\users\delete_user', $user);
+            break;
 
-            case 1:
+        case 1:
                 is_null($user['id']) ?: $userModel->delete($user['id']);
                 $userModel->delete($timUserId);
-                break;
-            
-            case 2:
-                $confirmation = $this->request->getPost('confirmation');
-                if ($this->request->getMethod() === 'post' && !is_null($confirmation)) {
+            break;
+
+        case 2:
+            $confirmation = $this->request->getPost('confirmation');
+            if ($this->request->getMethod() === 'post' && !is_null($confirmation)) {
                     $userPlannings = $userPlanningModel->where('id_user', $userId)->findAll();
                     $AccessTimModel->where('id_user', $userId)->where('id_ci_user', $user['id'])->delete(null, true);
                     is_null($user['id']) ?: $userModel->delete($user['id'], true);
@@ -157,12 +157,12 @@ class Users extends BaseController
                         $planningModel->delete($userPlanning['id_planning'], true);
                     }
                     $userModel->delete($userId, true);
-                }
-                break;
-        }
+            }
+            break;
+    }
 
         return redirect()->to(base_url('Users'));
-    }
+}
 
     
     protected function get_badge_id_for_edit_tim_user($timUserId)
@@ -198,19 +198,7 @@ class Users extends BaseController
         return $data;
     }
 
-    protected function get_user_data_for_edit_user($userId){
-        $userModel = model(UsersModel::class);
-        $user = $userModel->get_user($userId);
-        $data = $user;
 
-        foreach ($data as $key => $value) {
-            if ($value === null) {
-                $data[$key] = "";
-            }        
-        }
-
-        return $data;
-    }
 
     /**
      * Display edit user form
@@ -237,22 +225,43 @@ class Users extends BaseController
         return $this->display_view('Timbreuse\Views\users\edit_user', $data);
     }
 
+    /**
+     * Edit a user existing only in the user table and not in user_sync table.
+     * Creates an entry in user_sync and access_tim_user tables, then redirect to edit_tim_user. 
+     *  
+     * @param  int $userId: id of the user in user table
+     * @return string|Response
+     */
     public function edit_user(int $userId): string|Response
     {
-        $userTypeModel = model(User_type_model::class);
-        $data = $this->get_user_data_for_edit_user($userId);        
-        $userTypes = $userTypeModel->orderBy('access_level')->select('id, name')->findAll();
-        $data['userTypes'] = array_column($userTypes, 'name', 'id');
-        $data['errors'] = [];
-        if ($this->request->getMethod() === 'post') {
-            $data['errors'] = $this->post_edit_tim_user($userId);
+        $userSyncModel = model(UsersModel::class);
+        $accessTimModel = model(AccessTimModel::class);
 
-            if (empty($data['errors'])) {
-                return redirect()->to(base_url('Users'));
-            }
+        //Check if user already exists in access_tim_user table
+        $existingUser = $accessTimModel->where('id_ci_user', $userId)->first();
+
+        if (empty($existingUser)){
+            //Create entries in user_sync and access_tim_user tables
+            $data = [
+                'name' => lang('tim_lang.name'),
+                'surname' => lang('tim_lang.surname')
+            ];
+
+            $userSyncModel->insert($data);
+            $timUserId = $userSyncModel->getInsertId();
+
+            $data = [
+                'id_user' => $timUserId,
+                'id_ci_user' => $userId
+            ];
+
+            $accessTimModel->insert($data);
+        } else{
+            //User already exists in access_tim_user table, redirect
+            $timUserId = $existingUser['id_user'];
         }
 
-        return $this->display_view('Timbreuse\Views\users\edit_user', $data);
+        return redirect()->to(base_url('Users/edit_tim_user/'. $timUserId));
     }
 
     /**
@@ -269,7 +278,6 @@ class Users extends BaseController
             $userSyncModel = model(UsersModel::class);
             $badgeModel = model(BadgesModel::class);
             $accessTimModel = model(AccessTimModel::class);
-
             $userId = intval($this->request->getPost('userId'));
             $username = $this->request->getPost('username');
             $email = $this->request->getPost('email');
@@ -303,8 +311,9 @@ class Users extends BaseController
                         $updateUser['fk_user_type'] = $userType;
                     }
                     $updateUser['id'] = $userId;
-    
+
                     $userModel->save($updateUser);
+
                 } else {
                     $updateUser['fk_user_type'] = $userType;
                     $insertedUserId = $this->create_ci_user($updateUser, $userModel);
