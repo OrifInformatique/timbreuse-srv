@@ -77,8 +77,7 @@ class UsersModel extends Model
                     user ON user.id = access_tim_user.id_ci_user
                 LEFT JOIN 
                     user_type ON user.fk_user_type = user_type.id
-                WHERE 
-                    user_sync.date_delete IS NULL
+                WHERE user_sync.date_delete IS NULL AND user.archive IS NULL
             )
             UNION
             (
@@ -91,13 +90,12 @@ class UsersModel extends Model
                     user ON user.id = access_tim_user.id_ci_user
                 LEFT JOIN 
                     user_type ON user.fk_user_type = user_type.id
-                WHERE 
-                    user_sync.date_delete IS NULL
+                WHERE user_sync.date_delete IS NULL AND user.archive IS NULL
             )
         ";
     
         if ($with_deleted) {
-            $sql = str_replace("WHERE user_sync.date_delete IS NULL", "", $sql);
+            $sql = str_replace("WHERE user_sync.date_delete IS NULL AND user.archive IS NULL", "", $sql);
         }
     
         $sql .= " ORDER BY surname";

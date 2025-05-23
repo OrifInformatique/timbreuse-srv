@@ -32,7 +32,10 @@ class Users extends BaseController
 
     public function index(bool $with_deleted = false)
     {
+        //Load model
         $model = model(UsersModel::class);
+        
+        //Stores column headers in $data
         $data['title'] = lang('tim_lang.users');
         $data['list_title'] = lang('tim_lang.users');
 
@@ -44,9 +47,17 @@ class Users extends BaseController
             'user_type' => ucfirst(lang('user_lang.field_usertype')),
             'archive' => ucfirst(lang('user_lang.field_user_active')),
         ];
+
+        //Stores users in $data
         $data['items'] = $model->get_users($with_deleted);
+
+        //Displays whether the user is activated or not
         foreach($data['items'] as $i => $item) {
             $data['items'][$i]['archive'] =  lang($item['archive'] || $item['date_delete'] ? 'common_lang.no' : 'common_lang.yes');
+        //
+            if (!is_null($item['archive']) && is_null($item['date_delete'])) {
+                $data['items'][$i]['date_delete'] = $item['archive'];
+            }
         }
         
         $data['primary_key_field'] = 'id_user';
@@ -414,19 +425,24 @@ class Users extends BaseController
      * @param int $timUserId = ID of the user to affect
      * @return Response
      */
-    public function reactivate_user(int $timUserId): Response
+    public function reactivate_user(int $userId): Response
     {
         $userSyncModel = model(UsersModel::class);
         $userModel = model(User_model::class);
 
-        $user = $userSyncModel->get_tim_user($timUserId);
-
+        $user = $userSyncModel->get_tim_user($userId);
         if (is_null($user)) {
-            return redirect()->to(base_url('Users'));
+            $user = $userModel->find($userId);
         } else {
             $userSyncModel->update($timUserId, ['date_delete' => null]);
             is_null($user['id']) ?: $userModel->update($user['id'], ['archive' => null]);
             return redirect()->to(previous_url());
+        }
+
+        if (is_null($user)) {
+            return redirect()->to(base_url('Users'));
+        } else {
+            $userModel->update($user['id'], ['archive' => null]);
         }
     }
 
