@@ -4,7 +4,7 @@
             <div class="col-12">
                 <?php if (isset($_SESSION['user_id']) && $_SESSION['user_id'] != $id): ?>
                     <div>
-                        <h1><?= lang('user_lang.user').' "'.esc($name).' '.esc($surname).'"' ?></h1>
+                        <h1><?= lang('user_lang.user').' "'.esc($name).'"' ?></h1>
                         <h4><?= lang('user_lang.what_to_do')?></h4>
                         <div class = "alert alert-info" ><?= lang('user_lang.user_delete_explanation')?></div>
                         <?php if ($archive || $date_delete): ?>
