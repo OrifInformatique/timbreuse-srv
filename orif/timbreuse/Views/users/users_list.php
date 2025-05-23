@@ -234,17 +234,33 @@
                         <!-- Bootstrap restore icon "arrow-counterclockwise", redirect to url_restore,
                                 adding/primary_key as parameter -->
                         <?php if ((isset($url_restore)) and (isset($itemEntity[$deleted_field]) &&  !empty($itemEntity[$deleted_field]))) : ?>
-                            <a href="<?= site_url(esc($url_restore . $itemEntity[$primary_key_field])) ?>"
-                                    class="text-decoration-none" title="<?=lang('common_lang.btn_restore') ?>" >
-                                <i class="bi bi-arrow-counterclockwise" style="font-size: 20px;"></i>
-                            </a>
+                            <?php if (!empty($itemEntity[$primary_key_field])) : ?>
+                                <!-- User exists in user_sync table, use this table primary_key as parameter for url_restore -->
+                                <a href="<?= site_url(esc($url_restore . $itemEntity[$primary_key_field])) ?>"
+                                        class="text-decoration-none" title="<?=lang('common_lang.btn_restore') ?>" >
+                                    <i class="bi bi-arrow-counterclockwise" style="font-size: 20px;"></i>
+                                </a>
+                            <?php else: ?>
+                                <!-- User doesn't exist in user_sync table, use the user table primary_key as parameter for url_restore -->
+                                <a href="<?= site_url(esc($url_restore_user . $itemEntity[$primary_key_field_user])) ?>"
+                                        class="text-decoration-none" title="<?=lang('common_lang.btn_restore') ?>" >
+                                    <i class="bi bi-arrow-counterclockwise" style="font-size: 20px;"></i>
+                                </a>
+                            <?php endif ?>
                         <?php endif ?>
                         <?php if ((isset($url_delete)) and (isset($itemEntity[$deleted_field]) &&  !empty($itemEntity[$deleted_field]))) : ?>
                             <!-- Bootstrap delete icon ("Trash") with red color, redirect to url_delete, adding /primary_key as parameter -->
-                            <a href="<?= site_url(esc($url_delete.$itemEntity[$primary_key_field])) ?>"
-                                    class="text-decoration-none" title="<?=lang('common_lang.btn_hard_delete') ?>" >
-                                <i class="bi bi-trash text-danger" style="font-size: 20px;"></i>
-                            </a>
+                            <?php if (!empty($itemEntity[$primary_key_field])) : ?>
+                                <a href="<?= site_url(esc($url_delete.$itemEntity[$primary_key_field])) ?>"
+                                        class="text-decoration-none" title="<?=lang('common_lang.btn_hard_delete') ?>" >
+                                    <i class="bi bi-trash text-danger" style="font-size: 20px;"></i>
+                                </a>
+                            <?php else: ?>
+                                <a href="<?= site_url(esc($url_delete_user.$itemEntity[$primary_key_field_user])) ?>"
+                                        class="text-decoration-none" title="<?=lang('common_lang.btn_hard_delete') ?>" >
+                                    <i class="bi bi-trash text-danger" style="font-size: 20px;"></i>
+                                </a>
+                            <?php endif ?> 
                         <?php endif ?>
                     </td>
                 </tr>

@@ -70,7 +70,8 @@ class Users extends BaseController
         $data['url_delete'] = 'Users/delete_tim_user/';
         $data['url_delete_user'] = 'Users/delete_user/';
         $data['with_deleted'] = $with_deleted;
-        $data['url_restore'] = 'Users/reactivate_user/';
+        $data['url_restore'] = 'Users/reactivate_tim_user/';
+        $data['url_restore_user'] = 'Users/reactivate_user/';
         $data['url_getView'] = 'Users/index/';
         $data['url_create'] = 'Users/create_user';
 
@@ -425,24 +426,44 @@ class Users extends BaseController
      * @param int $timUserId = ID of the user to affect
      * @return Response
      */
-    public function reactivate_user(int $userId): Response
+    public function reactivate_tim_user(int $userId): Response
     {
+        // Model for user_sync table
         $userSyncModel = model(UsersModel::class);
+        // Model for user table
         $userModel = model(User_model::class);
 
         $user = $userSyncModel->get_tim_user($userId);
         if (is_null($user)) {
-            $user = $userModel->find($userId);
+            // User not found, redirect to users list
+            return redirect()->to(base_url('Users'));
         } else {
-            $userSyncModel->update($timUserId, ['date_delete' => null]);
+            // User found in user_sync table, reactivate it in both user_sync and user tables
+            $userSyncModel->update($userId, ['date_delete' => null]);
             is_null($user['id']) ?: $userModel->update($user['id'], ['archive' => null]);
             return redirect()->to(previous_url());
         }
+    }
 
+    /**
+     * Reactivate a disabled user, only existing in user table and not in user_sync table.
+     *
+     * @param int $userId = ID of the user to affect
+     * @return Response
+     */
+    public function reactivate_user(int $userId): Response
+    {
+        // Model for user table
+        $userModel = model(User_model::class);
+
+        $user = $userModel->withDeleted()->find($userId);
         if (is_null($user)) {
+            // User not found in user table, redirect to users list
             return redirect()->to(base_url('Users'));
         } else {
-            $userModel->update($user['id'], ['archive' => null]);
+            // User found in user table, reactivate it
+            $userModel->update($userId, ['archive' => null]);
+            return redirect()->to(previous_url());
         }
     }
 
