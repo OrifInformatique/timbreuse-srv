@@ -224,7 +224,6 @@ class PersoLogs extends BaseController
         $data['buttons'] = array_merge($this->create_buttons($period, $timUserId), $data['buttons']);
         $data['buttons'] = array_merge($this->create_time_links($day, $period), $data['buttons']);
         array_push($data['buttons'], $this->create_planning_link($timUserId));
-        array_push ($data['buttons'], $this->create_event_planning_link($timUserId));
         array_push ($data['buttons'], $this->create_user_group_link($timUserId));
         return $data;
     }
