@@ -31,8 +31,11 @@ class LogsAPI extends BaseController
         if ($token !== create_token($date, $badgeId, $inside)) {
             return $this->failUnauthorized();
         }
-        $userId = $badgeModel->select('id_user')->find($badgeId);
-        $data += $userId;
+        $user = $badgeModel->select('id_user')->find($badgeId);
+        if (!is_array($user) || !array_key_exists('id_user', $user)) {
+            return $this->failNotFound('badge not found');
+        }
+        $data['id_user'] = $user['id_user'];
         $data['date_badge'] = $date;
         if ($logModel->is_replicate($date, $badgeId, $inside) or 
             $logModel->insert($data))

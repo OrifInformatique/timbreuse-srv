@@ -9,6 +9,7 @@ use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Timbreuse\Models\BadgesModel;
 use Timbreuse\Models\UsersModel;
+use Timbreuse\Models\EventTypeModel;
 
 use CodeIgniter\I18n\Time;
 
@@ -96,11 +97,15 @@ class Badges extends BaseController
     private function delete_badge_post($badgeId)
     {
         $badgeModel = model(badgesModel::class);
+        $eventTypeModel = model(EventTypeModel::class);
         $badgeData['id_user'] = NULL;
         $badgeModel->transStart();
         if (!is_null($badgeId)) {
             $badgeModel->update($badgeId, $badgeData);
             $badgeModel->delete($badgeId);
+            $eventTypeModel->log_hard_delete('badge', (int) $badgeId, [
+                'source' => 'Badges::delete_badge_post',
+            ]);
         }
         $badgeModel->transComplete();
         return redirect()->to(current_url() . '/../..');

@@ -15,6 +15,7 @@ use Timbreuse\Models\BadgesModel;
 use Timbreuse\Models\LogsModel;
 use Timbreuse\Models\PlanningsModel;
 use Timbreuse\Models\UserPlanningsModel;
+use Timbreuse\Models\EventTypeModel;
 use User\Models\User_type_model;
 
 class Users extends BaseController
@@ -101,6 +102,7 @@ class Users extends BaseController
                 $confirmation = $this->request->getPost('confirmation');
                 if ($this->request->getMethod() === 'post' && !is_null($confirmation)) {
                     $userPlannings = $userPlanningModel->where('id_user', $timUserId)->findAll();
+                    $eventTypeModel = model(EventTypeModel::class);
                     $AccessTimModel->where('id_user', $timUserId)->where('id_ci_user', $user['id'])->delete(null, true);
                     is_null($user['id']) ?: $userModel->delete($user['id'], true);
                     $badgeModel->set_user_id_to_null($timUserId);
@@ -110,6 +112,9 @@ class Users extends BaseController
                         $planningModel->delete($userPlanning['id_planning'], true);
                     }
                     $userSyncModel->delete($timUserId, true);
+                    $eventTypeModel->log_hard_delete('user', $timUserId, [
+                        'ci_user_id' => $user['id'] ?? null,
+                    ]);
                 }
                 break;
         }
